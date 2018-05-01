@@ -1,0 +1,83 @@
+#pragma once
+
+#include "mono_config.h"
+
+#include "mono_assembly.h"
+#include "mono_exception.h"
+#include "mono_object.h"
+#include "mono_string.h"
+#include "mono_thunk_base.h"
+#include "mono_type_conversion.h"
+#include <mono/jit/jit.h>
+#include <string>
+#include <utility>
+
+namespace mono
+{
+
+template <typename return_type_t>
+class mono_method_thunk;
+
+template <typename... args_t>
+class mono_method_thunk<void(args_t...)> : public mono_thunk_base<void(MonoObject*, args_t...)>,
+										   public mono_object
+{
+public:
+	mono_method_thunk()
+		: mono_thunk_base<void(MonoObject*, args_t...)>()
+		, mono_object()
+	{
+	}
+
+	explicit mono_method_thunk(mono_assembly& assembly, MonoObject* object, MonoMethod* method)
+		: mono_thunk_base<void(MonoObject*, args_t...)>(assembly, method)
+		, mono_object(object)
+	{
+	}
+
+	void operator()(args_t... args)
+	{
+		MonoException* ex = nullptr;
+		this->method_(this->object_,
+					  convert_mono_type<args_t>::to_mono(*this->assembly_, std::forward<args_t>(args))...,
+					  &ex);
+
+		if(ex)
+			throw mono_thunk_exception(ex);
+	}
+};
+
+template <typename return_type_t, typename... args_t>
+class mono_method_thunk<return_type_t(args_t...)>
+	: public mono_thunk_base<return_type_t(MonoObject*, args_t...)>, public mono_object
+{
+public:
+	mono_method_thunk()
+		: mono_thunk_base<return_type_t(MonoObject*, args_t...)>()
+		, mono_object()
+	{
+	}
+
+	explicit mono_method_thunk(mono_assembly& assembly, MonoObject* object, MonoMethod* method)
+		: mono_thunk_base<return_type_t(MonoObject*, args_t...)>(assembly, method)
+		, mono_object(object)
+	{
+	}
+
+	~mono_method_thunk() = default;
+
+	auto operator()(args_t... args)
+	{
+		MonoException* ex = nullptr;
+		auto result = this->method_(
+			this->object_,
+			convert_mono_type<args_t>::to_mono(*this->assembly_, std::forward<args_t>(args))..., &ex);
+
+		if(ex)
+			throw mono_thunk_exception(ex);
+
+		return convert_mono_type<return_type_t>::from_mono(std::move(result));
+	}
+};
+
+} // namespace mono
