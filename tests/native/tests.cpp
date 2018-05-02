@@ -29,6 +29,7 @@ struct log
 void test_mono_jit_get_assembly_fail(mono::mono_domain& domain)
 {
     log l(__func__);
+
 	try
 	{
 		domain.get_assembly("some_assembly_that_doesnt_exist_12345.dll");
@@ -44,7 +45,7 @@ void test_mono_jit_get_assembly(mono::mono_domain& domain)
     log l(__func__);    
 	try
 	{
-		domain.get_assembly("managed_lib.dll");
+		domain.get_assembly("managed.dll");
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -58,7 +59,7 @@ void test_mono_jit_get_class_fail(mono::mono_domain& domain)
     log l(__func__);    
 	try
 	{
-		auto& assembly = domain.get_assembly("managed_lib.dll");
+		auto& assembly = domain.get_assembly("managed.dll");
 		try
 		{
 			auto cls = assembly.get_class("SomeClassThatDoesntExist12345");
@@ -80,7 +81,7 @@ void test_mono_jit_get_class(mono::mono_domain& domain)
     log l(__func__);    
 	try
 	{
-		auto& assembly = domain.get_assembly("managed_lib.dll");
+		auto& assembly = domain.get_assembly("managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 	}
 	catch(mono::mono_exception& ex)
@@ -95,7 +96,7 @@ void test_mono_jit_get_method(mono::mono_domain& domain)
     log l(__func__);    
 	try
 	{
-		auto& assembly = domain.get_assembly("managed_lib.dll");
+		auto& assembly = domain.get_assembly("managed.dll");
 
 		auto cls = assembly.get_class("ClassInstanceTest");
 
@@ -119,7 +120,7 @@ void test_mono_jit_get_field(mono::mono_domain &domain)
     log l(__func__);    
 	try
 	{
-		auto& assembly = domain.get_assembly("managed_lib.dll");
+		auto& assembly = domain.get_assembly("managed.dll");
 
 		auto cls = assembly.get_class("ClassInstanceTest");
 
@@ -143,7 +144,7 @@ void test_mono_jit_get_field_fail(mono::mono_domain &domain)
     log l(__func__);    
 	try
 	{
-		auto& assembly = domain.get_assembly("managed_lib.dll");
+		auto& assembly = domain.get_assembly("managed.dll");
 
 		auto cls = assembly.get_class("ClassInstanceTest");
 
@@ -165,7 +166,7 @@ void test_mono_jit_get_field_fail(mono::mono_domain &domain)
 void test_mono_call_thunk(mono::mono_domain& domain)
 {
     log l(__func__);    
-	auto& assembly = domain.get_assembly("managed_lib.dll");
+	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<int(int)>("FunctionWithIntParam");
 	const auto number = 1000;
@@ -176,7 +177,7 @@ void test_mono_call_thunk(mono::mono_domain& domain)
 void test_mono_call_thunk2(mono::mono_domain& domain)
 {
     log l(__func__);    
-	auto& assembly = domain.get_assembly("managed_lib.dll");
+	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<void(float, int, float)>("VoidFunction");
 	method_thunk(13.37f, 42, 9000.0f);
@@ -185,7 +186,7 @@ void test_mono_call_thunk2(mono::mono_domain& domain)
 void test_mono_call_thunk3(mono::mono_domain& domain)
 {
     log l(__func__);    
-	auto& assembly = domain.get_assembly("managed_lib.dll");
+	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<void(std::string)>("FunctionWithStringParam");
 	method_thunk("Hello!");
@@ -194,7 +195,7 @@ void test_mono_call_thunk3(mono::mono_domain& domain)
 void test_mono_call_thunk4(mono::mono_domain& domain)
 {
     log l(__func__);    
-	auto& assembly = domain.get_assembly("managed_lib.dll");
+	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<std::string(std::string)>("StringReturnFunction");
 	auto expected_string = std::string("Hello!");
@@ -205,7 +206,7 @@ void test_mono_call_thunk4(mono::mono_domain& domain)
 void test_mono_call_thunk_with_exception(mono::mono_domain& domain)
 {
     log l(__func__);    
-	auto& assembly = domain.get_assembly("managed_lib.dll");
+	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<void()>("ExceptionFunction");
 	try
@@ -221,7 +222,7 @@ void test_mono_call_thunk_with_exception(mono::mono_domain& domain)
 void test_mono_call_method(mono::mono_domain& domain)
 {
     log l(__func__);    
-	auto& assembly = domain.get_assembly("managed_lib.dll");
+	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto cls_instance = assembly.new_class_instance(cls);
 	auto method_thunk = cls_instance.get_method_thunk<void()>("Method");
@@ -238,7 +239,7 @@ void test_mono_call_method(mono::mono_domain& domain)
 void test_mono_call_method2(mono::mono_domain& domain)
 {
     log l(__func__);    
-	auto& assembly = domain.get_assembly("managed_lib.dll");
+	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto cls_instance = assembly.new_class_instance(cls);
 	auto method_thunk =

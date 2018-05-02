@@ -1,7 +1,5 @@
 include(Mono)
 
-message(STATUS "Building with MONO support.")
-
 set(_MONO_ASSEMBLY_DIR ${MONO_ASSEMBLY_PATH})
 set(_MONO_CONFIG_DIR ${MONO_CONFIG_PATH})
 

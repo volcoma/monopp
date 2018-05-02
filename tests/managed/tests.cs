@@ -1,5 +1,10 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.IO;
+using System.Text;
+using System.Net;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ethereal
 {
@@ -35,12 +40,66 @@ public class ClassInstanceTest
         
     public ClassInstanceTest()
     {
+        string path = @"/home/default/MyTest.txt";
+
+                try
+                {
+
+                    // Delete the file if it exists.
+                    if (File.Exists(path))
+                    {
+                        // Note that no lock is put on the
+                        // file and the possibility exists
+                        // that another process could do
+                        // something with it between
+                        // the calls to Exists and Delete.
+                        File.Delete(path);
+                    }
+
+                    // Create the file.
+                    using (FileStream fs = File.Create(path))
+                    {
+                        Byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
+                        // Add some information to the file.
+                        fs.Write(info, 0, info.Length);
+                    }
+
+                    // Open the stream and read it back.
+                    using (StreamReader sr = File.OpenText(path))
+                    {
+                        string s = "";
+                        while ((s = sr.ReadLine()) != null)
+                        {
+                            Console.WriteLine(s);
+                        }
+                    }
+                }
+
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+
+        //string search = "lookforme";
+        List<int> myList = new List<int>();
+        myList.Add(1);
+        myList.Add(2);
+        myList.Add(3);
+        myList.Add(4);
+        var result = myList.Where(s => s > 2);
+        foreach(var r in result)
+        {
+            Console.WriteLine(r);
+        }
+
+
+
         Console.WriteLine("FROM C# : ClassInstanceTest created.");
 
-        Ethereal.MyObject s = new Ethereal.MyObject();
-        s.DoStuff("Hello from C#!");
+        Ethereal.MyObject s1 = new Ethereal.MyObject();
+        s1.DoStuff("Hello from C#!");
 
-        Console.WriteLine("FROM C# : " + s.ReturnAString("Testing ReturnAString."));
+        Console.WriteLine("FROM C# : " + s1.ReturnAString("Testing ReturnAString."));
     }
 
     ~ClassInstanceTest()
