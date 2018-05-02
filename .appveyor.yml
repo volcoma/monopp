@@ -51,9 +51,15 @@ install:
   #######################################################################################
   # Install Mono
   #######################################################################################
-  - set MONO_URL="https://download.mono-project.com/archive/5.12.0/windows-installer/mono-5.12.0-x64-0.msi"
-  - appveyor DownloadFile %MONO_URL% -FileName mono.msi
-  - msiexec.exe /i mono.msi /quiet
+  - IF "%ARCHITECTURE%" == "x64"
+    set MONO_URL="https://download.mono-project.com/archive/5.12.0/windows-installer/mono-5.12.0-x64-0.msi"
+    appveyor DownloadFile %MONO_URL% -FileName mono.msi
+    msiexec.exe /i mono.msi /quiet
+  - IF "%ARCHITECTURE%" == "x86"
+    set MONO_URL="mono-5.12.0.223-gtksharp-2.12.45-win32-0.msi"
+    appveyor DownloadFile %MONO_URL% -FileName mono.msi
+    msiexec.exe /i mono.msi /quiet
+  
   #######################################################################################
   # Install MinGW
   #######################################################################################
