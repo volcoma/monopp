@@ -1,3 +1,8 @@
+
+if (WIN32)
+	message(STATUS "Search path is: $ENV{PROGRAMFILES}")
+endif()
+
 find_program(
     MONO_EXECUTABLE 
 		mono
