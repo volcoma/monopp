@@ -54,7 +54,7 @@ install:
   - set MONO_x64_URL="https://download.mono-project.com/archive/5.12.0/windows-installer/mono-5.12.0-x64-0.msi"
   - appveyor DownloadFile %MONO_x64_URL% -FileName mono_x64.msi
   - msiexec.exe /i mono_x64.msi /quiet
-  - set MONO_x86_URL="mono-5.12.0-gtksharp-2.12.45-win32-0.msi"
+  - set MONO_x86_URL="https://download.mono-project.com/archive/5.12.0/windows-installer/mono-5.12.0-gtksharp-2.12.45-win32-0.msi"
   - appveyor DownloadFile %MONO_x86_URL% -FileName mono_x86.msi
   - msiexec.exe /i mono_x86.msi /quiet
   
