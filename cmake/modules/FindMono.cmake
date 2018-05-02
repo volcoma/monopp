@@ -1,13 +1,26 @@
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    # 64 bits
+	set (MONO_DEFAULT_INSTALL_PATH
+		"C:/Program Files"
+	)
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    # 32 bits
+	set (MONO_DEFAULT_INSTALL_PATH
+		"C:/Program Files (x86)"
+	)
+endif()
+
 
 if (WIN32)
-	message(STATUS "Search path is: $ENV{PROGRAMFILES}")
+	message(STATUS "Search path is: ${MONO_DEFAULT_INSTALL_PATH}")
 endif()
+
 
 find_program(
     MONO_EXECUTABLE 
 		mono
     PATHS
-		$ENV{PROGRAMFILES}/Mono/bin
+		${MONO_DEFAULT_INSTALL_PATH}/Mono/bin
 		/bin
 		/usr/bin
 		/usr/local/bin
@@ -21,7 +34,7 @@ if (WIN32)
         MONO_MCS_EXECUTABLE 
 			mcs.bat
         PATHS
-			$ENV{PROGRAMFILES}/Mono/bin
+			${MONO_DEFAULT_INSTALL_PATH}/Mono/bin
 			/bin
 			/usr/bin
 			/usr/local/bin
@@ -31,7 +44,7 @@ else ()
 		MONO_MCS_EXECUTABLE 
 			mcs
         PATHS
-			$ENV{PROGRAMFILES}/Mono/bin
+			${MONO_DEFAULT_INSTALL_PATH}/Mono/bin
 			/bin
 			/usr/bin
 			/usr/local/bin
@@ -42,7 +55,7 @@ find_program(
     MONO_PKG_CONFIG_EXECUTABLE 
 		pkg-config
 	PATHS
-		$ENV{PROGRAMFILES}/Mono/bin
+		${MONO_DEFAULT_INSTALL_PATH}/Mono/bin
 		/bin
 		/usr/bin
 		/usr/local/bin
@@ -51,7 +64,7 @@ find_program(
 find_library(
     MONO_MAIN_LIBRARY NAMES mono-2.0 mono-2.0-sgen
     PATHS
-		$ENV{PROGRAMFILES}/Mono/lib
+		${MONO_DEFAULT_INSTALL_PATH}/Mono/lib
 		/usr/lib64
 		/usr/lib
 		/usr/local/lib64
@@ -62,7 +75,7 @@ find_library(
 )
 
 #find_path( mono-2.0_INCLUDE_PATH mono/jit/jit.h
-#		$ENV{PROGRAMFILES}/Mono/include/*
+#		${MONO_DEFAULT_INSTALL_PATH}/Mono/include/*
 #		/usr/include/mono-2.0
 #		/usr/local/include
 #		/opt/local/include
