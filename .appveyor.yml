@@ -64,7 +64,7 @@ install:
 
 before_build:
   - cmd: cd C:\projects\monopp
-  - IF "%ARCHITECTURE%" == "x86" IF "%COMPILER%" == "MSVC_15" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\vsdevcmd.bat" -arch=x86 -host_arch=x86
+  - IF "%ARCHITECTURE%" == "x86" IF "%COMPILER%" == "MSVC_15" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\vsdevcmd.bat" -arch=x86 -host_arch=x6
   - IF "%ARCHITECTURE%" == "x64" IF "%COMPILER%" == "MSVC_15" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\vsdevcmd.bat" -arch=x64 -host_arch=x64
   - IF "%ARCHITECTURE%" == "x86" IF "%COMPILER%" == "MSVC_14" call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\vsvars32.bat"
   - IF "%ARCHITECTURE%" == "x64" IF "%COMPILER%" == "MSVC_14" call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\vcvarsx86_amd64.bat"
@@ -77,9 +77,7 @@ before_build:
 # we can use Ninja for all configurations
 #######################################################################################
 build_script:
-  - git submodule init
-  - git submodule update
-  - mkdir build
-  - cd build
+  - mkdir "build_%ARCHITECTURE%_%COMPILER%"
+  - cd "build_%ARCHITECTURE%_%COMPILER%"
   - cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ..
   - cmake --build .
