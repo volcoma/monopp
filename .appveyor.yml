@@ -52,7 +52,6 @@ install:
   # Install Mono
   #######################################################################################
   - ps: Start-FileDownload "https://download.mono-project.com/archive/5.12.0/windows-installer/mono-5.12.0-x64-0.msi"
-  - mono --version
   
   #######################################################################################
   # Install MinGW
@@ -94,6 +93,5 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - rm -rf *
   - cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ..
   - cmake --build .
