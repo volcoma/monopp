@@ -52,11 +52,6 @@ install:
   # Install Mono
   #######################################################################################
   - set MONO_URL="https://download.mono-project.com/archive/5.12.0/windows-installer/mono-5.12.0-x64-0.msi"
-  - appveyor DownloadFile %MONO_URL% -FileName mono.msi
-  - 7z x ninja.zip -oC:\projects\deps\ninja > nul
-  - set PATH=C:\projects\deps\ninja;%PATH%
-  
-
   - ps: Start-FileDownload $MONO_URL$
   - mono --version
   
