@@ -66,7 +66,7 @@ public:
 
 	~mono_method_thunk() = default;
 
-	auto operator()(args_t... args)
+	decltype(auto) operator()(args_t... args)
 	{
 		MonoException* ex = nullptr;
 		auto result = this->method_(

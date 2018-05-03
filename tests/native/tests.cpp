@@ -9,26 +9,26 @@ namespace tests
 {
 struct log
 {
-    log(const char* f)
-    {
-        separator();
-        std::cout << f << std::endl;
-    }
-    
-    ~log()
-    {
-        separator();
-    }
-    
-    void separator()
-    {
-        std::cout << "-------" << std::endl;        
-    }
+	log(const char* f)
+	{
+		separator();
+		std::cout << f << std::endl;
+	}
+
+	~log()
+	{
+		separator();
+	}
+
+	void separator()
+	{
+		std::cout << "-------" << std::endl;
+	}
 };
 
 void test_mono_jit_get_assembly_fail(mono::mono_domain& domain)
 {
-    log l(__func__);
+	log l(__func__);
 
 	try
 	{
@@ -42,7 +42,7 @@ void test_mono_jit_get_assembly_fail(mono::mono_domain& domain)
 
 void test_mono_jit_get_assembly(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	try
 	{
 		domain.get_assembly("managed.dll");
@@ -56,7 +56,7 @@ void test_mono_jit_get_assembly(mono::mono_domain& domain)
 
 void test_mono_jit_get_class_fail(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	try
 	{
 		auto& assembly = domain.get_assembly("managed.dll");
@@ -78,7 +78,7 @@ void test_mono_jit_get_class_fail(mono::mono_domain& domain)
 
 void test_mono_jit_get_class(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	try
 	{
 		auto& assembly = domain.get_assembly("managed.dll");
@@ -93,15 +93,13 @@ void test_mono_jit_get_class(mono::mono_domain& domain)
 
 void test_mono_jit_get_method(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	try
 	{
 		auto& assembly = domain.get_assembly("managed.dll");
 
 		auto cls = assembly.get_class("ClassInstanceTest");
-
 		auto obj = assembly.new_class_instance(cls);
-
 		auto method_Method = obj.get_method("Method");
 		auto method_MethodWithParameter = obj.get_method("MethodWithParameter", 1);
 		auto method_MethodWithParameterAndReturnValue =
@@ -114,23 +112,22 @@ void test_mono_jit_get_method(mono::mono_domain& domain)
 	}
 }
 
-
-void test_mono_jit_get_field(mono::mono_domain &domain)
+void test_mono_jit_get_field(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	try
 	{
 		auto& assembly = domain.get_assembly("managed.dll");
 
 		auto cls = assembly.get_class("ClassInstanceTest");
 
-        auto field = cls.get_field("someField");
+		auto field = cls.get_field("someField");
 		auto obj = assembly.new_class_instance(cls);
 
 		auto someField = obj.get_field_value<int>(field);
-        int a = 0;
-        a++;
-        (void)someField;
+		int a = 0;
+		a++;
+		(void)someField;
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -138,34 +135,32 @@ void test_mono_jit_get_field(mono::mono_domain &domain)
 	}
 }
 
-
-void test_mono_jit_get_field_fail(mono::mono_domain &domain)
+void test_mono_jit_get_field_fail(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	try
 	{
 		auto& assembly = domain.get_assembly("managed.dll");
 
 		auto cls = assembly.get_class("ClassInstanceTest");
 
-        auto field = cls.get_field("someField1");
+		auto field = cls.get_field("someField1");
 		auto obj = assembly.new_class_instance(cls);
 
 		auto someField = obj.get_field_value<int>(field);
-        int a = 0;
-        a++;
-        (void)someField;
+		int a = 0;
+		a++;
+		(void)someField;
 	}
 	catch(mono::mono_exception& ex)
 	{
 		std::cout << ex.what() << std::endl;
 	}
 }
-
 
 void test_mono_call_thunk(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<int(int)>("FunctionWithIntParam");
@@ -176,7 +171,7 @@ void test_mono_call_thunk(mono::mono_domain& domain)
 
 void test_mono_call_thunk2(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<void(float, int, float)>("VoidFunction");
@@ -185,7 +180,7 @@ void test_mono_call_thunk2(mono::mono_domain& domain)
 
 void test_mono_call_thunk3(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<void(std::string)>("FunctionWithStringParam");
@@ -194,7 +189,7 @@ void test_mono_call_thunk3(mono::mono_domain& domain)
 
 void test_mono_call_thunk4(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<std::string(std::string)>("StringReturnFunction");
@@ -203,9 +198,41 @@ void test_mono_call_thunk4(mono::mono_domain& domain)
 	assert(result == std::string("The string value was: " + expected_string));
 }
 
+void test_mono_call_thunk5(mono::mono_domain& domain)
+{
+	log l(__func__);
+	try
+	{
+		auto& assembly = domain.get_assembly("managed.dll");
+
+		auto cls = assembly.get_class("Compiler");
+
+		auto method_Method = cls.get_static_function("Compile", 2);
+		auto thunk = method_Method.get_thunk<bool(std::string, std::string)>();
+		thunk("test.cs", "test.dll");
+
+		auto& assembly2 = domain.get_assembly("test.dll");
+
+		auto cls2 = assembly2.get_class("Test");
+
+		auto field = cls2.get_field("member");
+		auto obj = assembly2.new_class_instance(cls2);
+
+		auto someField = obj.get_field_value<int>(field);
+
+		int a = someField;
+		a++;
+	}
+	catch(mono::mono_exception& ex)
+	{
+		std::cout << ex.what() << std::endl;
+		assert(false);
+	}
+}
+
 void test_mono_call_thunk_with_exception(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto method_thunk = cls.get_static_function_thunk<void()>("ExceptionFunction");
@@ -221,7 +248,7 @@ void test_mono_call_thunk_with_exception(mono::mono_domain& domain)
 
 void test_mono_call_method(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto cls_instance = assembly.new_class_instance(cls);
@@ -238,7 +265,7 @@ void test_mono_call_method(mono::mono_domain& domain)
 
 void test_mono_call_method2(mono::mono_domain& domain)
 {
-    log l(__func__);    
+	log l(__func__);
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto cls_instance = assembly.new_class_instance(cls);
@@ -271,15 +298,9 @@ std::string MyObject_ReturnAString(MonoObject* this_ptr, std::string value)
 
 void bind_mono()
 {
-	mono::add_internal_call("Ethereal.MyObject::CreateInternal",
-									  mono_auto_wrap(MyObject_CreateInternal));
-	mono::add_internal_call("Ethereal.MyObject::DestroyInternal",
-									  mono_auto_wrap(MyObject_DestroyInternal));
-	mono::add_internal_call("Ethereal.MyObject::DoStuff", 
-                                      mono_auto_wrap(MyObject_DoStuff));
-	mono::add_internal_call("Ethereal.MyObject::ReturnAString",
-                            mono_auto_wrap(MyObject_ReturnAString));
+	mono::add_internal_call("Ethereal.MyObject::CreateInternal", mono_auto_wrap(MyObject_CreateInternal));
+	mono::add_internal_call("Ethereal.MyObject::DestroyInternal", mono_auto_wrap(MyObject_DestroyInternal));
+	mono::add_internal_call("Ethereal.MyObject::DoStuff", mono_auto_wrap(MyObject_DoStuff));
+	mono::add_internal_call("Ethereal.MyObject::ReturnAString", mono_auto_wrap(MyObject_ReturnAString));
 }
-
-
 }
