@@ -6,7 +6,7 @@ int main()
 	if(false == mono::init("tests"))
 		return 1;
 	{
-		mono::mono_domain domain;
+		mono::mono_domain domain("test");
 		tests::test_mono(domain);
 	}
 //    {
@@ -14,9 +14,10 @@ int main()
 //		tests::test_mono(domain);
 //	}
     {
-        mono::mono_domain domain;
+        mono::mono_domain domain("test1");
         try
         {
+            //https://gist.github.com/bamboo/1207203
             auto& core_assembly = domain.get_assembly("managed_lib.dll");            
             auto& assembly = domain.get_assembly("managed.dll");
             

@@ -5,7 +5,12 @@
 
 #include <mono_build_config.h>
 #include <mono/metadata/assembly.h>
-
+#include <mono/metadata/debug-helpers.h>
+#include <mono/metadata/threads.h>
+extern "C" {
+	#include <mono/metadata/mono-debug.h>
+}
+#include <mono/metadata/mono-gc.h>
 namespace mono
 {
 
@@ -31,9 +36,10 @@ auto mono_domain::get_mono_domain_ptr() -> MonoDomain*
     return domain_;
 }
 
-mono_domain::mono_domain()
+mono_domain::mono_domain(const std::string& name)
 {
-    domain_ = mono_domain_create();    
+    domain_ = mono_domain_create_appdomain((char*)name.c_str(), nullptr);
+    mono_domain_set (domain_, 0);
 }
 
 mono_domain::mono_domain(MonoDomain *domain)
@@ -45,8 +51,13 @@ mono_domain::~mono_domain()
 {
     if(domain_)
     {
-        mono_domain_free(domain_, true);
-        domain_ = nullptr;
+        mono_domain_set (mono_get_root_domain (), 0);
+        //mono_domain_unload (domain_);
+        mono_domain_free(domain_, false);
+
+        //mono_gc_collect (mono_gc_max_generation ());
+        //mono_domain_finalize(domain_, -1);
+        //domain_ = nullptr;
     }
 }
 

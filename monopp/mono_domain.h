@@ -16,7 +16,7 @@ namespace mono
 class mono_domain : public common::noncopyable
 {
 public:
-    mono_domain();
+    mono_domain(const std::string& name);
     mono_domain(MonoDomain* domain);    
 	~mono_domain();
 
