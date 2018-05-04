@@ -16,7 +16,7 @@ add_library(monopp ${libsrc})
 
 target_include_directories(monopp
     PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}/..
         ${MONO_INCLUDE_PATH}
         ${CMAKE_CURRENT_BINARY_DIR}
 )

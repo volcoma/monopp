@@ -1,6 +1,6 @@
 #pragma once
-#include "mono_jit.h"
-#include "mono_domain.h"
+#include "monopp/mono_jit.h"
+#include "monopp/mono_domain.h"
 
 #include <iostream>
 
@@ -21,7 +21,6 @@ void test_mono_call_thunk(mono::mono_domain& domain);
 void test_mono_call_thunk2(mono::mono_domain& domain);
 void test_mono_call_thunk3(mono::mono_domain& domain);
 void test_mono_call_thunk4(mono::mono_domain& domain);
-void test_mono_call_thunk5(mono::mono_domain& domain);
 void test_mono_call_thunk_with_exception(mono::mono_domain& domain);
 void test_mono_call_method(mono::mono_domain& domain);
 void test_mono_call_method2(mono::mono_domain& domain);
@@ -40,7 +39,6 @@ inline void test_mono(mono::mono_domain& domain)
     test_mono_call_thunk2(domain);
     test_mono_call_thunk3(domain);
     test_mono_call_thunk4(domain);
-    test_mono_call_thunk5(domain);
     test_mono_call_thunk_with_exception(domain);
     test_mono_call_method(domain);
     test_mono_call_method2(domain);

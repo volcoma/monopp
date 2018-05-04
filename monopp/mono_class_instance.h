@@ -5,6 +5,7 @@
 
 #include "mono_object.h"
 #include "mono_class_field.h"
+#include "mono_class_property.h"
 
 #include <cassert>
 #include <string>
@@ -44,7 +45,16 @@ public:
 	void get_field_value(mono_class_field& field, T& val) const;
 
 	template <typename T>
-	void set_field_value(mono_class_field& field, T& val) const;
+	void set_field_value(mono_class_field& field, const T& val) const;
+    
+    template <typename T>
+	auto get_property_value(mono_class_property& prop) const;
+
+	template <typename T>
+	void get_property_value(mono_class_property& prop, T& val) const;
+
+	template <typename T>
+	void set_property_value(mono_class_property& prop, const T& val) const;
 
 private:
 	MonoClass* class_ = nullptr;
@@ -76,11 +86,35 @@ void mono_class_instance::get_field_value(mono_class_field& field, T& val) const
 }
 
 template <typename T>
-void mono_class_instance::set_field_value(mono_class_field& field, T& val) const
+void mono_class_instance::set_field_value(mono_class_field& field, const T& val) const
 {
 	assert(object_);
 	assert(field.get_mono_class_field_ptr());
-	mono_field_set_value(object_, field.get_mono_class_field_ptr(), reinterpret_cast<void*>(&val));
+	mono_field_set_value(object_, field.get_mono_class_field_ptr(), const_cast<void*>(reinterpret_cast<const void*>(&val)));
+}
+
+template <typename T>
+auto mono_class_instance::get_property_value(mono_class_property& prop) const
+{
+    T val{};
+	get_property_value(prop, val);
+	return val;
+}
+
+template <typename T>
+void mono_class_instance::get_property_value(mono_class_property& prop, T& val) const
+{
+	assert(object_);
+	assert(prop.get_mono_class_property_ptr());
+	mono_property_get_value(prop.get_mono_class_property_ptr(), object_, &reinterpret_cast<void*>(&val), nullptr);
+}
+
+template <typename T>
+void mono_class_instance::set_property_value(mono_class_property& prop, const T& val) const
+{
+	assert(object_);
+	assert(prop.get_mono_class_property_ptr());
+	mono_property_set_value(prop.get_mono_class_property_ptr(), object_, &const_cast<void*>(reinterpret_cast<const void*>(&val)), nullptr);
 }
 
 } // namespace mono

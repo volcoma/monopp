@@ -2,6 +2,7 @@
 #include "mono_method.h"
 #include "mono_exception.h"
 #include "mono_class_field.h"
+#include "mono_class_property.h"
 #include <cassert>
 
 namespace mono
@@ -48,6 +49,12 @@ auto mono_class::get_mono_class_ptr() const -> MonoClass *
 auto mono_class::get_field(const std::string &name) const -> mono_class_field
 {
     return mono_class_field(*this, name);
+}
+
+
+auto mono_class::get_property(const std::string &name) const -> mono_class_property
+{
+    return mono_class_property(*this, name);
 }
 
 auto mono_class::get_name() const -> std::string

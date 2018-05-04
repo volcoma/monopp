@@ -13,6 +13,7 @@ namespace mono
 
 class mono_assembly;
 class mono_class_field;
+class mono_class_property;
 
 class mono_class : public common::noncopyable
 {
@@ -34,6 +35,7 @@ public:
 	auto get_mono_class_ptr() const -> MonoClass*;
 
 	auto get_field(const std::string& name) const -> mono_class_field;
+    auto get_property(const std::string& name) const -> mono_class_property;
 
 	auto get_name() const -> std::string;
 

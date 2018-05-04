@@ -1,9 +1,9 @@
 #include "tests.h"
-#include "mono_assembly.h"
-#include "mono_class.h"
-#include "mono_class_instance.h"
-#include "mono_method.h"
-#include "mono_string.h"
+#include "monopp/mono_assembly.h"
+#include "monopp/mono_class.h"
+#include "monopp/mono_class_instance.h"
+#include "monopp/mono_method.h"
+#include "monopp/mono_string.h"
 
 namespace tests
 {
@@ -198,37 +198,6 @@ void test_mono_call_thunk4(mono::mono_domain& domain)
 	assert(result == std::string("The string value was: " + expected_string));
 }
 
-void test_mono_call_thunk5(mono::mono_domain& domain)
-{
-	log l(__func__);
-	try
-	{
-		auto& assembly = domain.get_assembly("managed.dll");
-
-		auto cls = assembly.get_class("Compiler");
-
-		auto method_Method = cls.get_static_function("Compile", 2);
-		auto thunk = method_Method.get_thunk<bool(std::string, std::string)>();
-		thunk("test.cs", "test.dll");
-
-		auto& assembly2 = domain.get_assembly("test.dll");
-
-		auto cls2 = assembly2.get_class("Test");
-
-		auto field = cls2.get_field("member");
-		auto obj = assembly2.new_class_instance(cls2);
-
-		auto someField = obj.get_field_value<int>(field);
-
-		int a = someField;
-		a++;
-	}
-	catch(mono::mono_exception& ex)
-	{
-		std::cout << ex.what() << std::endl;
-		assert(false);
-	}
-}
 
 void test_mono_call_thunk_with_exception(mono::mono_domain& domain)
 {

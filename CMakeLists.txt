@@ -24,4 +24,5 @@ set_output_paths()
 set_project_custom_defines()
 
 add_subdirectory(monopp)
+add_subdirectory(monort)
 add_subdirectory(tests)
