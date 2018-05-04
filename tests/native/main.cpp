@@ -9,10 +9,10 @@ int main()
 		mono::mono_domain domain;
 		tests::test_mono(domain);
 	}
-    {
-		mono::mono_domain domain;
-		tests::test_mono(domain);
-	}
+//    {
+//		mono::mono_domain domain;
+//		tests::test_mono(domain);
+//	}
     {
         mono::mono_domain domain;
         try
@@ -22,15 +22,16 @@ int main()
             
             auto cls = assembly.get_class("ClassInstanceTest");
             auto obj = assembly.new_class_instance(cls);
+            auto prop = cls.get_property("s");
+            obj.set_property_value(prop, 12);
+            auto s = obj.get_property_value<int>(prop);
+
             mono::managed_interface::object::initialize_class_field(core_assembly);
             mono::managed_interface::object::register_internal_calls();
 //            auto cls = assembly.get_class("Compiler");
 //            auto obj = assembly.new_class_instance(cls);
 //            auto func = cls.get_static_function_thunk<void()>("Compile");
-//            auto prop = cls.get_property("s");
-//            obj.set_property_value(prop, 12);
-//            auto s = obj.get_property_value<int>(prop);
-            
+
 //            mono::A a;
 //            func();
         }

@@ -106,7 +106,9 @@ void mono_class_instance::get_property_value(mono_class_property& prop, T& val) 
 {
 	assert(object_);
 	assert(prop.get_mono_class_property_ptr());
-	mono_property_get_value(prop.get_mono_class_property_ptr(), object_, &reinterpret_cast<void*>(&val), nullptr);
+    void* args[1];
+    args[0] = reinterpret_cast<void*>(&val);
+	mono_property_get_value(prop.get_mono_class_property_ptr(), object_, args, nullptr);
 }
 
 template <typename T>
@@ -114,7 +116,7 @@ void mono_class_instance::set_property_value(mono_class_property& prop, const T&
 {
 	assert(object_);
 	assert(prop.get_mono_class_property_ptr());
-	mono_property_set_value(prop.get_mono_class_property_ptr(), object_, &const_cast<void*>(reinterpret_cast<const void*>(&val)), nullptr);
+	//mono_property_set_value(prop.get_mono_class_property_ptr(), object_, (void**)&val), nullptr);
 }
 
 } // namespace mono
