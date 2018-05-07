@@ -30,13 +30,13 @@ struct vector2f
 template <>
 inline auto converter::convert(const vec2f& v) -> vector2f
 {
-	return {v.x, v.y};
+	return vector2f{v.x, v.y};
 }
 
 template <>
 inline auto converter::convert(const vector2f& v) -> vec2f
 {
-	return {v.x, v.y, 0};
+	return vec2f{v.x, v.y, 0};
 }
 }
 
