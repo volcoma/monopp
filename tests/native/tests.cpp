@@ -384,8 +384,13 @@ void MyVec_CreateInternal(MonoObject* this_ptr, float x, float y)
 	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
 }
 
-void bind_mono()
+void bind_mono(mono::mono_domain& domain)
 {
+    auto& core_assembly = domain.get_assembly("managed_lib.dll");            
+    auto& assembly = domain.get_assembly("managed.dll");
+	mono::managed_interface::object::initialize_class_field(core_assembly);
+    mono::managed_interface::object::register_internal_calls();
+
 	mono::add_internal_call("Ethereal.MyObject::CreateInternal", mono_auto_wrap(MyObject_CreateInternal));
 	mono::add_internal_call("Ethereal.MyObject::DestroyInternal", mono_auto_wrap(MyObject_DestroyInternal));
 	mono::add_internal_call("Ethereal.MyObject::DoStuff", mono_auto_wrap(MyObject_DoStuff));

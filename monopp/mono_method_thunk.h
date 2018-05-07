@@ -12,6 +12,7 @@
 #include <string>
 #include <utility>
 #include <tuple>
+#include <vector>
 
 namespace mono
 {

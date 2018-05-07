@@ -7,7 +7,7 @@
 namespace tests
 {
 
-void bind_mono();
+void bind_mono(mono::mono_domain& domain);
 
 void test_mono_jit_get_assembly_fail(mono::mono_domain& domain);
 void test_mono_jit_get_assembly(mono::mono_domain& domain);
@@ -29,7 +29,8 @@ void test_mono_call_method4(mono::mono_domain& domain);
 
 inline void test_mono(mono::mono_domain& domain)
 {
-    bind_mono();
+
+    bind_mono(domain);
     test_mono_jit_get_assembly_fail(domain);
     test_mono_jit_get_assembly(domain);
     test_mono_jit_get_class_fail(domain);
