@@ -24,6 +24,8 @@ void test_mono_call_thunk4(mono::mono_domain& domain);
 void test_mono_call_thunk_with_exception(mono::mono_domain& domain);
 void test_mono_call_method(mono::mono_domain& domain);
 void test_mono_call_method2(mono::mono_domain& domain);
+void test_mono_call_method3(mono::mono_domain& domain);
+void test_mono_call_method4(mono::mono_domain& domain);
 
 inline void test_mono(mono::mono_domain& domain)
 {
@@ -42,5 +44,8 @@ inline void test_mono(mono::mono_domain& domain)
     test_mono_call_thunk_with_exception(domain);
     test_mono_call_method(domain);
     test_mono_call_method2(domain);
+    test_mono_call_method3(domain);
+    test_mono_call_method4(domain);
+
 }
 }

@@ -25,7 +25,9 @@ public:
 	auto operator=(mono_method&& o) -> mono_method&;
 
 	template <typename function_signature_t>
-	auto get_thunk();
+	decltype(auto) get_thunk() const;
+	
+	auto get_internal_ptr() const -> MonoMethod*;
 
 private:
 	mono_assembly* assembly_ = nullptr;
@@ -34,9 +36,9 @@ private:
 };
 
 template <typename function_signature_t>
-auto mono_method::get_thunk()
+inline decltype(auto) mono_method::get_thunk() const
 {
-	return mono_method_thunk<function_signature_t>(*assembly_, object_, method_);
+	return mono_method_thunk<function_signature_t>(assembly_, object_, method_);
 }
 
 } // namespace mono

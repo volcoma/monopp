@@ -3,7 +3,7 @@
 #include "mono_config.h"
 
 #include "mono_noncopyable.h"
-#include <mono/jit/jit.h>
+#include <mono/metadata/class.h>
 #include <string>
 
 namespace mono
@@ -20,7 +20,7 @@ public:
 	mono_class_property(mono_class_property&& o);
 	auto operator=(mono_class_property&& o) -> mono_class_property&;
 
-	auto get_mono_class_property_ptr() const -> MonoProperty*;
+	auto get_internal_ptr() const -> MonoProperty*;
 
 private:
 	MonoProperty* property_ = nullptr;

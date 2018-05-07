@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/object.h"
-#include "mono_jit_manager.h"
 #include <memory>
 
 namespace mono
@@ -15,12 +14,12 @@ namespace managed_interface
 	{                                                                                                        \
 		using mono_type_name = MonoObject*;                                                                  \
                                                                                                              \
-		static auto to_mono(mono_assembly& assembly, type wrapper) -> MonoObject*                            \
+		static auto to_mono(mono_assembly& assembly, type wrapper) -> mono_type_name                            \
 		{                                                                                                    \
-			return managed_interface::mono_object_wrapper<type>::create(wrapper);                            \
+			return managed_interface::mono_object_wrapper<type>::create(assembly, wrapper);                            \
 		}                                                                                                    \
                                                                                                              \
-		static auto from_mono(MonoObject* object) -> type                                                    \
+		static auto from_mono(mono_type_name object) -> type                                                    \
 		{                                                                                                    \
 			return managed_interface::mono_object_wrapper<type>::get_native_object(object);                  \
 		}                                                                                                    \
@@ -31,7 +30,7 @@ class mono_object_wrapper : public object
 {
 public:
 	explicit mono_object_wrapper(MonoObject* mono_object, T obj);
-	~mono_object_wrapper() override;
+	~mono_object_wrapper();
 
 	/*!
 	 * Create a new MonoObject and associate this wrapper to it.

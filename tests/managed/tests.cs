@@ -13,7 +13,7 @@ class MyObject
 public
 	MyObject()
 	{
-		CreateInternal();
+		CreateInternal(5.0f, "test");
 	}
 
 	~MyObject()
@@ -21,13 +21,34 @@ public
 		DestroyInternal();
 	}
 
-	[MethodImpl(MethodImplOptions.InternalCall)] private extern void CreateInternal();
+	[MethodImpl(MethodImplOptions.InternalCall)] private extern void CreateInternal(float x, string s);
 
 	[MethodImpl(MethodImplOptions.InternalCall)] private extern void DestroyInternal();
 
 	[MethodImpl(MethodImplOptions.InternalCall)] public extern void DoStuff(string value);
 
 	[MethodImpl(MethodImplOptions.InternalCall)] public extern string ReturnAString(string value);
+}
+
+public struct Vector2f
+{
+    public float x;
+	public float y;
+}
+
+public class WrapperVector2f : Monopp.Core.NativeObject
+{
+    public WrapperVector2f(float x, float y)
+    {
+        Create_WrapperVector2f(x, y);
+    }
+    
+    public void Foo()
+    {
+    
+    }
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    private extern void Create_WrapperVector2f(float x, float y);
 }
 }
 
@@ -40,64 +61,10 @@ public
 public
 	ClassInstanceTest()
 	{
-		string path = @"MyTest.txt";
-
-		try
-		{
-
-			// Delete the file if it exists.
-			if(File.Exists(path))
-			{
-				// Note that no lock is put on the
-				// file and the possibility exists
-				// that another process could do
-				// something with it between
-				// the calls to Exists and Delete.
-				File.Delete(path);
-			}
-
-			// Create the file.
-			using(FileStream fs = File.Create(path))
-			{
-				Byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
-				// Add some information to the file.
-				fs.Write(info, 0, info.Length);
-			}
-
-			// Open the stream and read it back.
-			using(StreamReader sr = File.OpenText(path))
-			{
-				string s = "";
-				while((s = sr.ReadLine()) != null)
-				{
-					Console.WriteLine(s);
-				}
-			}
-		}
-
-		catch(Exception ex)
-		{
-			Console.WriteLine(ex.ToString());
-		}
-
-		// string search = "lookforme";
-		List<int> myList = new List<int>();
-		myList.Add(1);
-		myList.Add(2);
-		myList.Add(3);
-		myList.Add(4);
-		var result = myList.Where(s => s > 2);
-		foreach(var r in result)
-		{
-			Console.WriteLine(r);
-		}
-
 		Console.WriteLine("FROM C# : ClassInstanceTest created.");
 
 		Ethereal.MyObject s1 = new Ethereal.MyObject();
 		s1.DoStuff("Hello from C#!");
-
-		Console.WriteLine("FROM C# : " + s1.ReturnAString("Testing ReturnAString."));
 	}
 
 	~ClassInstanceTest()
@@ -112,15 +79,36 @@ public
 	}
 
 public
+	Ethereal.Vector2f MethodPodAR(Ethereal.Vector2f bb)
+	{
+		Console.WriteLine(bb.x);
+		Console.WriteLine(bb.y);
+		var s = new Ethereal.Vector2f();
+		s.x = 165.0f;
+		s.y = 7.0f;
+		int size = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Ethereal.Vector2f));
+		Console.WriteLine(size);
+
+		//throw new Exception("saaasasasa!");
+		return s;
+	}
+	
+	void MethodPodARW(Ethereal.WrapperVector2f bb)
+	{
+		Console.WriteLine("FROM C# :");
+		var s = new Ethereal.WrapperVector2f(55, 66);
+		s.Foo();
+	}
+
 	void MethodWithParameter(string s)
 	{
 		Console.WriteLine("FROM C# : WithParam: " + s);
 	}
 
 public
-	string MethodWithParameterAndReturnValue(string s)
+	string MethodWithParameterAndReturnValue(string s, int b)
 	{
-		Console.WriteLine("FROM C# : WithParam: " + s);
+		Console.WriteLine("FROM C# : WithParam: {0}, {1}", s, b);
 		return "Return Value: " + s;
 	}
 

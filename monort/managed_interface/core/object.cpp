@@ -7,17 +7,17 @@ namespace mono
 namespace managed_interface
 {
 
-mono_class object::object_class;
+mono_class object::object_class(nullptr, nullptr);
 mono_class_field object::native_object_field;
 
 void object::register_internal_calls()
 {
-	add_internal_call("Monopp.Core.Object::Finalize", mono_auto_wrap(object::finalize));
+	add_internal_call("Monopp.Core.NativeObject::Finalize", mono_auto_wrap(object::finalize));
 }
 
 void object::initialize_class_field(mono_assembly& assembly)
 {
-	object_class = assembly.get_class("Monopp.Core", "Object");
+	object_class = assembly.get_class("Monopp.Core", "NativeObject");
 	native_object_field = object_class.get_field("nativePtr_");
 }
 
@@ -28,9 +28,9 @@ object::object(MonoObject* mono_object)
 {
 	mono_class_instance instance(mono_object);
 
-	assert(mono_class_is_subclass_of(instance.get_class().get_mono_class_ptr(),
-									 object_class.get_mono_class_ptr(), false) &&
-		   "Mono wrapper classes must inherit from Object.");
+	assert(mono_class_is_subclass_of(instance.get_class().get_internal_ptr(),
+									 object_class.get_internal_ptr(), false) &&
+		   "Mono wrapper classes must inherit from Monopp.Core.NativeObject.");
 
 	instance.set_field_value<object*>(native_object_field, this);
 }

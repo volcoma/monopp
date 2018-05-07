@@ -19,7 +19,7 @@ public:
 	static void initialize_class_field(mono_assembly& assembly);
 
 	explicit object(MonoObject* object);
-	virtual ~object();
+	~object();
 
 	auto get_managed_object() const -> MonoObject*;
 

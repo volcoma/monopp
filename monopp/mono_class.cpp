@@ -33,14 +33,14 @@ mono_class::mono_class(mono_class &&o) = default;
 
 auto mono_class::operator=(mono_class &&o) -> mono_class & = default;
 
-auto mono_class::get_static_function(const std::string &name, int argc /*= 0*/) const -> mono_static_function
+auto mono_class::get_static_method(const std::string &name, int argc /*= 0*/) const -> mono_method
 {
     assert(class_);
     assert(assembly_);
-    return mono_static_function(assembly_, class_, name, argc);
+    return mono_method(assembly_, class_, nullptr, name, argc);
 }
 
-auto mono_class::get_mono_class_ptr() const -> MonoClass *
+auto mono_class::get_internal_ptr() const -> MonoClass *
 {
     assert(class_);
     return class_;
@@ -59,7 +59,12 @@ auto mono_class::get_property(const std::string &name) const -> mono_class_prope
 
 auto mono_class::get_name() const -> std::string
 {
-    return mono_class_get_name(get_mono_class_ptr());
+    return mono_class_get_name(get_internal_ptr());
+}
+
+bool mono_class::is_valuetype() const
+{
+    return mono_class_is_valuetype(get_internal_ptr());
 }
 
 } // namespace mono

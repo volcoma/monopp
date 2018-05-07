@@ -9,37 +9,23 @@
 namespace mono
 {
 
-mono_assembly::mono_assembly(mono_domain* domain, MonoAssembly* assembly)
-	: domain_(domain)
-	, assembly_(assembly)
-	, image_(mono_assembly_get_image(assembly_))
-{
-}
-
 mono_assembly::mono_assembly(mono_domain* domain, const std::string& path)
 	: domain_(domain)
 {
-	assembly_ = mono_domain_assembly_open(domain->get_mono_domain_ptr(), path.c_str());
+	assembly_ = mono_domain_assembly_open(domain_->get_internal_ptr(), path.c_str());
 
 	if(!assembly_)
 		throw mono_exception("Could not open assembly with path : " + path);
 
-	image_ = mono_assembly_get_image(assembly_);
+    image_ = mono_assembly_get_image(assembly_);
 }
+
+mono_assembly::mono_assembly(const mono_assembly &o) = default;
+auto mono_assembly::operator=(const mono_assembly& o) -> mono_assembly& = default;
 
 mono_assembly::mono_assembly(mono_assembly&& o) = default;
 
 auto mono_assembly::operator=(mono_assembly&& o) -> mono_assembly& = default;
-
-auto mono_assembly::get_mono_assembly_ptr() const -> MonoAssembly*
-{
-	return assembly_;
-}
-
-auto mono_assembly::get_mono_domain_ptr() const -> mono_domain*
-{
-	return domain_;
-}
 
 auto mono_assembly::get_class(const std::string& name) -> mono_class
 {
@@ -53,7 +39,7 @@ auto mono_assembly::get_class(const std::string& name_space, const std::string& 
 
 auto mono_assembly::new_class_instance(const mono_class& cls) -> mono_class_instance
 {
-	return mono_class_instance(this, domain_, cls.get_mono_class_ptr());
+	return mono_class_instance(this, domain_, cls.get_internal_ptr());
 }
 
 auto mono_assembly::new_string(const std::string& str) const -> mono_string

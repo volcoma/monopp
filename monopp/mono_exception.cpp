@@ -19,7 +19,7 @@ mono_thunk_exception::mono_thunk_exception(MonoException* ex)
 }
 
 mono_thunk_exception::mono_thunk_exception(const mono_exception_info& info)
-	: mono_exception(info.exception_typename + "(" + info.message + ")")
+	: mono_exception(info.exception_typename + "(" + info.message + ")\n" + info.stacktrace)
 	, exception_typename_(info.exception_typename)
 	, message_(info.message)
 	, stacktrace_(info.stacktrace)
