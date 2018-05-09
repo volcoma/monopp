@@ -35,17 +35,27 @@ auto mono_domain::get_internal_ptr() -> MonoDomain*
 
 mono_domain::mono_domain(const std::string& name)
 {
-    domain_ = mono_domain_create_appdomain((char*)name.c_str(), nullptr);
-    mono_domain_set (domain_, 0);
+    domain_ = mono_domain_create_appdomain(const_cast<char*>(name.c_str()), nullptr);
+    
+    auto res = mono_domain_set (domain_, 0);
+    if(res)
+    {
+        mono_thread_attach(domain_);        
+    }
 }
 
 mono_domain::~mono_domain()
 {
     if(domain_)
     {
-        mono_domain_set (mono_get_root_domain (), 0);
-        mono_domain_unload (domain_);
-        mono_gc_collect (mono_gc_max_generation ());
+        auto root_domain = mono_get_root_domain();
+        auto res = mono_domain_set (root_domain, 0);
+        if(res)
+        {
+            mono_domain_finalize(domain_, uint32_t(-1));
+            mono_domain_unload (domain_);
+            mono_gc_collect (mono_gc_max_generation ());
+        }
     }
 }
 
