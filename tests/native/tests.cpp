@@ -7,9 +7,9 @@
 #include "monort/managed_interface/mono_object_wrapper.h"
 #include "monort/managed_interface/mono_pod_wrapper.h"
 
-// References
-// https://github.com/AvalonWot/xmono/blob/master/jni/lua-mono.cpp
-// https://github.com/mono/mono/blob/master/samples/embed/test-invoke.c
+//References
+//https://github.com/AvalonWot/xmono/blob/master/jni/lua-mono.cpp
+//https://github.com/mono/mono/blob/master/samples/embed/test-invoke.c
 
 struct vec2f
 {
@@ -35,10 +35,8 @@ inline auto converter::convert(const vec2f& v) -> vector2f
 template <>
 inline auto converter::convert(const vector2f& v) -> vec2f
 {
-	return vec2f
-	{
-		v.x, v.y;
-	}
+    return vec2f{v.x, v.y};
+}
 }
 
 register_basic_mono_converter_for_pod(vec2f, managed_interface::vector2f);
@@ -319,8 +317,8 @@ void test_mono_call_method3(mono::mono_domain& domain)
 	{
 		auto method_thunk = cls_instance.get_method<vec2f(vec2f)>("MethodPodAR");
 		vec2f p;
-		p.x = 12;
-		p.y = 15;
+        p.x = 12;
+        p.y = 15;
 		auto result1 = method_thunk(p);
 		assert(165.0f == result1.x && 7.0f == result1.y);
 	}
@@ -340,12 +338,12 @@ void test_mono_call_method4(mono::mono_domain& domain)
 
 	try
 	{
-		using vec2f_ptr = std::shared_ptr<vec2f>;
-
-		auto ptr = std::make_shared<vec2f>();
-		ptr->x = 12;
-		ptr->y = 15;
-
+        using vec2f_ptr = std::shared_ptr<vec2f>;
+        
+        auto ptr = std::make_shared<vec2f>();
+        ptr->x = 12;
+        ptr->y = 15;
+        
 		auto method_thunk = cls_instance.get_method<void(vec2f_ptr)>("MethodPodARW");
 		method_thunk(ptr);
 	}
@@ -389,10 +387,10 @@ void MyVec_CreateInternal(MonoObject* this_ptr, float x, float y)
 
 void bind_mono(mono::mono_domain& domain)
 {
-	auto& core_assembly = domain.get_assembly("managed_lib.dll");
-	auto& assembly = domain.get_assembly("managed.dll");
+    auto& core_assembly = domain.get_assembly("managed_lib.dll");            
+    auto& assembly = domain.get_assembly("managed.dll");
 	mono::managed_interface::object::initialize_class_field(core_assembly);
-	mono::managed_interface::object::register_internal_calls();
+    mono::managed_interface::object::register_internal_calls();
 
 	mono::add_internal_call("Ethereal.MyObject::CreateInternal", mono_auto_wrap(MyObject_CreateInternal));
 	mono::add_internal_call("Ethereal.MyObject::DestroyInternal", mono_auto_wrap(MyObject_DestroyInternal));
