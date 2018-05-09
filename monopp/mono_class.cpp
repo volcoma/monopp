@@ -64,7 +64,7 @@ auto mono_class::get_name() const -> std::string
 
 bool mono_class::is_valuetype() const
 {
-    return mono_class_is_valuetype(get_internal_ptr());
+    return !!mono_class_is_valuetype(get_internal_ptr());
 }
 
 } // namespace mono
