@@ -69,7 +69,7 @@ public
 
 	~ClassInstanceTest()
 	{
-		Console.WriteLine("FROM C# : ClassInstanceTest destroyed.");
+		//Console.WriteLine("FROM C# : ClassInstanceTest destroyed.");
 	}
 
 public

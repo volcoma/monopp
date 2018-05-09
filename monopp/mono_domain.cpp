@@ -40,7 +40,7 @@ mono_domain::mono_domain(const std::string& name)
     auto res = mono_domain_set (domain_, 0);
     if(res)
     {
-        mono_thread_attach(domain_);        
+        mono_thread_attach(domain_);
     }
 }
 
@@ -52,7 +52,6 @@ mono_domain::~mono_domain()
         auto res = mono_domain_set (root_domain, 0);
         if(res)
         {
-            mono_domain_finalize(domain_, uint32_t(-1));
             mono_domain_unload (domain_);
             mono_gc_collect (mono_gc_max_generation ());
         }

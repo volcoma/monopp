@@ -62,7 +62,7 @@ find_program(
 )
 
 find_library(
-    MONO_MAIN_LIBRARY NAMES mono-2.0 mono-2.0-sgen
+    MONO_MAIN_LIBRARY NAMES mono-2.0 monosgen-2.0
     PATHS
 		${MONO_DEFAULT_INSTALL_PATH}/Mono/lib
 		/usr/lib64
