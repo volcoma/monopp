@@ -14,7 +14,7 @@ class mono_domain;
 class mono_string : public mono_object
 {
 public:
-    explicit mono_string(MonoObject* mono_string);
+	explicit mono_string(MonoObject* mono_string);
 	explicit mono_string(mono_domain* domain, const std::string& str);
 
 	mono_string(mono_string&& o);
@@ -25,7 +25,6 @@ public:
 	auto str() const -> std::string;
 
 	auto get_internal_ptr() const -> MonoString*;
-
 };
 
 } // namespace mono

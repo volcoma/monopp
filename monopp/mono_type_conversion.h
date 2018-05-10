@@ -10,17 +10,18 @@
 
 namespace mono
 {
+template <typename T>
+using is_mono_valuetype = std::is_pod<T>;
 
-
-template<typename T>
+template <typename T>
 inline auto to_mono_arg(T& t)
 {
-    static_assert(std::is_pod<T>::value, "Should not pass here for non-pod types");
-    return std::addressof(t);
+	static_assert(is_mono_valuetype<T>::value, "Should not pass here for non-pod types");
+	return std::addressof(t);
 }
 inline auto to_mono_arg(MonoObject* t)
 {
-    return t;
+	return t;
 }
 
 template <typename T>
@@ -28,18 +29,28 @@ struct convert_mono_type
 {
 	using mono_type_name = T;
 
-    static_assert(std::is_fundamental<T>::value, "Specialize for non fundamental types");
+	static_assert(is_mono_valuetype<T>::value, "Specialize for non fundamental types");
 
 	static auto to_mono(mono_assembly&, T&& t) -> T
 	{
 		return std::forward<T>(t);
 	}
 
+	static auto to_mono(mono_assembly&, const T& t) -> T
+	{
+		return t;
+	}
+
 	static auto from_mono(T&& t) -> T
 	{
 		return std::forward<T>(t);
 	}
-	
+
+	static auto from_mono(const T& t) -> T
+	{
+		return t;
+	}
+
 	static auto from_mono(MonoObject* obj) -> T
 	{
 		return *reinterpret_cast<T*>(mono_object_unbox(obj));
@@ -72,7 +83,7 @@ struct convert_mono_type<std::string>
 		return assembly.new_string(str).get_mono_object();
 	}
 
-    static auto from_mono(MonoObject* mono_str) -> std::string
+	static auto from_mono(MonoObject* mono_str) -> std::string
 	{
 		return mono_string(mono_str).str();
 	}

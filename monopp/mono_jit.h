@@ -17,12 +17,12 @@ class mono_assembly;
 bool init(const std::string& domain, bool enable_debugging = false);
 void shutdown();
 auto get_auto_wrap_assembly() -> mono_assembly&;
-void set_auto_wrap_assembly(const mono_assembly &assembly);
+void set_auto_wrap_assembly(const mono_assembly& assembly);
 
-template <typename T>
-inline void add_internal_call(const std::string& name, T&& func)
+template <typename F>
+inline void add_internal_call(const std::string& name, F&& func)
 {
-    mono_add_internal_call(name.c_str(), reinterpret_cast<const void*>(func));
+	mono_add_internal_call(name.c_str(), reinterpret_cast<const void*>(func));
 }
 
 template <typename signature_t, signature_t& signature>

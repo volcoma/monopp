@@ -3,8 +3,8 @@
 #include "mono_config.h"
 #include "mono_type_traits.h"
 
-#include "mono_noncopyable.h"
 #include "mono_method.h"
+#include "mono_noncopyable.h"
 #include <mono/metadata/metadata.h>
 #include <string>
 
@@ -34,10 +34,10 @@ public:
 	auto get_internal_ptr() const -> MonoClass*;
 
 	auto get_field(const std::string& name) const -> mono_class_field;
-    auto get_property(const std::string& name) const -> mono_class_property;
+	auto get_property(const std::string& name) const -> mono_class_property;
 
 	auto get_name() const -> std::string;
-	
+
 	bool is_valuetype() const;
 
 private:

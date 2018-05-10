@@ -12,8 +12,7 @@ mono_gc_handle::mono_gc_handle(mono_object& obj)
 }
 
 mono_gc_handle::mono_gc_handle(MonoObject* obj)
-	: handle_(0)
-	, object_(obj)
+	: object_(obj)
 {
 }
 

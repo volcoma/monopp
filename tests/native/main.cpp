@@ -8,8 +8,7 @@ int main()
     for(int i = 0; i < 20; ++i)
     {
 		mono::mono_domain domain("test" + std::to_string(i));
-		
-		
+
 		tests::test_mono(domain);
 	}
 

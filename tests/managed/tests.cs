@@ -57,7 +57,35 @@ class ClassInstanceTest
 {
 public
 	int someField = 12;
-
+    
+    int someProperty
+    { 
+        get
+        {
+            return someField;
+        }
+        set
+        {
+            Console.WriteLine("FROM C# : Setting property value to {0}", value); 
+            someField = value;
+        }
+    }
+    
+    Ethereal.Vector2f someFieldPOD;
+    
+    Ethereal.Vector2f somePropertyPOD
+    { 
+        get
+        {
+            return someFieldPOD;
+        }
+        set
+        {
+            Console.WriteLine("FROM C# : Setting property value to {0}, {1}", value.x, value.y); 
+            someFieldPOD = value;
+        }
+    }
+    
 public
 	ClassInstanceTest()
 	{
@@ -69,7 +97,7 @@ public
 
 	~ClassInstanceTest()
 	{
-		//Console.WriteLine("FROM C# : ClassInstanceTest destroyed.");
+		Console.WriteLine("FROM C# : ClassInstanceTest destroyed.");
 	}
 
 public
@@ -93,11 +121,12 @@ public
 		return s;
 	}
 	
-	void MethodPodARW(Ethereal.WrapperVector2f bb)
+	Ethereal.WrapperVector2f MethodPodARW(Ethereal.WrapperVector2f bb)
 	{
 		Console.WriteLine("FROM C# :");
 		var s = new Ethereal.WrapperVector2f(55, 66);
 		s.Foo();
+        return s;
 	}
 
 	void MethodWithParameter(string s)

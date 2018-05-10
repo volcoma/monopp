@@ -7,9 +7,9 @@
 #include "monort/managed_interface/mono_object_wrapper.h"
 #include "monort/managed_interface/mono_pod_wrapper.h"
 
-//References
-//https://github.com/AvalonWot/xmono/blob/master/jni/lua-mono.cpp
-//https://github.com/mono/mono/blob/master/samples/embed/test-invoke.c
+// References
+// https://github.com/AvalonWot/xmono/blob/master/jni/lua-mono.cpp
+// https://github.com/mono/mono/blob/master/samples/embed/test-invoke.c
 
 struct vec2f
 {
@@ -35,7 +35,7 @@ inline auto converter::convert(const vec2f& v) -> vector2f
 template <>
 inline auto converter::convert(const vector2f& v) -> vec2f
 {
-    return vec2f{v.x, v.y};
+	return vec2f{v.x, v.y};
 }
 }
 
@@ -170,9 +170,14 @@ void test_mono_jit_get_field(mono::mono_domain& domain)
 		auto obj = assembly.new_class_instance(cls);
 
 		auto someField = obj.get_field_value<int>(field);
-		int a = 0;
-		a++;
-		(void)someField;
+		std::cout << "FROM C++: Extracted field value " << someField << std::endl;
+
+		int arg = 6;
+		std::cout << "FROM C++: Setting new field value " << arg << std::endl;
+		obj.set_field_value<int>(field, arg);
+
+		someField = obj.get_field_value<int>(field);
+		std::cout << "FROM C++: Extracted new field value " << someField << std::endl;
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -180,6 +185,35 @@ void test_mono_jit_get_field(mono::mono_domain& domain)
 	}
 }
 
+void test_mono_jit_get_field_custom_pod(mono::mono_domain& domain)
+{
+	LOG_ENTRY;
+
+	try
+	{
+		auto& assembly = domain.get_assembly("managed.dll");
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+
+		auto field = cls.get_field("someFieldPOD");
+		auto obj = assembly.new_class_instance(cls);
+
+		auto someField = obj.get_field_value<vec2f>(field);
+		std::cout << "FROM C++: Extracted field value " << someField.x << ", " << someField.y << std::endl;
+
+		vec2f arg = {6, 8};
+		std::cout << "FROM C++: Setting new field value " << arg.x << ", " << arg.y << std::endl;
+		obj.set_field_value<vec2f>(field, arg);
+
+		someField = obj.get_field_value<vec2f>(field);
+		std::cout << "FROM C++: Extracted new field value " << someField.x << ", " << someField.y
+				  << std::endl;
+	}
+	catch(mono::mono_exception& ex)
+	{
+		std::cout << ex.what() << std::endl;
+	}
+}
 void test_mono_jit_get_field_fail(mono::mono_domain& domain)
 {
 	LOG_ENTRY;
@@ -197,6 +231,87 @@ void test_mono_jit_get_field_fail(mono::mono_domain& domain)
 		int a = 0;
 		a++;
 		(void)someField;
+	}
+	catch(mono::mono_exception& ex)
+	{
+		std::cout << ex.what() << std::endl;
+	}
+}
+
+void test_mono_jit_get_property(mono::mono_domain& domain)
+{
+	LOG_ENTRY;
+
+	try
+	{
+		auto& assembly = domain.get_assembly("managed.dll");
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+
+		auto prop = cls.get_property("someProperty");
+		auto obj = assembly.new_class_instance(cls);
+
+		auto someProp = obj.get_property_value<int>(prop);
+		std::cout << "FROM C++: Extracted property value " << someProp << std::endl;
+
+		int arg = 55;
+		std::cout << "FROM C++: Setting new property value " << arg << std::endl;
+		obj.set_property_value<int>(prop, arg);
+
+		someProp = obj.get_property_value<int>(prop);
+		std::cout << "FROM C++: Extracted new property value " << someProp << std::endl;
+	}
+	catch(mono::mono_exception& ex)
+	{
+		std::cout << ex.what() << std::endl;
+	}
+}
+
+void test_mono_jit_get_property_custom_pod(mono::mono_domain& domain)
+{
+	LOG_ENTRY;
+
+	try
+	{
+		auto& assembly = domain.get_assembly("managed.dll");
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+
+		auto prop = cls.get_property("somePropertyPOD");
+		auto obj = assembly.new_class_instance(cls);
+
+		auto someProp = obj.get_property_value<vec2f>(prop);
+		std::cout << "FROM C++: Extracted property value " << someProp.x << ", " << someProp.y << std::endl;
+
+		vec2f arg{55, 12};
+		std::cout << "FROM C++: Setting new property value " << arg.x << ", " << arg.y << std::endl;
+		obj.set_property_value<vec2f>(prop, arg);
+
+		someProp = obj.get_property_value<vec2f>(prop);
+		std::cout << "FROM C++: Extracted new property value " << someProp.x << ", " << someProp.y
+				  << std::endl;
+	}
+	catch(mono::mono_exception& ex)
+	{
+		std::cout << ex.what() << std::endl;
+	}
+}
+
+void test_mono_jit_get_property_fail(mono::mono_domain& domain)
+{
+	LOG_ENTRY;
+
+	try
+	{
+		auto& assembly = domain.get_assembly("managed.dll");
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+
+		auto prop = cls.get_property("someProperty1");
+		auto obj = assembly.new_class_instance(cls);
+
+		auto someProp = obj.get_property_value<int>(prop);
+		std::cout << "FROM C++: Extracted property value " << someProp << std::endl;
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -317,8 +432,8 @@ void test_mono_call_method3(mono::mono_domain& domain)
 	{
 		auto method_thunk = cls_instance.get_method<vec2f(vec2f)>("MethodPodAR");
 		vec2f p;
-        p.x = 12;
-        p.y = 15;
+		p.x = 12;
+		p.y = 15;
 		auto result1 = method_thunk(p);
 		assert(165.0f == result1.x && 7.0f == result1.y);
 	}
@@ -331,21 +446,23 @@ void test_mono_call_method3(mono::mono_domain& domain)
 void test_mono_call_method4(mono::mono_domain& domain)
 {
 	LOG_ENTRY;
-
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
 	auto cls_instance = assembly.new_class_instance(cls);
 
 	try
 	{
-        using vec2f_ptr = std::shared_ptr<vec2f>;
-        
-        auto ptr = std::make_shared<vec2f>();
-        ptr->x = 12;
-        ptr->y = 15;
-        
-		auto method_thunk = cls_instance.get_method<void(vec2f_ptr)>("MethodPodARW");
-		method_thunk(ptr);
+		using vec2f_ptr = std::shared_ptr<vec2f>;
+
+		auto ptr = std::make_shared<vec2f>();
+		ptr->x = 12;
+		ptr->y = 15;
+
+		auto method_thunk = cls_instance.get_method<vec2f_ptr(vec2f_ptr)>("MethodPodARW");
+		auto ptrres = method_thunk(ptr);
+		int a = 0;
+		a++;
+		(void)ptrres;
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -387,10 +504,10 @@ void MyVec_CreateInternal(MonoObject* this_ptr, float x, float y)
 
 void bind_mono(mono::mono_domain& domain)
 {
-    auto& core_assembly = domain.get_assembly("managed_lib.dll");            
-    auto& assembly = domain.get_assembly("managed.dll");
+	auto& core_assembly = domain.get_assembly("managed_lib.dll");
+	domain.get_assembly("managed.dll");
 	mono::managed_interface::object::initialize_class_field(core_assembly);
-    mono::managed_interface::object::register_internal_calls();
+	mono::managed_interface::object::register_internal_calls();
 
 	mono::add_internal_call("Ethereal.MyObject::CreateInternal", mono_auto_wrap(MyObject_CreateInternal));
 	mono::add_internal_call("Ethereal.MyObject::DestroyInternal", mono_auto_wrap(MyObject_DestroyInternal));

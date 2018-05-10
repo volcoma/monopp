@@ -45,8 +45,8 @@ void shutdown()
 		if(detail::jit_domain_)
 		{
 			mono_jit_cleanup(detail::jit_domain_);
-        }
-        
+		}
+
 		detail::jit_domain_ = nullptr;
 	}
 	catch(...)

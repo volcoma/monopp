@@ -21,7 +21,8 @@ public:
 	auto operator=(mono_class_field&& o) -> mono_class_field&;
 
 	auto get_internal_ptr() const -> MonoClassField*;
-    auto is_valuetype() const -> bool;
+	auto is_valuetype() const -> bool;
+
 private:
 	MonoClassField* field_ = nullptr;
 	bool is_valuetype_ = true;

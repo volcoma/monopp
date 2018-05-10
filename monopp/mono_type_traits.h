@@ -5,7 +5,6 @@
 namespace mono
 {
 
-template<typename T>
+template <typename T>
 using function_traits = nonstd::function_traits<T>;
-
 }

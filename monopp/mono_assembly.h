@@ -18,10 +18,10 @@ class mono_assembly
 public:
 	mono_assembly() = default;
 	explicit mono_assembly(mono_domain* domain, const std::string& path);
-	
-    mono_assembly(const mono_assembly& o);
-    auto operator=(const mono_assembly& o) -> mono_assembly&;
-    
+
+	mono_assembly(const mono_assembly& o);
+	auto operator=(const mono_assembly& o) -> mono_assembly&;
+
 	mono_assembly(mono_assembly&& o);
 	auto operator=(mono_assembly&& o) -> mono_assembly&;
 
@@ -32,7 +32,8 @@ public:
 	auto new_string(const std::string& str) const -> mono_string;
 
 	auto valid() const -> bool;
-    auto get_domain() const { return domain_; }
+	auto get_domain() const -> mono_domain*;
+
 private:
 	mono_domain* domain_ = nullptr;
 	MonoAssembly* assembly_ = nullptr;

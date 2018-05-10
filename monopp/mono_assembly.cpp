@@ -15,12 +15,12 @@ mono_assembly::mono_assembly(mono_domain* domain, const std::string& path)
 	assembly_ = mono_domain_assembly_open(domain_->get_internal_ptr(), path.c_str());
 
 	if(!assembly_)
-		throw mono_exception("Could not open assembly with path : " + path);
+		throw mono_exception("NATIVE::Could not open assembly with path : " + path);
 
-    image_ = mono_assembly_get_image(assembly_);
+	image_ = mono_assembly_get_image(assembly_);
 }
 
-mono_assembly::mono_assembly(const mono_assembly &o) = default;
+mono_assembly::mono_assembly(const mono_assembly& o) = default;
 auto mono_assembly::operator=(const mono_assembly& o) -> mono_assembly& = default;
 
 mono_assembly::mono_assembly(mono_assembly&& o) = default;
@@ -50,6 +50,11 @@ auto mono_assembly::new_string(const std::string& str) const -> mono_string
 auto mono_assembly::valid() const -> bool
 {
 	return domain_ != nullptr && assembly_ != nullptr && image_ != nullptr;
+}
+
+auto mono_assembly::get_domain() const -> mono_domain*
+{
+    return domain_;
 }
 
 } // namespace mono

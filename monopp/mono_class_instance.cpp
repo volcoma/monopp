@@ -1,6 +1,5 @@
 #include "mono_class_instance.h"
 #include "mono_class.h"
-#include "mono_domain.h"
 #include "mono_method.h"
 #include <cassert>
 

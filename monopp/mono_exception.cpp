@@ -4,7 +4,7 @@ namespace mono
 {
 
 mono_exception::mono_exception()
-	: std::runtime_error("Mono Exception.")
+	: mono_exception("Mono Exception.")
 {
 }
 

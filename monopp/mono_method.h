@@ -26,13 +26,13 @@ public:
 
 	template <typename function_signature_t>
 	decltype(auto) get_thunk() const;
-	
+
 	auto get_internal_ptr() const -> MonoMethod*;
 
 private:
 	mono_assembly* assembly_ = nullptr;
-    MonoObject* object_ = nullptr;
-    MonoMethod* method_ = nullptr;
+	MonoObject* object_ = nullptr;
+	MonoMethod* method_ = nullptr;
 };
 
 template <typename function_signature_t>
