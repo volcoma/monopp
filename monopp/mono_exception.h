@@ -19,17 +19,17 @@ class mono_thunk_exception : public mono_exception
 public:
 	explicit mono_thunk_exception(MonoException* ex);
 
-	auto exception_typename() const
+	auto exception_typename() const -> const std::string&
 	{
 		return exception_typename_;
 	}
 
-	auto message() const
+	auto message() const -> const std::string&
 	{
 		return message_;
 	}
 
-	auto stacktrace() const
+	auto stacktrace() const -> const std::string&
 	{
 		return stacktrace_;
 	}

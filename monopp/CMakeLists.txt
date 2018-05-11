@@ -22,3 +22,10 @@ target_include_directories(monopp
 )
 
 target_link_libraries(monopp ${MONO_LIBRARIES})
+
+
+set_target_properties(monopp PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)

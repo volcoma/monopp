@@ -1,21 +1,12 @@
-macro(add_subdirectory_ex arg)
-	message(STATUS "---------${arg} scanning---------")
-	add_subdirectory(${arg})
-	message(STATUS "---------${arg} finished---------")
-endmacro()
-
 macro(detect_platform)
 	if(UNIX AND NOT APPLE)
 		set(LINUX TRUE)
 	endif()
 
-	# if(NOT LINUX) should work, too, if you need that
 	if(LINUX)
 		message(STATUS "OS >>> Linux")
-		# linux stuff here
 	elseif(WIN32)
 		message(STATUS "OS >>> Windows")
-		# stuff that should happen not on Linux
 	endif()
 
 	message(STATUS "COMPILER >>> ${CMAKE_CXX_COMPILER_ID}")
@@ -46,8 +37,4 @@ macro(set_output_paths)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin) 
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-endmacro()
-
-macro(set_project_custom_defines)
-	add_definitions(-DENGINE_DIRECTORY="${PROJECT_SOURCE_DIR}" -DSHADER_INCLUDE_DIRECTORY="${BGFX_DIR}/src")
 endmacro()

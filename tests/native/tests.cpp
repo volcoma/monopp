@@ -510,8 +510,8 @@ void MyVec_CreateInternalCtor(MonoObject* this_ptr, int x, int y)
 	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
 	using vec2f_ptr = std::shared_ptr<vec2f>;
 	auto p = std::make_shared<vec2f>();
-	p->x = x;
-	p->y = y;
+	p->x = float(x);
+	p->y = float(y);
 
 	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
 }

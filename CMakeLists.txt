@@ -2,27 +2,18 @@
 
 project (monopp)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
-include(macros)
-include(sanitizers_support)
-include(clang_tidy_support)
-include(ide_support)
-
-#enable_sanitizers("custom")
-
-detect_platform()
-print_info()
-set_output_paths()
-
-set_project_custom_defines()
+option(BUILD_MONOPP_MONORT "Build the monort utility library" ON)
+option(BUILD_MONOPP_TESTS "Build the tests" ON)
 
 add_subdirectory(monopp)
-add_subdirectory(monort)
-add_subdirectory(tests)
+
+if(BUILD_MONOPP_MONORT)	
+	add_subdirectory(monort)
+endif()
+
+if(BUILD_MONOPP_TESTS)
+	add_subdirectory(tests)
+endif()
