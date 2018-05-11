@@ -6,7 +6,6 @@
 #include "mono_exception.h"
 #include "mono_string.h"
 #include "mono_type_traits.h"
-#include <string>
 
 namespace mono
 {

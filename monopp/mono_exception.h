@@ -3,8 +3,6 @@
 #include "mono_config.h"
 
 #include <mono/metadata/reflection.h>
-#include <stdexcept>
-#include <string>
 
 namespace mono
 {

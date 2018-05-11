@@ -1,6 +1,5 @@
 #include "mono_string.h"
 #include "mono_domain.h"
-#include <cassert>
 
 namespace mono
 {

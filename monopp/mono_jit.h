@@ -4,10 +4,10 @@
 
 #include "mono_noncopyable.h"
 #include "mono_type_conversion.h"
-#include <cassert>
-#include <mono/jit/jit.h>
-#include <mono/metadata/assembly.h>
-#include <string>
+#include "mono_assembly.h"
+
+#include <mono/metadata/loader.h>
+
 
 namespace mono
 {

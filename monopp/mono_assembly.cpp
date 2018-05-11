@@ -4,8 +4,9 @@
 #include "mono_domain.h"
 #include "mono_exception.h"
 #include "mono_string.h"
-#include <mono/metadata/assembly.h>
 
+#include <mono/metadata/appdomain.h>
+#include <mono/metadata/assembly.h>
 namespace mono
 {
 
@@ -54,7 +55,7 @@ auto mono_assembly::valid() const -> bool
 
 auto mono_assembly::get_domain() const -> mono_domain*
 {
-    return domain_;
+	return domain_;
 }
 
 } // namespace mono

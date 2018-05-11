@@ -3,9 +3,9 @@
 #include "mono_config.h"
 
 #include "mono_noncopyable.h"
-#include <mono/jit/jit.h>
-#include <string>
-#include <vector>
+#include "mono_object.h"
+
+#include <mono/metadata/metadata.h>
 
 namespace mono
 {

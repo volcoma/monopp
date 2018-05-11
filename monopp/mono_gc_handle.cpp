@@ -1,7 +1,5 @@
 #include "mono_gc_handle.h"
 #include "mono_object.h"
-#include <cassert>
-#include <utility>
 
 namespace mono
 {

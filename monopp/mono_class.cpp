@@ -3,7 +3,6 @@
 #include "mono_class_property.h"
 #include "mono_exception.h"
 #include "mono_method.h"
-#include <cassert>
 
 namespace mono
 {

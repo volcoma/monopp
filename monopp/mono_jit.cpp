@@ -1,9 +1,12 @@
 #include "mono_jit.h"
 #include "mono_assembly.h"
 #include "mono_exception.h"
+
 #include <mono/metadata/mono-debug.h>
-#include <mono_build_config.h>
 #include <mono/metadata/threads.h>
+#include <mono/metadata/assembly.h>
+#include <mono/jit/jit.h>
+#include <mono_build_config.h>
 
 namespace mono
 {
@@ -47,7 +50,6 @@ void shutdown()
 	}
 	catch(...)
 	{
-
 	}
 }
 

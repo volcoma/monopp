@@ -8,8 +8,7 @@
 #include "mono_object.h"
 #include "mono_string.h"
 #include "mono_type_conversion.h"
-#include <mono/jit/jit.h>
-#include <string>
+
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -27,6 +26,7 @@ decltype(auto) apply(F&& f, Tuple&& t)
 	using Indices = std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>;
 	return apply_impl(std::forward<F>(f), std::forward<Tuple>(t), Indices());
 }
+
 template <typename return_type_t>
 class mono_method_thunk;
 

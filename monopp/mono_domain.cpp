@@ -3,11 +3,11 @@
 #include "mono_exception.h"
 #include "mono_jit.h"
 
+#include <mono/metadata/appdomain.h>
 #include <mono/metadata/assembly.h>
-#include <mono/metadata/debug-helpers.h>
 #include <mono/metadata/mono-gc.h>
 #include <mono/metadata/threads.h>
-#include <mono_build_config.h>
+
 namespace mono
 {
 

@@ -2,8 +2,6 @@
 #include "mono_object.h"
 #include "mono_exception.h"
 
-#include <utility>
-
 namespace mono
 {
 

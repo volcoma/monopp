@@ -1,6 +1,5 @@
 #include "mono_class_field.h"
 #include "mono_class.h"
-#include <cassert>
 
 namespace mono
 {

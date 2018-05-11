@@ -3,8 +3,8 @@
 #include "mono_config.h"
 
 #include "mono_noncopyable.h"
-#include <cstdint>
-#include <mono/jit/jit.h>
+
+#include <mono/metadata/object.h>
 
 namespace mono
 {
@@ -22,8 +22,8 @@ public:
 	void unlock();
 
 private:
+    MonoObject* object_ = nullptr;
 	std::uint32_t handle_ = 0;
-	MonoObject* object_ = nullptr;
 };
 
 class mono_scoped_gc_handle : public common::noncopyable

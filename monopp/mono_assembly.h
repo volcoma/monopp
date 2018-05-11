@@ -3,7 +3,6 @@
 #include "mono_config.h"
 
 #include <mono/metadata/image.h>
-#include <string>
 
 namespace mono
 {

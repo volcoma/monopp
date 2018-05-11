@@ -4,8 +4,6 @@
 
 #include "mono_noncopyable.h"
 #include "mono_object.h"
-#include <mono/jit/jit.h>
-#include <string>
 
 namespace mono
 {

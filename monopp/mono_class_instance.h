@@ -10,9 +10,6 @@
 #include "mono_type_conversion.h"
 #include "mono_method_thunk.h"
 
-#include <cassert>
-#include <string>
-
 namespace mono
 {
 

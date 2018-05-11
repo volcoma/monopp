@@ -6,8 +6,6 @@
 #include "mono_noncopyable.h"
 #include <mono/metadata/metadata.h>
 
-#include <cassert>
-#include <string>
 #include <unordered_map>
 
 namespace mono

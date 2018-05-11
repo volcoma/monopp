@@ -5,8 +5,9 @@
 
 #include "mono_method_thunk.h"
 #include "mono_noncopyable.h"
-#include <mono/metadata/metadata.h>
-#include <string>
+
+#include <mono/metadata/class.h>
+#include <mono/metadata/image.h>
 
 namespace mono
 {

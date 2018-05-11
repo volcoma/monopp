@@ -3,8 +3,8 @@
 #include "mono_config.h"
 
 #include "mono_noncopyable.h"
+
 #include <mono/metadata/class.h>
-#include <string>
 
 namespace mono
 {

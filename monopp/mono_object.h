@@ -2,7 +2,7 @@
 
 #include "mono_config.h"
 
-#include <mono/jit/jit.h>
+#include <mono/metadata/object.h>
 
 namespace mono
 {
