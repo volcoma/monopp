@@ -12,7 +12,7 @@ mono_class_field object::native_object_field;
 
 void object::register_internal_calls()
 {
-	add_internal_call("Monopp.Core.NativeObject::Finalize", mono_auto_wrap(object::finalize));
+	add_internal_call("Monopp.Core.NativeObject::Finalize", internal_call(object::finalize));
 }
 
 void object::initialize_class_field(mono_assembly& assembly)

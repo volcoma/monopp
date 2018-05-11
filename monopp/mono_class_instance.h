@@ -8,6 +8,7 @@
 #include "mono_domain.h"
 #include "mono_object.h"
 #include "mono_type_conversion.h"
+#include "mono_method_thunk.h"
 
 #include <cassert>
 #include <string>
@@ -16,7 +17,6 @@ namespace mono
 {
 
 class mono_domain;
-class mono_method;
 class mono_class;
 class mono_assembly;
 
@@ -64,7 +64,7 @@ auto mono_class_instance::get_method(const std::string& name)
 {
 	constexpr auto arg_count = function_traits<function_signature_t>::arity;
 	auto func = get_method(name, arg_count);
-	return func.template get_thunk<function_signature_t>();
+	return mono_method_thunk<function_signature_t>(std::move(func));
 }
 
 template <typename T>

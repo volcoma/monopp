@@ -448,6 +448,9 @@ void test_mono_call_method4(mono::mono_domain& domain)
 	LOG_ENTRY;
 	auto& assembly = domain.get_assembly("managed.dll");
 	auto cls = assembly.get_class("ClassInstanceTest");
+	auto fields = cls.get_fields();
+	auto props = cls.get_properties();
+
 	auto cls_instance = assembly.new_class_instance(cls);
 
 	try
@@ -502,6 +505,28 @@ void MyVec_CreateInternal(MonoObject* this_ptr, float x, float y)
 	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
 }
 
+void MyVec_CreateInternalCtor(MonoObject* this_ptr, int x, int y)
+{
+	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
+	using vec2f_ptr = std::shared_ptr<vec2f>;
+	auto p = std::make_shared<vec2f>();
+	p->x = x;
+	p->y = y;
+
+	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
+}
+
+void MyVec_CreateInternalCtor2(MonoObject* this_ptr, std::shared_ptr<vec2f> rhs)
+{
+	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
+	using vec2f_ptr = std::shared_ptr<vec2f>;
+	auto p = std::make_shared<vec2f>();
+	p->x = rhs->x;
+	p->y = rhs->y;
+
+	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
+}
+
 void bind_mono(mono::mono_domain& domain)
 {
 	auto& core_assembly = domain.get_assembly("managed_lib.dll");
@@ -509,11 +534,15 @@ void bind_mono(mono::mono_domain& domain)
 	mono::managed_interface::object::initialize_class_field(core_assembly);
 	mono::managed_interface::object::register_internal_calls();
 
-	mono::add_internal_call("Ethereal.MyObject::CreateInternal", mono_auto_wrap(MyObject_CreateInternal));
-	mono::add_internal_call("Ethereal.MyObject::DestroyInternal", mono_auto_wrap(MyObject_DestroyInternal));
-	mono::add_internal_call("Ethereal.MyObject::DoStuff", mono_auto_wrap(MyObject_DoStuff));
-	mono::add_internal_call("Ethereal.MyObject::ReturnAString", mono_auto_wrap(MyObject_ReturnAString));
+	mono::add_internal_call("Ethereal.MyObject::CreateInternal", internal_call(MyObject_CreateInternal));
+	mono::add_internal_call("Ethereal.MyObject::DestroyInternal", internal_call(MyObject_DestroyInternal));
+	mono::add_internal_call("Ethereal.MyObject::DoStuff", internal_call(MyObject_DoStuff));
+	mono::add_internal_call("Ethereal.MyObject::ReturnAString", internal_call(MyObject_ReturnAString));
 	mono::add_internal_call("Ethereal.WrapperVector2f::Create_WrapperVector2f",
-							mono_auto_wrap(MyVec_CreateInternal));
+							internal_call(MyVec_CreateInternal));
+    mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(int,int)",
+							internal_call(MyVec_CreateInternalCtor));
+    mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(Ethereal.WrapperVector2f)",
+							internal_call(MyVec_CreateInternalCtor2));
 }
 }

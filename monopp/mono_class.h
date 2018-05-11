@@ -3,7 +3,7 @@
 #include "mono_config.h"
 #include "mono_type_traits.h"
 
-#include "mono_method.h"
+#include "mono_method_thunk.h"
 #include "mono_noncopyable.h"
 #include <mono/metadata/metadata.h>
 #include <string>
@@ -37,7 +37,10 @@ public:
 	auto get_property(const std::string& name) const -> mono_class_property;
 
 	auto get_name() const -> std::string;
-
+    
+    auto get_fields() const -> std::vector<mono_class_field>;
+    auto get_properties() const -> std::vector<mono_class_property>;
+       
 	bool is_valuetype() const;
 
 private:
@@ -50,7 +53,7 @@ auto mono_class::get_static_method(const std::string& name)
 {
 	constexpr auto arg_count = function_traits<function_signature_t>::arity;
 	auto func = get_static_method(name, arg_count);
-	return func.template get_thunk<function_signature_t>();
+	return mono_method_thunk<function_signature_t>(std::move(func));
 }
 
 } // namespace mono

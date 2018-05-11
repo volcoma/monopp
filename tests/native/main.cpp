@@ -2,7 +2,7 @@
 #include "monort/managed_interface/core/object.h"
 int main()
 {
-	if(false == mono::init("tests"))
+	if(false == mono::init("tests", true))
 		return 1;
 
     for(int i = 0; i < 20; ++i)

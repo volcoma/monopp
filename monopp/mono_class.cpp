@@ -61,6 +61,34 @@ auto mono_class::get_name() const -> std::string
 	return mono_class_get_name(get_internal_ptr());
 }
 
+auto mono_class::get_fields() const -> std::vector<mono_class_field>
+{
+	void* iter = nullptr;
+	MonoClassField* field = nullptr;
+	std::vector<mono_class_field> fields;
+	while((field = mono_class_get_fields(class_, &iter)))
+	{
+		std::string name = mono_field_get_name(field);
+		fields.emplace_back(*this, name);
+	}
+	return fields;
+}
+
+
+auto mono_class::get_properties() const -> std::vector<mono_class_property>
+{
+	void* iter = nullptr;
+	MonoProperty* prop = nullptr;
+	std::vector<mono_class_property> props;
+	while((prop = mono_class_get_properties(class_, &iter)))
+	{
+		std::string name = mono_property_get_name(prop);
+		props.emplace_back(*this, name);
+	}
+	return props;
+}
+
+
 bool mono_class::is_valuetype() const
 {
 	return !!mono_class_is_valuetype(get_internal_ptr());

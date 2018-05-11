@@ -56,6 +56,6 @@ struct mono_jit_internal_call_wrapper<return_t(args_t...), func>
  * converstion is done through convert_mono_type. Add your own specialisation implementation
  * of this class to support more types.
  */
-#define mono_auto_wrap(func) &mono::mono_jit_internal_call_wrapper<decltype(func), func>::wrapper
+#define internal_call(func) &mono::mono_jit_internal_call_wrapper<decltype(func), func>::wrapper
 
 } // namespace mono

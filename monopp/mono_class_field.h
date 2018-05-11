@@ -22,10 +22,13 @@ public:
 
 	auto get_internal_ptr() const -> MonoClassField*;
 	auto is_valuetype() const -> bool;
+	auto get_name() const -> std::string;
 
 private:
 	MonoClassField* field_ = nullptr;
-	bool is_valuetype_ = true;
+	MonoType* type_ = nullptr;
+	std::string name_;
+	bool valuetype_ = true;
 };
 
 } // namespace mono

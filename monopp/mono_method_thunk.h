@@ -4,9 +4,9 @@
 
 #include "mono_assembly.h"
 #include "mono_exception.h"
+#include "mono_method.h"
 #include "mono_object.h"
 #include "mono_string.h"
-#include "mono_thunk_base.h"
 #include "mono_type_conversion.h"
 #include <mono/jit/jit.h>
 #include <string>
@@ -31,22 +31,22 @@ template <typename return_type_t>
 class mono_method_thunk;
 
 template <typename... args_t>
-class mono_method_thunk<void(args_t...)> : public mono_thunk_base, public mono_object
+class mono_method_thunk<void(args_t...)> : public mono_method
 {
 public:
-	explicit mono_method_thunk(mono_assembly* assembly, MonoObject* object, MonoMethod* method)
-		: mono_thunk_base(assembly, method)
-		, mono_object(object)
+	explicit mono_method_thunk(mono_method&& m)
+		: mono_method(std::move(m))
 	{
 	}
 
 	void operator()(args_t... args)
 	{
-		auto tup = std::make_tuple(
-			convert_mono_type<args_t>::to_mono(*this->assembly_, std::forward<args_t>(args))...);
-
 		auto method = this->method_;
 		auto object = this->object_;
+		auto assembly = this->assembly_;
+		auto tup =
+			std::make_tuple(convert_mono_type<args_t>::to_mono(*assembly, std::forward<args_t>(args))...);
+
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 
@@ -64,22 +64,21 @@ public:
 };
 
 template <typename return_type_t, typename... args_t>
-class mono_method_thunk<return_type_t(args_t...)> : public mono_thunk_base, public mono_object
+class mono_method_thunk<return_type_t(args_t...)> : public mono_method
 {
 public:
-	explicit mono_method_thunk(mono_assembly* assembly, MonoObject* object, MonoMethod* method)
-		: mono_thunk_base(assembly, method)
-		, mono_object(object)
+	explicit mono_method_thunk(mono_method&& m)
+		: mono_method(std::move(m))
 	{
 	}
 
 	decltype(auto) operator()(args_t... args)
 	{
-		auto tup = std::make_tuple(
-			convert_mono_type<args_t>::to_mono(*this->assembly_, std::forward<args_t>(args))...);
-
 		auto method = this->method_;
 		auto object = this->object_;
+		auto assembly = this->assembly_;
+		auto tup = std::make_tuple(
+			convert_mono_type<args_t>::to_mono(*assembly_, std::forward<args_t>(args))...);
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 

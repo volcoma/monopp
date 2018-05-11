@@ -3,6 +3,7 @@
 #include "mono_exception.h"
 #include <mono/metadata/mono-debug.h>
 #include <mono_build_config.h>
+#include <mono/metadata/threads.h>
 
 namespace mono
 {
@@ -38,21 +39,15 @@ void shutdown()
 {
 	try
 	{
-		if(detail::debugging_enabled_)
-		{
-			mono_debug_cleanup();
-		}
 		if(detail::jit_domain_)
 		{
 			mono_jit_cleanup(detail::jit_domain_);
 		}
-
 		detail::jit_domain_ = nullptr;
 	}
 	catch(...)
 	{
-		int a = 0;
-		a++;
+
 	}
 }
 

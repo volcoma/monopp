@@ -43,6 +43,13 @@ public class WrapperVector2f : Monopp.Core.NativeObject
         Create_WrapperVector2f(x, y);
     }
     
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public extern WrapperVector2f(int x, int y);
+        
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public extern WrapperVector2f(WrapperVector2f rhs);
+    
+        
     public void Foo()
     {
     
@@ -124,8 +131,11 @@ public
 	Ethereal.WrapperVector2f MethodPodARW(Ethereal.WrapperVector2f bb)
 	{
 		Console.WriteLine("FROM C# :");
-		var s = new Ethereal.WrapperVector2f(55, 66);
+		var s = new Ethereal.WrapperVector2f(55.0f, 66.0f);
+        var s1 = new Ethereal.WrapperVector2f(s);
+    
 		s.Foo();
+        s1.Foo();
         return s;
 	}
 

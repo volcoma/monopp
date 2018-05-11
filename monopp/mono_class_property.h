@@ -21,9 +21,10 @@ public:
 	auto operator=(mono_class_property&& o) -> mono_class_property&;
 
 	auto get_internal_ptr() const -> MonoProperty*;
-
+    auto get_name() const -> std::string;
 private:
 	MonoProperty* property_ = nullptr;
+    std::string name_;
 };
 
 } // namespace mono

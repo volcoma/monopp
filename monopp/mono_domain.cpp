@@ -52,9 +52,9 @@ mono_domain::~mono_domain()
 		if(res)
 		{
 			mono_domain_unload(domain_);
-			mono_gc_collect(mono_gc_max_generation());
 		}
 	}
+    mono_gc_collect(mono_gc_max_generation());
 }
 
 } // namespace mono
