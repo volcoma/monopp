@@ -9,7 +9,9 @@ set_target_properties(native PROPERTIES
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
-
 if(MINGW)
-	set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static-libgcc -static-libstdc++ -static")
+	set_target_properties(native PROPERTIES 
+		LINK_FLAGS 
+		"-static-libgcc -static-libstdc++ -static"
+	)
 endif()
