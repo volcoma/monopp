@@ -21,11 +21,27 @@ target_include_directories(monopp
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(monopp ${MONO_LIBRARIES})
-
+target_link_libraries(monopp PRIVATE ${MONO_LIBRARIES})
 
 set_target_properties(monopp PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
+
+# Link this 'library' to use the following warnings
+add_library(monopp_warnings INTERFACE)
+
+if (MSVC)
+	# Remove any set warning up to now
+	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+		string(REGEX REPLACE "/W[0-4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+	endif()
+	target_compile_options(monopp_warnings INTERFACE /W4)
+else()
+	target_compile_options(monopp_warnings INTERFACE -Wall -Wextra -Wpedantic)
+endif()
+
+target_link_libraries(monopp PRIVATE monopp_warnings)
+
+

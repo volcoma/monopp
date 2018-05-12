@@ -14,29 +14,25 @@ namespace detail
 {
 static MonoDomain* jit_domain_ = nullptr;
 static mono_assembly internal_call_assembly_;
-static bool debugging_enabled_ = false;
 }
 
 bool init(const std::string& domain, bool enable_debugging)
 {
 	mono_set_dirs(INTERNAL_MONO_ASSEMBLY_DIR, INTERNAL_MONO_CONFIG_DIR);
 
-	detail::debugging_enabled_ = enable_debugging;
-
-	if(detail::debugging_enabled_)
+	if(enable_debugging)
 	{
 		const char* options[] = {
 			"--soft-breakpoints",
 			"--debugger-agent=transport=dt_socket,server=y,address=127.0.0.1:55555,embedding=1"};
-		mono_jit_parse_options(sizeof(options) / sizeof(char*),
-							   const_cast<char**>(reinterpret_cast<const char**>(options)));
+		mono_jit_parse_options(sizeof(options) / sizeof(char*), const_cast<char**>(options));
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 	}
 
 	detail::jit_domain_ = mono_jit_init(domain.c_str());
-    
-	mono_thread_attach(detail::jit_domain_);
-    
+
+	mono_thread_set_main(mono_thread_current());
+
 	return detail::jit_domain_ != nullptr;
 }
 

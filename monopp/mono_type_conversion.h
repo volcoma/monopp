@@ -6,6 +6,7 @@
 #include "mono_exception.h"
 #include "mono_string.h"
 #include "mono_type_traits.h"
+#include <cstring>
 
 namespace mono
 {
@@ -51,7 +52,17 @@ struct convert_mono_type
 
 	static auto from_mono(MonoObject* obj) -> cpp_type_name
 	{
-		return *reinterpret_cast<cpp_type_name*>(mono_object_unbox(obj));
+		auto mono_cls = mono_object_get_class(obj);
+		uint32_t mono_align = 0;
+		const auto mono_sz = mono_class_value_size(mono_cls, &mono_align);
+		constexpr auto cpp_sz = sizeof(cpp_type_name);
+		constexpr auto cpp_align = alignof(cpp_type_name);
+		assert(mono_sz <= cpp_sz && mono_align <= cpp_align && "Different type layouts");
+
+        cpp_type_name val{};
+        void* ptr = mono_object_unbox(obj);
+        std::memcpy(&val, ptr, mono_sz);
+        return val;
 	}
 };
 

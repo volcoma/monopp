@@ -12,7 +12,8 @@ class mono_domain;
 class mono_string : public mono_object
 {
 public:
-	explicit mono_string(MonoObject* mono_string);
+    using mono_object::mono_object;
+    
 	explicit mono_string(mono_domain* domain, const std::string& str);
 
 	mono_string(mono_string&& o);
