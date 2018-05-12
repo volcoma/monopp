@@ -41,10 +41,10 @@ inline void test_mono(mono::mono_domain& domain)
 	test_mono_jit_get_class(domain);
 	test_mono_jit_get_method(domain);
 	test_mono_jit_get_field(domain);
-    test_mono_jit_get_field_custom_pod(domain);
+	test_mono_jit_get_field_custom_pod(domain);
 	test_mono_jit_get_field_fail(domain);
-    test_mono_jit_get_property(domain);
-    test_mono_jit_get_property_custom_pod(domain);
+	test_mono_jit_get_property(domain);
+	test_mono_jit_get_property_custom_pod(domain);
 	test_mono_jit_get_property_fail(domain);
 	test_mono_call_thunk(domain);
 	test_mono_call_thunk2(domain);

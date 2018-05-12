@@ -5,7 +5,7 @@ add_mono_assembly(
     DESTINATION ${CMAKE_BINARY_DIR}/bin
     TYPE library
     SOURCES ${libsharp}
-	ADDITIONAL_ARGS "/reference:managed_lib.dll"
+	ADDITIONAL_ARGS "/debug:full;/reference:managed_lib.dll"
 )
 
 add_dependencies(managed managed_lib)

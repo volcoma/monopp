@@ -540,9 +540,9 @@ void bind_mono(mono::mono_domain& domain)
 	mono::add_internal_call("Ethereal.MyObject::ReturnAString", internal_call(MyObject_ReturnAString));
 	mono::add_internal_call("Ethereal.WrapperVector2f::Create_WrapperVector2f",
 							internal_call(MyVec_CreateInternal));
-    mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(int,int)",
+	mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(int,int)",
 							internal_call(MyVec_CreateInternalCtor));
-    mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(Ethereal.WrapperVector2f)",
+	mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(Ethereal.WrapperVector2f)",
 							internal_call(MyVec_CreateInternalCtor2));
 }
 }

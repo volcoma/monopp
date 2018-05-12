@@ -32,3 +32,8 @@
 *.app
 
 *.user
+
+[Bb]uild/
+[Bb]in/
+.vs/
+.vscode/

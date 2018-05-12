@@ -2,10 +2,10 @@
 #include "mono_assembly.h"
 #include "mono_exception.h"
 
+#include <mono/jit/jit.h>
+#include <mono/metadata/assembly.h>
 #include <mono/metadata/mono-debug.h>
 #include <mono/metadata/threads.h>
-#include <mono/metadata/assembly.h>
-#include <mono/jit/jit.h>
 #include <mono_build_config.h>
 
 namespace mono
@@ -27,14 +27,16 @@ bool init(const std::string& domain, bool enable_debugging)
 	{
 		const char* options[] = {
 			"--soft-breakpoints",
-			"--debugger-agent=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:10000"};
+			"--debugger-agent=transport=dt_socket,server=y,address=127.0.0.1:55555,embedding=1"};
 		mono_jit_parse_options(sizeof(options) / sizeof(char*),
 							   const_cast<char**>(reinterpret_cast<const char**>(options)));
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 	}
 
 	detail::jit_domain_ = mono_jit_init(domain.c_str());
-
+    
+	mono_thread_attach(detail::jit_domain_);
+    
 	return detail::jit_domain_ != nullptr;
 }
 

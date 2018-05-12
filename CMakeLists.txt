@@ -8,6 +8,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 option(BUILD_MONOPP_MONORT "Build the monort utility library" ON)
 option(BUILD_MONOPP_TESTS "Build the tests" ON)
 
+include(macros)
+
+detect_platform()
+print_info()
+set_output_paths()
+
 add_subdirectory(monopp)
 
 if(BUILD_MONOPP_MONORT)	
