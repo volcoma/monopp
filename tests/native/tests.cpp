@@ -105,7 +105,8 @@ void test_mono_jit_get_class_fail(mono::mono_domain& domain)
 		try
 		{
 			auto cls = assembly.get_class("SomeClassThatDoesntExist12345");
-		}
+            (void)cls;
+        }
 		catch(mono::mono_exception& ex)
 		{
 			std::cout << ex.what() << std::endl;
@@ -126,6 +127,7 @@ void test_mono_jit_get_class(mono::mono_domain& domain)
 	{
 		auto& assembly = domain.get_assembly("managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
+        (void)cls;
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -148,6 +150,10 @@ void test_mono_jit_get_method(mono::mono_domain& domain)
 		auto method_MethodWithParameter = obj.get_method("MethodWithParameter", 1);
 		auto method_MethodWithParameterAndReturnValue =
 			obj.get_method("MethodWithParameterAndReturnValue", 2);
+        
+        (void)method_Method;
+        (void)method_MethodWithParameter;
+        (void)method_MethodWithParameterAndReturnValue;
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -475,21 +481,29 @@ void test_mono_call_method4(mono::mono_domain& domain)
 
 void MyObject_CreateInternal(MonoObject* this_ptr, float x, std::string v)
 {
+    (void)this_ptr;
+    (void)x;
+    (void)v;
 	std::cout << "FROM C++ : MyObject created." << std::endl;
 }
 
 void MyObject_DestroyInternal(MonoObject* this_ptr)
 {
+    (void)this_ptr;
 	std::cout << "FROM C++ : MyObject deleted." << std::endl;
 }
 
 void MyObject_DoStuff(MonoObject* this_ptr, std::string value)
 {
+    (void)this_ptr;
+    (void)value;
 	std::cout << "FROM C++ : DoStuff was called with: " << value << std::endl;
 }
 
 std::string MyObject_ReturnAString(MonoObject* this_ptr, std::string value)
 {
+    (void)this_ptr;
+    (void)value;
 	std::cout << "FROM C++ : ReturnAString was called with: " << value << std::endl;
 	return "The value: " + value;
 }
