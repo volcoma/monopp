@@ -10,10 +10,9 @@ option(BUILD_MONOPP_TESTS "Build the tests" ON)
 
 include(macros)
 
-detect_platform()
-print_info()
-
 if(BUILD_MONOPP_TESTS)
+	detect_platform()
+	print_info()
 	set_output_paths()
 endif()
 
