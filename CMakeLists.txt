@@ -5,15 +5,15 @@ project (monopp)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
-option(BUILD_MONOPP_MONORT "Build the monort utility library" ON)
+option(BUILD_MONOPP_MONORT "Build the monort utility library" OFF)
 option(BUILD_MONOPP_TESTS "Build the tests" ON)
 
-include(macros)
-
 if(BUILD_MONOPP_TESTS)
-	detect_platform()
-	print_info()
-	set_output_paths()
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin) 
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+	set(BUILD_MONOPP_MONORT ON)
+	message(STATUS "Enabled monopp tests.")
 endif()
 
 add_subdirectory(monopp)

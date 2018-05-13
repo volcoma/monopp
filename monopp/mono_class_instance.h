@@ -6,9 +6,9 @@
 #include "mono_class_field.h"
 #include "mono_class_property.h"
 #include "mono_domain.h"
+#include "mono_method_thunk.h"
 #include "mono_object.h"
 #include "mono_type_conversion.h"
-#include "mono_method_thunk.h"
 
 namespace mono
 {
@@ -99,7 +99,7 @@ void mono_class_instance::set_field_value(const mono_class_field& field, const T
 	assert(field.get_internal_ptr());
 
 	auto mono_val = convert_mono_type<T>::to_mono(*assembly_, val);
-	void* arg = to_mono_arg(mono_val);
+	auto arg = to_mono_arg(mono_val);
 
 	mono_field_set_value(object_, field.get_internal_ptr(), arg);
 }
@@ -134,12 +134,12 @@ void mono_class_instance::set_property_value(const mono_class_property& prop, co
 	assert(object_);
 	assert(prop.get_internal_ptr());
 
-    MonoObject* ex = nullptr;    
+	MonoObject* ex = nullptr;
 	auto mono_val = convert_mono_type<T>::to_mono(*assembly_, val);
-    void* argsv[] = {to_mono_arg(mono_val)};
+	void* argsv[] = {to_mono_arg(mono_val)};
 	mono_property_set_value(prop.get_internal_ptr(), object_, argsv, &ex);
-    
-    if(ex)
+
+	if(ex)
 	{
 		throw mono_thunk_exception(reinterpret_cast<MonoException*>(ex));
 	}

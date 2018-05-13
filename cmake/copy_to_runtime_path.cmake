@@ -48,6 +48,7 @@ function (copy_files_to_runtime_path)
 
     # Copying of the files.
     set(DESTINATION "${FUNCTION_ARGS_DESTINATION}")
+	
     execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${DESTINATION}")
     foreach (FILENAME ${FUNCTION_ARGS_FILES})
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FILENAME}" "${DESTINATION}/")
