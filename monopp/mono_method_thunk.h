@@ -43,15 +43,14 @@ public:
 	{
 		auto method = this->method_;
 		auto object = this->object_;
-		auto assembly = this->assembly_;
 		auto tup =
-			std::make_tuple(convert_mono_type<args_t>::to_mono(*assembly, std::forward<args_t>(args))...);
+			std::make_tuple(convert_mono_type<args_t>::to_mono(*this->assembly_, std::forward<args_t>(args))...);
 
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 
 			MonoObject* ex = nullptr;
-			auto result = mono_runtime_invoke(method, object, argsv.data(), &ex);
+			mono_runtime_invoke(method, object, argsv.data(), &ex);
 			if(ex)
 			{
 				throw mono_thunk_exception(reinterpret_cast<MonoException*>(ex));
@@ -76,9 +75,8 @@ public:
 	{
 		auto method = this->method_;
 		auto object = this->object_;
-		auto assembly = this->assembly_;
 		auto tup = std::make_tuple(
-			convert_mono_type<args_t>::to_mono(*assembly_, std::forward<args_t>(args))...);
+			convert_mono_type<args_t>::to_mono(*this->assembly_, std::forward<args_t>(args))...);
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 

@@ -1,2 +1,2 @@
-add_subdirectory(managed_interface)
+add_subdirectory(monort)
 add_subdirectory(managed)

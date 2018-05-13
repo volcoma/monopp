@@ -4,8 +4,8 @@
 #include "monopp/mono_class_instance.h"
 #include "monopp/mono_method.h"
 #include "monopp/mono_string.h"
-#include "monort/managed_interface/mono_object_wrapper.h"
-#include "monort/managed_interface/mono_pod_wrapper.h"
+#include "monort/mono_object_wrapper.h"
+#include "monort/mono_pod_wrapper.h"
 
 // References
 // https://github.com/AvalonWot/xmono/blob/master/jni/lua-mono.cpp

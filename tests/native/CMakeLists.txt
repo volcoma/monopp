@@ -2,7 +2,7 @@ file(GLOB_RECURSE libsrc *.h *.cpp *.hpp *.c *.cc)
 
 add_executable (native ${libsrc})
 
-target_link_libraries(native PUBLIC managed_interface)
+target_link_libraries(native PUBLIC monort)
 
 set_target_properties(native PROPERTIES
     CXX_STANDARD 14
@@ -15,3 +15,6 @@ if(MINGW)
 		"-static-libgcc -static-libstdc++ -static"
 	)
 endif()
+
+include(target_warning_support)
+set_warning_level(native high)

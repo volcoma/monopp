@@ -12,7 +12,10 @@ include(macros)
 
 detect_platform()
 print_info()
-set_output_paths()
+
+if(BUILD_MONOPP_TESTS)
+	set_output_paths()
+endif()
 
 add_subdirectory(monopp)
 
