@@ -14,12 +14,12 @@ namespace managed_interface
 	{                                                                                                        \
 		using mono_type_name = MonoObject*;                                                                  \
                                                                                                              \
-		static auto to_mono(mono_assembly& assembly, type wrapper) -> mono_type_name                            \
+		static auto to_mono(mono_assembly& assembly, type wrapper) -> mono_type_name                         \
 		{                                                                                                    \
-			return managed_interface::mono_object_wrapper<type>::create(assembly, wrapper);                            \
+			return managed_interface::mono_object_wrapper<type>::create(assembly, std::move(wrapper));       \
 		}                                                                                                    \
                                                                                                              \
-		static auto from_mono(mono_type_name object) -> type                                                    \
+		static auto from_mono(mono_type_name object) -> type                                                 \
 		{                                                                                                    \
 			return managed_interface::mono_object_wrapper<type>::get_native_object(object);                  \
 		}                                                                                                    \
