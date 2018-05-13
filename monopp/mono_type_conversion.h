@@ -59,10 +59,8 @@ struct convert_mono_type
 		constexpr auto cpp_align = alignof(cpp_type_name);
 		assert(mono_sz <= cpp_sz && mono_align <= cpp_align && "Different type layouts");
 
-        cpp_type_name val{};
-        void* ptr = mono_object_unbox(obj);
-        std::memcpy(&val, ptr, mono_sz);
-        return val;
+		void* ptr = mono_object_unbox(obj);
+		return *reinterpret_cast<cpp_type_name*>(ptr);
 	}
 };
 
