@@ -2,30 +2,30 @@ shallow_clone: false
 
 environment:
   matrix:
-  - COMPILER: MINGW_W64_5_3
+  - compiler: MINGW_W64_5_3
     ARCHITECTURE: x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  - COMPILER: MINGW_W64_6_3
+    image: Visual Studio 2015
+  - compiler: MINGW_W64_6_3
     ARCHITECTURE: x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  - COMPILER: MINGW_W64_6_3
+    image: Visual Studio 2015
+  - compiler: MINGW_W64_6_3
     ARCHITECTURE: x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  - COMPILER: MINGW_W64_7_2
+    image: Visual Studio 2015
+  - compiler: MINGW_W64_7_2
     ARCHITECTURE: x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-  - COMPILER: MSVC_15
+    image: Visual Studio 2017
+  - compiler: MSVC_15
     ARCHITECTURE: x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-  - COMPILER: MSVC_15
+    image: Visual Studio 2017
+  - compiler: MSVC_15
     ARCHITECTURE: x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-  - COMPILER: MSVC_14
+    image: Visual Studio 2017
+  - compiler: MSVC_14
     ARCHITECTURE: x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  - COMPILER: MSVC_14
+    image: Visual Studio 2015
+  - compiler: MSVC_14
     ARCHITECTURE: x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    image: Visual Studio 2015
 
 
 build:
@@ -73,33 +73,25 @@ install:
 
 
 before_build:
-    if ($isLinux) 
-    {
-        Write-Host "This is Linux!"
-    } 
-    else
-    {
-      - cmd: cd C:\projects\monopp
-      - IF "%ARCHITECTURE%" == "x86" IF "%COMPILER%" == "MSVC_15" 
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
-      - IF "%ARCHITECTURE%" == "x64" IF "%COMPILER%" == "MSVC_15" 
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-      - IF "%ARCHITECTURE%" == "x86" IF "%COMPILER%" == "MSVC_14" 
-        call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
-      - IF "%ARCHITECTURE%" == "x64" IF "%COMPILER%" == "MSVC_14" 
-        call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
-      - IF "%ARCHITECTURE%" == "x64" IF "%COMPILER%" == "MSVC_14" 
-        call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
-      - IF "%ARCHITECTURE%" == "x86" IF "%COMPILER%" == "MINGW_W64_5_3" 
-        set PATH=C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32\bin;%PATH%
-      - IF "%ARCHITECTURE%" == "x86" IF "%COMPILER%" == "MINGW_W64_6_3" 
-        set PATH=C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;%PATH%
-      - IF "%ARCHITECTURE%" == "x64" IF "%COMPILER%" == "MINGW_W64_6_3" 
-        set PATH=C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
-      - IF "%ARCHITECTURE%" == "x64" IF "%COMPILER%" == "MINGW_W64_7_2" 
-        set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
-    }
-  
+  - cmd: cd C:\projects\monopp
+  - IF "%ARCHITECTURE%" == "x86" IF $(compiler) == "MSVC_15" 
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+  - IF "%ARCHITECTURE%" == "x64" IF $(compiler) == "MSVC_15" 
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - IF "%ARCHITECTURE%" == "x86" IF $(compiler) == "MSVC_14" 
+    call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
+  - IF "%ARCHITECTURE%" == "x64" IF $(compiler) == "MSVC_14" 
+    call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
+  - IF "%ARCHITECTURE%" == "x64" IF $(compiler) == "MSVC_14" 
+    call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
+  - IF "%ARCHITECTURE%" == "x86" IF $(compiler) == "MINGW_W64_5_3" 
+    set PATH=C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32\bin;%PATH%
+  - IF "%ARCHITECTURE%" == "x86" IF $(compiler) == "MINGW_W64_6_3" 
+    set PATH=C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;%PATH%
+  - IF "%ARCHITECTURE%" == "x64" IF $(compiler) == "MINGW_W64_6_3" 
+    set PATH=C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
+  - IF "%ARCHITECTURE%" == "x64" IF $(compiler) == "MINGW_W64_7_2" 
+    set PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
 
 #######################################################################################
 # we can use Ninja for all configurations
