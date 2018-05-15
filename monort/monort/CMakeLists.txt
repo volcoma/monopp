@@ -17,4 +17,4 @@ set_target_properties(monort PROPERTIES
 )
 
 include(target_warning_support)
-set_warning_level(monort ultra)
+set_warning_level(monort high)

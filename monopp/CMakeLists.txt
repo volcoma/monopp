@@ -30,4 +30,4 @@ set_target_properties(monopp PROPERTIES
 )
 
 include(target_warning_support)
-set_warning_level(monopp ultra)
+set_warning_level(monopp high)

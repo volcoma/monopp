@@ -2,6 +2,9 @@ shallow_clone: false
 
 environment:
   matrix:
+  - COMPILER: GCC_5_3
+    ARCHITECTURE: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
   - COMPILER: MINGW_W64_5_3
     ARCHITECTURE: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
