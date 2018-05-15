@@ -37,22 +37,22 @@ public:
 	auto get_field_value(const mono_class_field& field) const -> T;
 
 	template <typename T>
-	void get_field_value(const mono_class_field& field, T& val) const;
-
-	template <typename T>
 	void set_field_value(const mono_class_field& field, const T& val) const;
 
 	template <typename T>
 	auto get_property_value(const mono_class_property& prop) const -> T;
 
 	template <typename T>
-	void get_property_value(const mono_class_property& prop, T& val) const;
-
-	template <typename T>
 	void set_property_value(const mono_class_property& prop, const T& val) const;
 
 private:
-	MonoClass* class_ = nullptr;
+    template <typename T>
+	void __get_field_value(const mono_class_field& field, T& val) const;
+    
+    template <typename T>
+	void __get_property_value(const mono_class_property& prop, T& val) const;
+	
+    MonoClass* class_ = nullptr;
 	mono_assembly* assembly_ = nullptr;
 };
 
@@ -68,12 +68,12 @@ template <typename T>
 auto mono_class_instance::get_field_value(const mono_class_field& field) const -> T
 {
 	T val{};
-	get_field_value(field, val);
+	__get_field_value(field, val);
 	return val;
 }
 
 template <typename T>
-void mono_class_instance::get_field_value(const mono_class_field& field, T& val) const
+void mono_class_instance::__get_field_value(const mono_class_field& field, T& val) const
 {
 	assert(object_);
 	assert(field.get_internal_ptr());
@@ -108,12 +108,12 @@ template <typename T>
 auto mono_class_instance::get_property_value(const mono_class_property& prop) const -> T
 {
 	T val{};
-	get_property_value(prop, val);
+	__get_property_value(prop, val);
 	return val;
 }
 
 template <typename T>
-void mono_class_instance::get_property_value(const mono_class_property& prop, T& val) const
+void mono_class_instance::__get_property_value(const mono_class_property& prop, T& val) const
 {
 	assert(object_);
 	assert(prop.get_internal_ptr());

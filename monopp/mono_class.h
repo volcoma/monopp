@@ -42,7 +42,7 @@ public:
     auto get_fields() const -> std::vector<mono_class_field>;
     auto get_properties() const -> std::vector<mono_class_property>;
        
-	bool is_valuetype() const;
+	auto is_valuetype() const -> bool;
 
 private:
 	mono_assembly* assembly_ = nullptr;

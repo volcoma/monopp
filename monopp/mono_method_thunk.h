@@ -71,7 +71,7 @@ public:
 	{
 	}
 
-	decltype(auto) operator()(args_t... args)
+	auto operator()(args_t... args)
 	{
 		auto method = this->method_;
 		auto object = this->object_;

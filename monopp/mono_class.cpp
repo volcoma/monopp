@@ -92,7 +92,7 @@ auto mono_class::get_properties() const -> std::vector<mono_class_property>
 }
 
 
-bool mono_class::is_valuetype() const
+auto mono_class::is_valuetype() const -> bool
 {
 	return !!mono_class_is_valuetype(get_internal_ptr());
 }
