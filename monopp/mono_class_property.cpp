@@ -12,9 +12,9 @@ mono_class_property::mono_class_property(const mono_class& monoclass, const std:
 		throw mono_exception("NATIVE::Could not get property : " + name + " for class " + monoclass.get_name());
 }
 
-mono_class_property::mono_class_property(mono_class_property&& o) = default;
+mono_class_property::mono_class_property(mono_class_property&&) = default;
 
-auto mono_class_property::operator=(mono_class_property&& o) -> mono_class_property& = default;
+auto mono_class_property::operator=(mono_class_property&&) -> mono_class_property& = default;
 
 auto mono_class_property::get_internal_ptr() const -> MonoProperty*
 {

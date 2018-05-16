@@ -19,9 +19,9 @@ mono_class_instance::mono_class_instance(mono_assembly* assembly, mono_domain* d
 	mono_runtime_object_init(object_);
 }
 
-mono_class_instance::mono_class_instance(mono_class_instance&& o) = default;
+mono_class_instance::mono_class_instance(mono_class_instance&&) = default;
 
-auto mono_class_instance::operator=(mono_class_instance&& o) -> mono_class_instance& = default;
+auto mono_class_instance::operator=(mono_class_instance&&) -> mono_class_instance& = default;
 
 auto mono_class_instance::get_method(const std::string& name, int argc /*= 0*/) -> mono_method
 {

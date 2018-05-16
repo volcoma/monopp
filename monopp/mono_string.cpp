@@ -9,9 +9,9 @@ mono_string::mono_string(mono_domain* domain, const std::string& str)
 {
 }
 
-mono_string::mono_string(mono_string&& o) = default;
+mono_string::mono_string(mono_string&&) = default;
 
-auto mono_string::operator=(mono_string&& o) -> mono_string& = default;
+auto mono_string::operator=(mono_string&&) -> mono_string& = default;
 
 auto mono_string::operator=(const std::string& str) -> mono_string&
 {

@@ -24,8 +24,8 @@ auto mono_method::get_internal_ptr() const -> MonoMethod*
 	return method_;
 }
 
-mono_method::mono_method(mono_method&& o) = default;
+mono_method::mono_method(mono_method&&) = default;
 
-auto mono_method::operator=(mono_method&& o) -> mono_method& = default;
+auto mono_method::operator=(mono_method&&) -> mono_method& = default;
 
 } // namespace mono

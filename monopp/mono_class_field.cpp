@@ -18,9 +18,9 @@ mono_class_field::mono_class_field(const mono_class& cls, const std::string& nam
 	valuetype_ = !!mono_class_is_valuetype(field_class);
 }
 
-mono_class_field::mono_class_field(mono_class_field&& o) = default;
+mono_class_field::mono_class_field(mono_class_field&&) = default;
 
-auto mono_class_field::operator=(mono_class_field&& o) -> mono_class_field& = default;
+auto mono_class_field::operator=(mono_class_field&&) -> mono_class_field& = default;
 
 auto mono_class_field::get_internal_ptr() const -> MonoClassField*
 {

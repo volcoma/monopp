@@ -28,9 +28,9 @@ mono_class::mono_class(mono_assembly* assembly, MonoImage* image, const std::str
 		throw mono_exception("NATIVE::Could not get class : " + name_space + "::" + name);
 }
 
-mono_class::mono_class(mono_class&& o) = default;
+mono_class::mono_class(mono_class&&) = default;
 
-auto mono_class::operator=(mono_class&& o) -> mono_class& = default;
+auto mono_class::operator=(mono_class&&) -> mono_class& = default;
 
 auto mono_class::get_static_method(const std::string& name, int argc /*= 0*/) const -> mono_method
 {
