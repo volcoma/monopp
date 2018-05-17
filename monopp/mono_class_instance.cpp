@@ -21,16 +21,23 @@ mono_class_instance::mono_class_instance(mono_assembly* assembly, mono_domain* d
 
 mono_class_instance::mono_class_instance(mono_class_instance&&) = default;
 
-auto mono_class_instance::operator=(mono_class_instance&&) -> mono_class_instance& = default;
+auto mono_class_instance::operator=(mono_class_instance &&) -> mono_class_instance& = default;
 
-auto mono_class_instance::get_method(const std::string& name, int argc /*= 0*/) -> mono_method
+auto mono_class_instance::get_method(const std::string& name_with_args) const -> mono_method
+{
+	assert(assembly_);
+	assert(object_);
+	return mono_method(assembly_, class_, object_, name_with_args);
+}
+
+auto mono_class_instance::get_method(const std::string& name, int argc) const -> mono_method
 {
 	assert(assembly_);
 	assert(object_);
 	return mono_method(assembly_, class_, object_, name, argc);
 }
 
-auto mono_class_instance::get_class() -> mono_class
+auto mono_class_instance::get_class() const -> mono_class
 {
 	return mono_class(assembly_, class_);
 }

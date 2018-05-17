@@ -30,9 +30,16 @@ mono_class::mono_class(mono_assembly* assembly, MonoImage* image, const std::str
 
 mono_class::mono_class(mono_class&&) = default;
 
-auto mono_class::operator=(mono_class&&) -> mono_class& = default;
+auto mono_class::operator=(mono_class &&) -> mono_class& = default;
 
-auto mono_class::get_static_method(const std::string& name, int argc /*= 0*/) const -> mono_method
+auto mono_class::get_static_method(const std::string& name_with_args) const -> mono_method
+{
+	assert(class_);
+	assert(assembly_);
+	return mono_method(assembly_, class_, nullptr, name_with_args);
+}
+
+auto mono_class::get_static_method(const std::string& name, int argc) const -> mono_method
 {
 	assert(class_);
 	assert(assembly_);
@@ -69,12 +76,11 @@ auto mono_class::get_fields() const -> std::vector<mono_class_field>
 	{
 		std::string name = mono_field_get_name(field);
 		fields.emplace_back(*this, name);
-        
-        field = mono_class_get_fields(class_, &iter);
+
+		field = mono_class_get_fields(class_, &iter);
 	}
 	return fields;
 }
-
 
 auto mono_class::get_properties() const -> std::vector<mono_class_property>
 {
@@ -85,12 +91,11 @@ auto mono_class::get_properties() const -> std::vector<mono_class_property>
 	{
 		std::string name = mono_property_get_name(prop);
 		props.emplace_back(*this, name);
-        
-        prop = mono_class_get_properties(class_, &iter);
+
+		prop = mono_class_get_properties(class_, &iter);
 	}
 	return props;
 }
-
 
 auto mono_class::is_valuetype() const -> bool
 {

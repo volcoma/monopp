@@ -7,10 +7,6 @@
 #include "monort/mono_object_wrapper.h"
 #include "monort/mono_pod_wrapper.h"
 
-// References
-// https://github.com/AvalonWot/xmono/blob/master/jni/lua-mono.cpp
-// https://github.com/mono/mono/blob/master/samples/embed/test-invoke.c
-
 struct vec2f
 {
 	float x;
@@ -105,8 +101,8 @@ void test_mono_jit_get_class_fail(mono::mono_domain& domain)
 		try
 		{
 			auto cls = assembly.get_class("SomeClassThatDoesntExist12345");
-            (void)cls;
-        }
+			(void)cls;
+		}
 		catch(mono::mono_exception& ex)
 		{
 			std::cout << ex.what() << std::endl;
@@ -127,7 +123,7 @@ void test_mono_jit_get_class(mono::mono_domain& domain)
 	{
 		auto& assembly = domain.get_assembly("managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-        (void)cls;
+		(void)cls;
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -147,13 +143,14 @@ void test_mono_jit_get_method(mono::mono_domain& domain)
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto obj = assembly.new_class_instance(cls);
 		auto method_Method = obj.get_method("Method");
-		auto method_MethodWithParameter = obj.get_method("MethodWithParameter", 1);
+		auto method_MethodWithParameter = obj.get_method<void(int)>("MethodWithParameter");
 		auto method_MethodWithParameterAndReturnValue =
-			obj.get_method("MethodWithParameterAndReturnValue", 2);
-        
-        (void)method_Method;
-        (void)method_MethodWithParameter;
-        (void)method_MethodWithParameterAndReturnValue;
+			obj.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
+		method_MethodWithParameter(5);
+
+		(void)method_Method;
+		(void)method_MethodWithParameter;
+		(void)method_MethodWithParameterAndReturnValue;
 	}
 	catch(mono::mono_exception& ex)
 	{
@@ -481,34 +478,34 @@ void test_mono_call_method4(mono::mono_domain& domain)
 
 void MyObject_CreateInternal(MonoObject* this_ptr, float x, std::string v)
 {
-    (void)this_ptr;
-    (void)x;
-    (void)v;
+	(void)this_ptr;
+	(void)x;
+	(void)v;
 	std::cout << "FROM C++ : MyObject created." << std::endl;
 }
 
 void MyObject_DestroyInternal(MonoObject* this_ptr)
 {
-    (void)this_ptr;
+	(void)this_ptr;
 	std::cout << "FROM C++ : MyObject deleted." << std::endl;
 }
 
 void MyObject_DoStuff(MonoObject* this_ptr, std::string value)
 {
-    (void)this_ptr;
-    (void)value;
+	(void)this_ptr;
+	(void)value;
 	std::cout << "FROM C++ : DoStuff was called with: " << value << std::endl;
 }
 
 std::string MyObject_ReturnAString(MonoObject* this_ptr, std::string value)
 {
-    (void)this_ptr;
-    (void)value;
+	(void)this_ptr;
+	(void)value;
 	std::cout << "FROM C++ : ReturnAString was called with: " << value << std::endl;
 	return "The value: " + value;
 }
 
-void MyVec_CreateInternal(MonoObject* this_ptr, float x, float y)
+void MyVec_CreateInternalCtor(MonoObject* this_ptr, float x, float y)
 {
 	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
 	using vec2f_ptr = std::shared_ptr<vec2f>;
@@ -519,18 +516,7 @@ void MyVec_CreateInternal(MonoObject* this_ptr, float x, float y)
 	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
 }
 
-void MyVec_CreateInternalCtor(MonoObject* this_ptr, int x, int y)
-{
-	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
-	using vec2f_ptr = std::shared_ptr<vec2f>;
-	auto p = std::make_shared<vec2f>();
-	p->x = float(x);
-	p->y = float(y);
-
-	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
-}
-
-void MyVec_CreateInternalCtor2(MonoObject* this_ptr, std::shared_ptr<vec2f> rhs)
+void MyVec_CreateInternalCopyCtor(MonoObject* this_ptr, std::shared_ptr<vec2f> rhs)
 {
 	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
 	using vec2f_ptr = std::shared_ptr<vec2f>;
@@ -552,11 +538,9 @@ void bind_mono(mono::mono_domain& domain)
 	mono::add_internal_call("Ethereal.MyObject::DestroyInternal", internal_call(MyObject_DestroyInternal));
 	mono::add_internal_call("Ethereal.MyObject::DoStuff", internal_call(MyObject_DoStuff));
 	mono::add_internal_call("Ethereal.MyObject::ReturnAString", internal_call(MyObject_ReturnAString));
-	mono::add_internal_call("Ethereal.WrapperVector2f::Create_WrapperVector2f",
-							internal_call(MyVec_CreateInternal));
-	mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(int,int)",
+	mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(single,single)",
 							internal_call(MyVec_CreateInternalCtor));
 	mono::add_internal_call("Ethereal.WrapperVector2f::.ctor(Ethereal.WrapperVector2f)",
-							internal_call(MyVec_CreateInternalCtor2));
+							internal_call(MyVec_CreateInternalCopyCtor));
 }
 }

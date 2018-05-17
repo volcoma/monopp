@@ -20,7 +20,7 @@ mono_class_field::mono_class_field(const mono_class& cls, const std::string& nam
 
 mono_class_field::mono_class_field(mono_class_field&&) = default;
 
-auto mono_class_field::operator=(mono_class_field&&) -> mono_class_field& = default;
+auto mono_class_field::operator=(mono_class_field &&) -> mono_class_field& = default;
 
 auto mono_class_field::get_internal_ptr() const -> MonoClassField*
 {

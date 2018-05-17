@@ -26,12 +26,16 @@ public:
 	mono_class_instance(mono_class_instance&& o);
 	auto operator=(mono_class_instance&& o) -> mono_class_instance&;
 
-	auto get_method(const std::string& name, int argc = 0) -> mono_method;
+	auto get_method(const std::string& name_with_args) const -> mono_method;
+	auto get_method(const std::string& name, int argc) const -> mono_method;
 
 	template <typename function_signature_t>
-	auto get_method(const std::string& name);
+	auto get_method(const std::string& name) const;
 
-	auto get_class() -> mono_class;
+	template <typename function_signature_t>
+	auto get_method_explicit(const std::string& name_with_args) const;
+
+	auto get_class() const -> mono_class;
 
 	template <typename T>
 	auto get_field_value(const mono_class_field& field) const -> T;
@@ -46,21 +50,42 @@ public:
 	void set_property_value(const mono_class_property& prop, const T& val) const;
 
 private:
-    template <typename T>
+	template <typename T>
 	void __get_field_value(const mono_class_field& field, T& val) const;
-    
-    template <typename T>
+
+	template <typename T>
 	void __get_property_value(const mono_class_property& prop, T& val) const;
-	
-    MonoClass* class_ = nullptr;
+
+	MonoClass* class_ = nullptr;
 	mono_assembly* assembly_ = nullptr;
 };
 
 template <typename function_signature_t>
-auto mono_class_instance::get_method(const std::string& name)
+auto mono_class_instance::get_method(const std::string& name) const
 {
-	constexpr auto arg_count = function_traits<function_signature_t>::arity;
-	auto func = get_method(name, arg_count);
+	using arg_types = typename function_traits<function_signature_t>::arg_types;
+	arg_types tup;
+	auto args_result = types::get_args_signature(tup);
+	auto args = args_result.first;
+	auto all_types_known = args_result.second;
+
+	if(all_types_known)
+	{
+		auto func = get_method(name + "(" + args + ")");
+		return mono_method_thunk<function_signature_t>(std::move(func));
+	}
+	else
+	{
+		constexpr auto arg_count = function_traits<function_signature_t>::arity;
+		auto func = get_method(name, arg_count);
+		return mono_method_thunk<function_signature_t>(std::move(func));
+	}
+}
+
+template <typename function_signature_t>
+auto mono_class_instance::get_method_explicit(const std::string& name_with_args) const
+{
+	auto func = get_method(name_with_args);
 	return mono_method_thunk<function_signature_t>(std::move(func));
 }
 

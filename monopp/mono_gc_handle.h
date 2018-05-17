@@ -22,7 +22,7 @@ public:
 	void unlock();
 
 private:
-    MonoObject* object_ = nullptr;
+	MonoObject* object_ = nullptr;
 	std::uint32_t handle_ = 0;
 };
 

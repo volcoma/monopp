@@ -28,8 +28,8 @@ object::object(MonoObject* mono_object)
 {
 	mono_class_instance instance(mono_object);
 
-	assert(mono_class_is_subclass_of(instance.get_class().get_internal_ptr(),
-									 object_class.get_internal_ptr(), false) &&
+	assert(mono_class_is_subclass_of(instance.get_class().get_internal_ptr(), object_class.get_internal_ptr(),
+									 false) &&
 		   "Mono wrapper classes must inherit from Monopp.Core.NativeObject.");
 
 	instance.set_field_value<object*>(native_object_field, this);

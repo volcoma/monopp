@@ -54,15 +54,15 @@ struct convert_mono_type
 	{
 		auto mono_cls = mono_object_get_class(obj);
 		bool valuetype = !!mono_class_is_valuetype(mono_cls);
-        (void)valuetype;
+		(void)valuetype;
 		assert(valuetype && "Mono type should be a valuetype in this specialization");
 		std::uint32_t mono_align = 0;
 		const auto mono_sz = std::uint32_t(mono_class_value_size(mono_cls, &mono_align));
 		constexpr auto cpp_sz = sizeof(cpp_type_name);
 		constexpr auto cpp_align = alignof(cpp_type_name);
-        (void)mono_sz;
-        (void)cpp_sz;
-        (void)cpp_align;
+		(void)mono_sz;
+		(void)cpp_sz;
+		(void)cpp_align;
 		assert(mono_sz <= cpp_sz && mono_align <= cpp_align && "Different type layouts");
 		void* ptr = mono_object_unbox(obj);
 		return *reinterpret_cast<cpp_type_name*>(ptr);

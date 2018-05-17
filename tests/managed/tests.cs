@@ -38,14 +38,9 @@ public struct Vector2f
 
 public class WrapperVector2f : Monopp.Core.NativeObject
 {
-    public WrapperVector2f(float x, float y)
-    {
-        Create_WrapperVector2f(x, y);
-    }
-    
-    [MethodImpl(MethodImplOptions.InternalCall)]
-    public extern WrapperVector2f(int x, int y);
-        
+    [MethodImpl(MethodImplOptions.InternalCall)]        
+    public extern WrapperVector2f(float x, float y);
+
     [MethodImpl(MethodImplOptions.InternalCall)]
     public extern WrapperVector2f(WrapperVector2f rhs);
     
@@ -54,8 +49,7 @@ public class WrapperVector2f : Monopp.Core.NativeObject
     {
     
     }
-    [MethodImpl(MethodImplOptions.InternalCall)]
-    private extern void Create_WrapperVector2f(float x, float y);
+
 }
 }
 
@@ -141,9 +135,16 @@ public
 
 	void MethodWithParameter(string s)
 	{
-		Console.WriteLine("FROM C# : WithParam: " + s);
+		Console.WriteLine("FROM C# : WithParam string: " + s);
 	}
-
+    void MethodWithParameter(int s)
+	{
+		Console.WriteLine("FROM C# : WithParam int: " + s);
+	}
+    void MethodWithParameter(int s, int s1)
+	{
+		Console.WriteLine("FROM C# : WithParam int, int: {0}, {1}", s, s1);
+	}
 public
 	string MethodWithParameterAndReturnValue(string s, int b)
 	{

@@ -26,7 +26,7 @@ auto mono_assembly::operator=(const mono_assembly&) -> mono_assembly& = default;
 
 mono_assembly::mono_assembly(mono_assembly&&) = default;
 
-auto mono_assembly::operator=(mono_assembly&&) -> mono_assembly& = default;
+auto mono_assembly::operator=(mono_assembly &&) -> mono_assembly& = default;
 
 auto mono_assembly::get_class(const std::string& name) -> mono_class
 {
