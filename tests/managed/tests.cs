@@ -6,7 +6,7 @@ using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ethereal
+namespace Tests
 {
 class MyObject
 {
@@ -32,24 +32,22 @@ public
 
 public struct Vector2f
 {
-    public float x;
-	public float y;
+public
+	float x;
+public
+	float y;
 }
 
 public class WrapperVector2f : Monopp.Core.NativeObject
 {
-    [MethodImpl(MethodImplOptions.InternalCall)]        
-    public extern WrapperVector2f(float x, float y);
+	[MethodImpl(MethodImplOptions.InternalCall)] public extern WrapperVector2f(float x, float y);
 
-    [MethodImpl(MethodImplOptions.InternalCall)]
-    public extern WrapperVector2f(WrapperVector2f rhs);
-    
-        
-    public void Foo()
-    {
-    
-    }
+	[MethodImpl(MethodImplOptions.InternalCall)] public extern WrapperVector2f(WrapperVector2f rhs);
 
+public
+	void Foo()
+	{
+	}
 }
 }
 
@@ -58,42 +56,42 @@ class ClassInstanceTest
 {
 public
 	int someField = 12;
-    
-    int someProperty
-    { 
-        get
-        {
-            return someField;
-        }
-        set
-        {
-            Console.WriteLine("FROM C# : Setting property value to {0}", value); 
-            someField = value;
-        }
-    }
-    
-    Ethereal.Vector2f someFieldPOD;
-    
-    Ethereal.Vector2f somePropertyPOD
-    { 
-        get
-        {
-            return someFieldPOD;
-        }
-        set
-        {
-            Console.WriteLine("FROM C# : Setting property value to {0}, {1}", value.x, value.y); 
-            someFieldPOD = value;
-        }
-    }
-    
+
+public
+	int someProperty
+	{
+		get
+		{
+			return someField;
+		}
+		set
+		{
+			Console.WriteLine("FROM C# : Setting property value to {0}", value);
+			someField = value;
+		}
+	}
+
+public
+	Tests.Vector2f someFieldPOD;
+
+public
+	Tests.Vector2f somePropertyPOD
+	{
+		get
+		{
+			return someFieldPOD;
+		}
+		set
+		{
+			Console.WriteLine("FROM C# : Setting property value to {0}, {1}", value.x, value.y);
+			someFieldPOD = value;
+		}
+	}
+
 public
 	ClassInstanceTest()
 	{
 		Console.WriteLine("FROM C# : ClassInstanceTest created.");
-
-		Ethereal.MyObject s1 = new Ethereal.MyObject();
-		s1.DoStuff("Hello from C#!");
 	}
 
 	~ClassInstanceTest()
@@ -108,40 +106,37 @@ public
 	}
 
 public
-	Ethereal.Vector2f MethodPodAR(Ethereal.Vector2f bb)
+	Tests.Vector2f MethodPodAR(Tests.Vector2f bb)
 	{
 		Console.WriteLine(bb.x);
 		Console.WriteLine(bb.y);
-		var s = new Ethereal.Vector2f();
+		var s = new Tests.Vector2f();
 		s.x = 165.0f;
 		s.y = 7.0f;
-		int size = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Ethereal.Vector2f));
-		Console.WriteLine(size);
 
-		//throw new Exception("saaasasasa!");
 		return s;
 	}
-	
-	Ethereal.WrapperVector2f MethodPodARW(Ethereal.WrapperVector2f bb)
+
+	Tests.WrapperVector2f MethodPodARW(Tests.WrapperVector2f bb)
 	{
 		Console.WriteLine("FROM C# :");
-		var s = new Ethereal.WrapperVector2f(55.0f, 66.0f);
-        var s1 = new Ethereal.WrapperVector2f(s);
-    
+		var s = new Tests.WrapperVector2f(55.0f, 66.0f);
+		var s1 = new Tests.WrapperVector2f(s);
+
 		s.Foo();
-        s1.Foo();
-        return s;
+		s1.Foo();
+		return s;
 	}
 
 	void MethodWithParameter(string s)
 	{
 		Console.WriteLine("FROM C# : WithParam string: " + s);
 	}
-    void MethodWithParameter(int s)
+	void MethodWithParameter(int s)
 	{
 		Console.WriteLine("FROM C# : WithParam int: " + s);
 	}
-    void MethodWithParameter(int s, int s1)
+	void MethodWithParameter(int s, int s1)
 	{
 		Console.WriteLine("FROM C# : WithParam int, int: {0}, {1}", s, s1);
 	}
@@ -163,6 +158,13 @@ public
 	static void VoidFunction(float a, int b, float c)
 	{
 		Console.WriteLine("FROM C# : VoidMethod: " + a + ", " + b + ", " + c);
+	}
+
+public
+	void CreateStruct()
+	{
+		Tests.MyObject obj = new Tests.MyObject();
+		obj.DoStuff("blalba");
 	}
 
 public

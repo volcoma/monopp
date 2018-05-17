@@ -11,10 +11,10 @@
 namespace mono
 {
 
-class mono_assembly;
-
 bool init(const std::string& domain, bool enable_debugging = false);
 void shutdown();
+
+class mono_assembly;
 auto get_auto_wrap_assembly() -> mono_assembly&;
 void set_auto_wrap_assembly(const mono_assembly& assembly);
 
