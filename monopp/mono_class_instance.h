@@ -32,9 +32,6 @@ public:
 	template <typename function_signature_t>
 	auto get_method(const std::string& name) const;
 
-	template <typename function_signature_t>
-	auto get_method_explicit(const std::string& name_with_args) const;
-
 	auto get_class() const -> mono_class;
 
 	template <typename T>
@@ -80,13 +77,6 @@ auto mono_class_instance::get_method(const std::string& name) const
 		auto func = get_method(name, arg_count);
 		return mono_method_thunk<function_signature_t>(std::move(func));
 	}
-}
-
-template <typename function_signature_t>
-auto mono_class_instance::get_method_explicit(const std::string& name_with_args) const
-{
-	auto func = get_method(name_with_args);
-	return mono_method_thunk<function_signature_t>(std::move(func));
 }
 
 template <typename T>
