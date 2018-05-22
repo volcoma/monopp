@@ -161,7 +161,7 @@ public
 	}
 
 public
-	void CreateStruct()
+	static void CreateStruct()
 	{
 		Tests.MyObject obj = new Tests.MyObject();
 		obj.DoStuff("blalba");

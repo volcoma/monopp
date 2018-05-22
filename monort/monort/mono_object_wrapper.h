@@ -30,7 +30,7 @@ class mono_object_wrapper : public object
 {
 public:
 	explicit mono_object_wrapper(MonoObject* mono_object, T obj);
-	~mono_object_wrapper();
+	~mono_object_wrapper() final;
 
 	/*!
 	 * Create a new MonoObject and associate this wrapper to it.

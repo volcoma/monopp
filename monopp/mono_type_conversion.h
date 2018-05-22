@@ -30,19 +30,9 @@ struct convert_mono_type
 
 	static_assert(is_mono_valuetype<T>::value, "Specialize for non-pod types");
 
-	static auto to_mono(mono_assembly&, cpp_type_name&& t) -> mono_type_name
-	{
-		return std::forward<mono_type_name>(t);
-	}
-
 	static auto to_mono(mono_assembly&, const cpp_type_name& t) -> mono_type_name
 	{
 		return t;
-	}
-
-	static auto from_mono(mono_type_name&& t) -> cpp_type_name
-	{
-		return std::forward<mono_type_name>(t);
 	}
 
 	static auto from_mono(const mono_type_name& t) -> cpp_type_name

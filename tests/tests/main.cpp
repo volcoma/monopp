@@ -105,49 +105,54 @@ static std::unique_ptr<mono::mono_domain> domain;
 TEST_CASE("create mono domain", "[domain]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		domain = std::make_unique<mono::mono_domain>("domain");
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("load invalid assembly", "[domain]")
 {
 	// clang-format off
-    REQUIRE_THROWS_WITH([&]()
-    {
-        domain->get_assembly("doesnt_exist_12345.dll");
-    }(), "NATIVE::Could not open assembly with path : doesnt_exist_12345.dll");
+	auto expression = []()
+	{
+		// clang-format on
+		domain->get_assembly("doesnt_exist_12345.dll");
+		// clang-format off
+	};
+	// clang-format on
+
+	// clang-format off
+    REQUIRE_THROWS_WITH(expression(), "NATIVE::Could not open assembly with path : doesnt_exist_12345.dll");
 	// clang-format on
 }
 
 TEST_CASE("load valid assembly", "[domain]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("load valid assembly and bind", "[domain]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
@@ -155,55 +160,55 @@ TEST_CASE("load valid assembly and bind", "[domain]")
 		mono::add_internal_call("Tests.MyObject::DestroyInternal", internal_call(MyObject_DestroyInternal));
 		mono::add_internal_call("Tests.MyObject::DoStuff", internal_call(MyObject_DoStuff));
 		mono::add_internal_call("Tests.MyObject::ReturnAString", internal_call(MyObject_ReturnAString));
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("get invalid class", "[assembly]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		REQUIRE_THROWS([&]() { assembly.get_class("SomeClassThatDoesntExist12345"); }());
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("get valid class", "[assembly]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
 
 		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("get valid method", "[class]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
@@ -221,19 +226,19 @@ TEST_CASE("get valid method", "[class]")
 
 		auto method3 = obj.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
 		REQUIRE(method3.get_internal_ptr() != nullptr);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("get/set field", "[class]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
@@ -254,19 +259,19 @@ TEST_CASE("get/set field", "[class]")
 
 		someField = obj.get_field_value<int>(field);
 		REQUIRE(someField == 6);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("get invalid field", "[class]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
@@ -274,19 +279,19 @@ TEST_CASE("get invalid field", "[class]")
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		REQUIRE_THROWS([&]() { cls.get_field("someInvalidField"); }());
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("get/set property", "[class]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
@@ -307,19 +312,19 @@ TEST_CASE("get/set property", "[class]")
 
 		someProp = obj.get_property_value<int>(prop);
 		REQUIRE(someProp == 55);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("get invalid property", "[class]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
@@ -327,142 +332,142 @@ TEST_CASE("get invalid property", "[class]")
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		REQUIRE_THROWS([&]() { cls.get_property("someInvalidProperty"); }());
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("call static method 1", "[method]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_static_method<int(int)>("FunctionWithIntParam");
 		const auto number = 1000;
 		auto result = method_thunk(number);
 		REQUIRE(number + 1337 == result);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("call static method 2", "[method]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_static_method<void(float, int, float)>("VoidFunction");
 		method_thunk(13.37f, 42, 9000.0f);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("call static method 3", "[method]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_static_method<void(std::string)>("FunctionWithStringParam");
 		method_thunk("Hello!");
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 TEST_CASE("call static method 4", "[method]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_static_method<std::string(std::string)>("StringReturnFunction");
 		auto expected_string = std::string("Hello!");
 		auto result = method_thunk(expected_string);
 		REQUIRE(result == std::string("The string value was: " + expected_string));
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("call static method 5", "[method]")
 {
 	// clang-format off
-	REQUIRE_THROWS([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_static_method<void()>("ExceptionFunction");
 		method_thunk();
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_THROWS(expression());
 }
 
 TEST_CASE("call static method 6", "[method]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_static_method<void()>("CreateStruct");
 		method_thunk();
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("call member method 1", "[method]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto cls_instance = assembly.new_class_instance(cls);
 		auto method_thunk = cls_instance.get_method<void()>("Method");
 		method_thunk();
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("call member method 2", "[method]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto cls_instance = assembly.new_class_instance(cls);
@@ -470,50 +475,51 @@ TEST_CASE("call member method 2", "[method]")
 			cls_instance.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
 		auto result = method_thunk("test", 5);
 		REQUIRE("Return Value: test" == result);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("init monort", "[monort]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& core_assembly = domain->get_assembly("monort_managed.dll");
 		mono::managed_interface::init(core_assembly);
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("bind monort", "[monort]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		mono::add_internal_call("Tests.WrapperVector2f::.ctor(single,single)",
 								internal_call(MyVec_CreateInternalCtor));
 		mono::add_internal_call("Tests.WrapperVector2f::.ctor(Tests.WrapperVector2f)",
 								internal_call(MyVec_CreateInternalCopyCtor));
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("call member method 3", "[method]")
 {
 	// clang-format off
-    REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto cls_instance = assembly.new_class_instance(cls);
@@ -525,18 +531,18 @@ TEST_CASE("call member method 3", "[method]")
 		auto result = method_thunk(p);
 		REQUIRE(165.0f == result.x);
 		REQUIRE(7.0f == result.y);
-
 		// clang-format off
-    }());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 TEST_CASE("call member method 4", "[method]")
 {
 	// clang-format off
-    REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto fields = cls.get_fields();
@@ -556,24 +562,25 @@ TEST_CASE("call member method 4", "[method]")
 		REQUIRE(result != nullptr);
 		REQUIRE(55.0f == result->x);
 		REQUIRE(66.0f == result->y);
-
 		// clang-format off
-    }());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 TEST_CASE("destroy mono domain", "[domain]")
 {
 	// clang-format off
-	REQUIRE_NOTHROW([&]()
-    {
+	auto expression = []()
+	{
 		// clang-format on
-
 		domain.reset();
-
 		// clang-format off
-	}());
+	};
 	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
 }
 
 int main(int argc, char* argv[])

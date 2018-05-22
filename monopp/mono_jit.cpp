@@ -38,17 +38,11 @@ bool init(const std::string& domain, bool enable_debugging)
 
 void shutdown()
 {
-	try
+	if(detail::jit_domain_)
 	{
-		if(detail::jit_domain_)
-		{
-			mono_jit_cleanup(detail::jit_domain_);
-		}
-		detail::jit_domain_ = nullptr;
+		mono_jit_cleanup(detail::jit_domain_);
 	}
-	catch(...)
-	{
-	}
+	detail::jit_domain_ = nullptr;
 }
 
 void set_auto_wrap_assembly(const mono_assembly& assembly)
