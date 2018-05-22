@@ -3,6 +3,8 @@
 #include "mono_config.h"
 #include "mono_type_traits.h"
 
+#include "mono_class_field.h"
+#include "mono_class_property.h"
 #include "mono_method_thunk.h"
 #include "mono_noncopyable.h"
 
@@ -13,8 +15,6 @@ namespace mono
 {
 
 class mono_assembly;
-class mono_class_field;
-class mono_class_property;
 
 class mono_class : public common::noncopyable
 {
@@ -42,6 +42,18 @@ public:
 
 	auto get_fields() const -> std::vector<mono_class_field>;
 	auto get_properties() const -> std::vector<mono_class_property>;
+
+	template <typename T>
+	auto get_static_field_value(const mono_class_field& field) const -> T;
+
+	template <typename T>
+	void set_static_field_value(const mono_class_field& field, const T& val) const;
+
+	template <typename T>
+	auto get_static_property_value(const mono_class_property& prop) const -> T;
+
+	template <typename T>
+	void set_static_property_value(const mono_class_property& prop, const T& val) const;
 
 	auto is_valuetype() const -> bool;
 
@@ -72,4 +84,75 @@ auto mono_class::get_static_method(const std::string& name) const
 	}
 }
 
+template <typename T>
+auto mono_class::get_static_field_value(const mono_class_field& field) const -> T
+{
+	T val{};
+	assert(field.get_internal_ptr());
+	MonoObject* refvalue = nullptr;
+	auto arg = reinterpret_cast<void*>(&val);
+	if(!field.is_valuetype())
+	{
+		arg = &refvalue;
+	}
+	auto domain = assembly_->get_domain()->get_internal_ptr();
+	MonoVTable* vtable = mono_class_vtable(domain, class_);
+	mono_runtime_class_init(vtable);
+
+	mono_field_static_get_value(vtable, field.get_internal_ptr(), arg);
+
+	if(!field.is_valuetype())
+	{
+		val = convert_mono_type<T>::from_mono(refvalue);
+	}
+	return val;
+}
+
+template <typename T>
+void mono_class::set_static_field_value(const mono_class_field& field, const T& val) const
+{
+	assert(field.get_internal_ptr());
+
+	auto mono_val = convert_mono_type<T>::to_mono(*assembly_, val);
+	auto arg = to_mono_arg(mono_val);
+
+	auto domain = assembly_->get_domain()->get_internal_ptr();
+	MonoVTable* vtable = mono_class_vtable(domain, class_);
+	mono_runtime_class_init(vtable);
+
+	mono_field_static_set_value(vtable, field.get_internal_ptr(), arg);
+}
+
+template <typename T>
+auto mono_class::get_static_property_value(const mono_class_property& prop) const -> T
+{
+	assert(prop.get_internal_ptr());
+	MonoObject* ex = nullptr;
+	auto obj = mono_property_get_value(prop.get_internal_ptr(), nullptr, nullptr, &ex);
+
+	if(ex)
+	{
+		throw mono_thunk_exception(reinterpret_cast<MonoException*>(ex));
+	}
+
+	T val = convert_mono_type<T>::from_mono(obj);
+
+	return val;
+}
+
+template <typename T>
+void mono_class::set_static_property_value(const mono_class_property& prop, const T& val) const
+{
+	assert(prop.get_internal_ptr());
+
+	MonoObject* ex = nullptr;
+	auto mono_val = convert_mono_type<T>::to_mono(*assembly_, val);
+	void* argsv[] = {to_mono_arg(mono_val)};
+	mono_property_set_value(prop.get_internal_ptr(), nullptr, argsv, &ex);
+
+	if(ex)
+	{
+		throw mono_thunk_exception(reinterpret_cast<MonoException*>(ex));
+	}
+}
 } // namespace mono

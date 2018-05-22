@@ -47,12 +47,6 @@ public:
 	void set_property_value(const mono_class_property& prop, const T& val) const;
 
 private:
-	template <typename T>
-	void __get_field_value(const mono_class_field& field, T& val) const;
-
-	template <typename T>
-	void __get_property_value(const mono_class_property& prop, T& val) const;
-
 	MonoClass* class_ = nullptr;
 	mono_assembly* assembly_ = nullptr;
 };
@@ -83,13 +77,6 @@ template <typename T>
 auto mono_class_instance::get_field_value(const mono_class_field& field) const -> T
 {
 	T val{};
-	__get_field_value(field, val);
-	return val;
-}
-
-template <typename T>
-void mono_class_instance::__get_field_value(const mono_class_field& field, T& val) const
-{
 	assert(object_);
 	assert(field.get_internal_ptr());
 	MonoObject* refvalue = nullptr;
@@ -105,6 +92,7 @@ void mono_class_instance::__get_field_value(const mono_class_field& field, T& va
 	{
 		val = convert_mono_type<T>::from_mono(refvalue);
 	}
+	return val;
 }
 
 template <typename T>
@@ -122,14 +110,6 @@ void mono_class_instance::set_field_value(const mono_class_field& field, const T
 template <typename T>
 auto mono_class_instance::get_property_value(const mono_class_property& prop) const -> T
 {
-	T val{};
-	__get_property_value(prop, val);
-	return val;
-}
-
-template <typename T>
-void mono_class_instance::__get_property_value(const mono_class_property& prop, T& val) const
-{
 	assert(object_);
 	assert(prop.get_internal_ptr());
 	MonoObject* ex = nullptr;
@@ -140,7 +120,9 @@ void mono_class_instance::__get_property_value(const mono_class_property& prop, 
 		throw mono_thunk_exception(reinterpret_cast<MonoException*>(ex));
 	}
 
-	val = convert_mono_type<T>::from_mono(obj);
+	T val = convert_mono_type<T>::from_mono(obj);
+	
+	return val;
 }
 
 template <typename T>

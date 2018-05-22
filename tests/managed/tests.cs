@@ -33,6 +33,12 @@ public
 public struct Vector2f
 {
 public
+	Vector2f(float _x, float _y)
+	{
+		x = _x;
+		y = _y;
+	}
+public
 	float x;
 public
 	float y;
@@ -49,7 +55,7 @@ public
 	{
 	}
 }
-}
+} // namespace Tests
 
 public
 class ClassInstanceTest
@@ -72,7 +78,24 @@ public
 	}
 
 public
-	Tests.Vector2f someFieldPOD;
+	static int someFieldStatic = 12;
+
+public
+	static int somePropertyStatic
+	{
+		get
+		{
+			return someFieldStatic;
+		}
+		set
+		{
+			Console.WriteLine("FROM C# : Setting static property value to {0}", value);
+			someFieldStatic = value;
+		}
+	}
+
+public
+	Tests.Vector2f someFieldPOD = new Tests.Vector2f(12, 13);
 
 public
 	Tests.Vector2f somePropertyPOD
@@ -83,8 +106,59 @@ public
 		}
 		set
 		{
-			Console.WriteLine("FROM C# : Setting property value to {0}, {1}", value.x, value.y);
+			Console.WriteLine("FROM C# : Setting POD property value to {0}, {1}", value.x, value.y);
 			someFieldPOD = value;
+		}
+	}
+	
+public
+	static Tests.Vector2f someFieldPODStatic = new Tests.Vector2f(12, 13);
+
+public
+	static Tests.Vector2f somePropertyPODStatic
+	{
+		get
+		{
+			return someFieldPODStatic;
+		}
+		set
+		{
+			Console.WriteLine("FROM C# : Setting static POD property value to {0}, {1}", value.x, value.y);
+			someFieldPODStatic = value;
+		}
+	}
+
+public
+	Tests.WrapperVector2f someFieldNONPOD = new Tests.WrapperVector2f(12, 13);
+
+public
+	Tests.WrapperVector2f somePropertyNONPOD
+	{
+		get
+		{
+			return someFieldNONPOD;
+		}
+		set
+		{
+			Console.WriteLine("FROM C# : Setting NON POD property value");
+			someFieldNONPOD = value;
+		}
+	}
+	
+public
+	static Tests.WrapperVector2f someFieldNONPODStatic = new Tests.WrapperVector2f(12, 13);
+
+public
+	static Tests.WrapperVector2f somePropertyNONPODStatic
+	{
+		get
+		{
+			return someFieldNONPODStatic;
+		}
+		set
+		{
+			Console.WriteLine("FROM C# : Setting static NON POD property value");
+			someFieldNONPODStatic = value;
 		}
 	}
 

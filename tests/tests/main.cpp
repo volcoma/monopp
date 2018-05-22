@@ -38,11 +38,11 @@ inline auto converter::convert(const vector2f& v) -> vec2f
 {
 	return vec2f{v.x, v.y};
 }
-}
+} // namespace managed_interface
 
 register_basic_mono_converter_for_pod(vec2f, managed_interface::vector2f);
 register_basic_mono_converter_for_wrapper(std::shared_ptr<vec2f>);
-}
+} // namespace mono
 
 void MyObject_CreateInternal(MonoObject* this_ptr, float x, std::string v)
 {
@@ -167,6 +167,37 @@ TEST_CASE("load valid assembly and bind", "[domain]")
 	REQUIRE_NOTHROW(expression());
 }
 
+TEST_CASE("init monort", "[monort]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto& core_assembly = domain->get_assembly("monort_managed.dll");
+		mono::managed_interface::init(core_assembly);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+TEST_CASE("bind monort", "[monort]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		mono::add_internal_call("Tests.WrapperVector2f::.ctor(single,single)",
+								internal_call(MyVec_CreateInternalCtor));
+		mono::add_internal_call("Tests.WrapperVector2f::.ctor(Tests.WrapperVector2f)",
+								internal_call(MyVec_CreateInternalCopyCtor));
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
 TEST_CASE("get invalid class", "[assembly]")
 {
 	// clang-format off
@@ -482,37 +513,6 @@ TEST_CASE("call member method 2", "[method]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("init monort", "[monort]")
-{
-	// clang-format off
-	auto expression = []()
-	{
-		// clang-format on
-		auto& core_assembly = domain->get_assembly("monort_managed.dll");
-		mono::managed_interface::init(core_assembly);
-		// clang-format off
-	};
-	// clang-format on
-
-	REQUIRE_NOTHROW(expression());
-}
-
-TEST_CASE("bind monort", "[monort]")
-{
-	// clang-format off
-	auto expression = []()
-	{
-		// clang-format on
-		mono::add_internal_call("Tests.WrapperVector2f::.ctor(single,single)",
-								internal_call(MyVec_CreateInternalCtor));
-		mono::add_internal_call("Tests.WrapperVector2f::.ctor(Tests.WrapperVector2f)",
-								internal_call(MyVec_CreateInternalCopyCtor));
-		// clang-format off
-	};
-	// clang-format on
-
-	REQUIRE_NOTHROW(expression());
-}
 
 TEST_CASE("call member method 3", "[method]")
 {
@@ -562,6 +562,205 @@ TEST_CASE("call member method 4", "[method]")
 		REQUIRE(result != nullptr);
 		REQUIRE(55.0f == result->x);
 		REQUIRE(66.0f == result->y);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+TEST_CASE("test member POD field", "[method]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto& assembly = domain->get_assembly("tests_managed.dll");
+		REQUIRE(assembly.valid() == true);
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+		REQUIRE(cls.get_internal_ptr() != nullptr);
+
+		auto field = cls.get_field("someFieldPOD");
+		REQUIRE(field.get_internal_ptr() != nullptr);
+
+		auto obj = assembly.new_class_instance(cls);
+		REQUIRE(obj.get_mono_object() != nullptr);
+
+		auto someField = obj.get_field_value<vec2f>(field);
+		REQUIRE(someField.x == 12.0f);
+		REQUIRE(someField.y == 13.0f);
+
+		vec2f arg = {6.0f, 7.0f};
+		obj.set_field_value(field, arg);
+
+		someField = obj.get_field_value<vec2f>(field);
+		REQUIRE(someField.x == 6.0f);
+		REQUIRE(someField.y == 7.0f);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+TEST_CASE("test member POD property", "[method]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto& assembly = domain->get_assembly("tests_managed.dll");
+		REQUIRE(assembly.valid() == true);
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+		REQUIRE(cls.get_internal_ptr() != nullptr);
+
+		auto prop = cls.get_property("somePropertyPOD");
+		REQUIRE(prop.get_internal_ptr() != nullptr);
+
+		auto obj = assembly.new_class_instance(cls);
+		REQUIRE(obj.get_mono_object() != nullptr);
+
+		auto someProp = obj.get_property_value<vec2f>(prop);
+		REQUIRE(someProp.x == 12.0f);
+		REQUIRE(someProp.y == 13.0f);
+
+		vec2f arg = {55.0f, 56.0f};
+		obj.set_property_value(prop, arg);
+
+		someProp = obj.get_property_value<vec2f>(prop);
+		REQUIRE(someProp.x == 55.0f);
+		REQUIRE(someProp.y == 56.0f);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+TEST_CASE("test static POD field", "[method]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto& assembly = domain->get_assembly("tests_managed.dll");
+		REQUIRE(assembly.valid() == true);
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+		REQUIRE(cls.get_internal_ptr() != nullptr);
+
+		auto field = cls.get_field("someFieldPODStatic");
+		REQUIRE(field.get_internal_ptr() != nullptr);
+
+		auto someField = cls.get_static_field_value<vec2f>(field);
+		REQUIRE(someField.x == 12.0f);
+		REQUIRE(someField.y == 13.0f);
+
+		vec2f arg = {6.0f, 7.0f};
+		cls.set_static_field_value(field, arg);
+
+		someField = cls.get_static_field_value<vec2f>(field);
+		REQUIRE(someField.x == 6.0f);
+		REQUIRE(someField.y == 7.0f);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+TEST_CASE("test static POD property", "[method]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto& assembly = domain->get_assembly("tests_managed.dll");
+		REQUIRE(assembly.valid() == true);
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+		REQUIRE(cls.get_internal_ptr() != nullptr);
+
+		auto prop = cls.get_property("somePropertyPODStatic");
+		REQUIRE(prop.get_internal_ptr() != nullptr);
+
+		auto someProp = cls.get_static_property_value<vec2f>(prop);
+		REQUIRE(someProp.x == 6.0f);
+		REQUIRE(someProp.y == 7.0f);
+
+		vec2f arg = {55.0f, 56.0f};
+		cls.set_static_property_value(prop, arg);
+
+		someProp = cls.get_static_property_value<vec2f>(prop);
+		REQUIRE(someProp.x == 55.0f);
+		REQUIRE(someProp.y == 56.0f);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+TEST_CASE("test static NON-POD field", "[method]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto& assembly = domain->get_assembly("tests_managed.dll");
+		REQUIRE(assembly.valid() == true);
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+		REQUIRE(cls.get_internal_ptr() != nullptr);
+
+		auto field = cls.get_field("someFieldNONPODStatic");
+		REQUIRE(field.get_internal_ptr() != nullptr);
+
+		using vec2f_ptr = std::shared_ptr<vec2f>;
+
+		auto someField = cls.get_static_field_value<vec2f_ptr>(field);
+		REQUIRE(someField->x == 12.0f);
+		REQUIRE(someField->y == 13.0f);
+
+		vec2f_ptr arg = std::make_shared<vec2f>(vec2f{6.0f, 7.0f});
+		cls.set_static_field_value(field, arg);
+
+		someField = cls.get_static_field_value<vec2f_ptr>(field);
+		REQUIRE(someField->x == 6.0f);
+		REQUIRE(someField->y == 7.0f);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+TEST_CASE("test static NON-POD property", "[method]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto& assembly = domain->get_assembly("tests_managed.dll");
+		REQUIRE(assembly.valid() == true);
+
+		auto cls = assembly.get_class("ClassInstanceTest");
+		REQUIRE(cls.get_internal_ptr() != nullptr);
+
+		auto prop = cls.get_property("somePropertyNONPODStatic");
+		REQUIRE(prop.get_internal_ptr() != nullptr);
+
+		using vec2f_ptr = std::shared_ptr<vec2f>;
+
+		auto someProp = cls.get_static_property_value<vec2f_ptr>(prop);
+		REQUIRE(someProp->x == 6.0f);
+		REQUIRE(someProp->y == 7.0f);
+
+		vec2f_ptr arg = std::make_shared<vec2f>(vec2f{55.0f, 56.0f});
+		cls.set_static_property_value(prop, arg);
+
+		someProp = cls.get_static_property_value<vec2f_ptr>(prop);
+		REQUIRE(someProp->x == 55.0f);
+		REQUIRE(someProp->y == 56.0f);
 		// clang-format off
 	};
 	// clang-format on
