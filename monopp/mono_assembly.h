@@ -27,11 +27,13 @@ public:
 	auto get_class(const std::string& name) -> mono_class;
 	auto get_class(const std::string& name_space, const std::string& name) -> mono_class;
 
-	auto new_class_instance(const mono_class& cls) -> mono_class_instance;
+	auto new_class_instance(const mono_class& cls) const -> mono_class_instance;
 	auto new_string(const std::string& str) const -> mono_string;
 
 	auto valid() const -> bool;
 	auto get_domain() const -> mono_domain*;
+
+	auto get_internal_ptr() const -> MonoAssembly*;
 
 private:
 	mono_domain* domain_ = nullptr;

@@ -7,7 +7,7 @@
 namespace mono
 {
 
-mono_method::mono_method(mono_assembly* assembly, MonoClass* cls, MonoObject* object,
+mono_method::mono_method(const mono_assembly* assembly, MonoClass* cls, MonoObject* object,
 						 const std::string& name_with_args)
 	: assembly_(assembly)
 	, object_(object)
@@ -23,7 +23,7 @@ mono_method::mono_method(mono_assembly* assembly, MonoClass* cls, MonoObject* ob
 	}
 }
 
-mono_method::mono_method(mono_assembly* assembly, MonoClass* cls, MonoObject* object, const std::string& name,
+mono_method::mono_method(const mono_assembly* assembly, MonoClass* cls, MonoObject* object, const std::string& name,
 						 int argc)
 	: assembly_(assembly)
 	, object_(object)

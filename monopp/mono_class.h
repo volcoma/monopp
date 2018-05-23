@@ -19,9 +19,9 @@ class mono_assembly;
 class mono_class : public common::noncopyable
 {
 public:
-	explicit mono_class(mono_assembly* assembly, MonoClass* cls);
-	explicit mono_class(mono_assembly* assembly, MonoImage* image, const std::string& name);
-	explicit mono_class(mono_assembly* assembly, MonoImage* image, const std::string& name_space,
+	explicit mono_class(const mono_assembly* assembly, MonoClass* cls);
+	explicit mono_class(const mono_assembly* assembly, MonoImage* image, const std::string& name);
+	explicit mono_class(const mono_assembly* assembly, MonoImage* image, const std::string& name_space,
 						const std::string& name);
 
 	mono_class(mono_class&& o);
@@ -32,8 +32,6 @@ public:
 
 	template <typename function_signature_t>
 	auto get_static_method(const std::string& name) const;
-
-	auto get_internal_ptr() const -> MonoClass*;
 
 	auto get_field(const std::string& name) const -> mono_class_field;
 	auto get_property(const std::string& name) const -> mono_class_property;
@@ -57,8 +55,10 @@ public:
 
 	auto is_valuetype() const -> bool;
 
+	auto get_internal_ptr() const -> MonoClass*;
+
 private:
-	mono_assembly* assembly_ = nullptr;
+	const mono_assembly* assembly_ = nullptr;
 	MonoClass* class_ = nullptr;
 };
 

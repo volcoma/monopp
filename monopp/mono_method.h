@@ -17,9 +17,9 @@ class mono_method : public common::noncopyable
 {
 public:
 	mono_method() = default;
-	explicit mono_method(mono_assembly* assembly, MonoClass* cls, MonoObject* object,
+	explicit mono_method(const mono_assembly* assembly, MonoClass* cls, MonoObject* object,
 						 const std::string& name_with_args);
-	explicit mono_method(mono_assembly* assembly, MonoClass* cls, MonoObject* object, const std::string& name,
+	explicit mono_method(const mono_assembly* assembly, MonoClass* cls, MonoObject* object, const std::string& name,
 						 int argc);
 	mono_method(mono_method&& o);
 	auto operator=(mono_method&& o) -> mono_method&;
@@ -27,7 +27,7 @@ public:
 	auto get_internal_ptr() const -> MonoMethod*;
 
 protected:
-	mono_assembly* assembly_ = nullptr;
+	const mono_assembly* assembly_ = nullptr;
 	MonoObject* object_ = nullptr;
 	MonoMethod* method_ = nullptr;
 };

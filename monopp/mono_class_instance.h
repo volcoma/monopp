@@ -21,7 +21,7 @@ class mono_class_instance : public mono_object
 {
 public:
 	explicit mono_class_instance(MonoObject* obj);
-	explicit mono_class_instance(mono_assembly* assembly, mono_domain* domain, MonoClass* cls);
+	explicit mono_class_instance(const mono_assembly* assembly, mono_domain* domain, MonoClass* cls);
 
 	mono_class_instance(mono_class_instance&& o);
 	auto operator=(mono_class_instance&& o) -> mono_class_instance&;
@@ -48,7 +48,7 @@ public:
 
 private:
 	MonoClass* class_ = nullptr;
-	mono_assembly* assembly_ = nullptr;
+	const mono_assembly* assembly_ = nullptr;
 };
 
 template <typename function_signature_t>

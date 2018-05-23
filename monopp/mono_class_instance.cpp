@@ -11,7 +11,7 @@ mono_class_instance::mono_class_instance(MonoObject* obj)
 {
 }
 
-mono_class_instance::mono_class_instance(mono_assembly* assembly, mono_domain* domain, MonoClass* cls)
+mono_class_instance::mono_class_instance(const mono_assembly* assembly, mono_domain* domain, MonoClass* cls)
 	: mono_object(mono_object_new(domain->get_internal_ptr(), cls))
 	, class_(cls)
 	, assembly_(assembly)

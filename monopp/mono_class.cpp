@@ -7,18 +7,18 @@
 namespace mono
 {
 
-mono_class::mono_class(mono_assembly* assembly, MonoClass* cls)
+mono_class::mono_class(const mono_assembly* assembly, MonoClass* cls)
 	: assembly_(assembly)
 	, class_(cls)
 {
 }
 
-mono_class::mono_class(mono_assembly* assembly, MonoImage* image, const std::string& name)
+mono_class::mono_class(const mono_assembly* assembly, MonoImage* image, const std::string& name)
 	: mono_class(assembly, image, "", name)
 {
 }
 
-mono_class::mono_class(mono_assembly* assembly, MonoImage* image, const std::string& name_space,
+mono_class::mono_class(const mono_assembly* assembly, MonoImage* image, const std::string& name_space,
 					   const std::string& name)
 	: assembly_(assembly)
 {
@@ -99,7 +99,7 @@ auto mono_class::get_properties() const -> std::vector<mono_class_property>
 
 auto mono_class::is_valuetype() const -> bool
 {
-	return !!mono_class_is_valuetype(get_internal_ptr());
+    return !!mono_class_is_valuetype(get_internal_ptr());
 }
 
 } // namespace mono

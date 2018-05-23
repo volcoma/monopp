@@ -38,7 +38,7 @@ auto mono_assembly::get_class(const std::string& name_space, const std::string& 
 	return mono_class(this, image_, name_space, name);
 }
 
-auto mono_assembly::new_class_instance(const mono_class& cls) -> mono_class_instance
+auto mono_assembly::new_class_instance(const mono_class& cls) const -> mono_class_instance
 {
 	return mono_class_instance(this, domain_, cls.get_internal_ptr());
 }
@@ -55,7 +55,13 @@ auto mono_assembly::valid() const -> bool
 
 auto mono_assembly::get_domain() const -> mono_domain*
 {
-	return domain_;
+    return domain_;
 }
+
+auto mono_assembly::get_internal_ptr() const -> MonoAssembly*
+{
+    return assembly_;
+}
+
 
 } // namespace mono
