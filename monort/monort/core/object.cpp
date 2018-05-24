@@ -17,10 +17,10 @@ void object::register_internal_calls()
 
 void object::initialize_class_field(const mono_assembly& assembly)
 {
-    auto cls = assembly.get_class("Monopp.Core", "NativeObject");
-    object_class = std::make_unique<mono_class>(std::move(cls));
-    auto field = object_class->get_field("nativePtr_");
-    native_object_field = std::make_unique<mono_class_field>(std::move(field));
+	auto cls = assembly.get_class("Monopp.Core", "NativeObject");
+	object_class = std::make_unique<mono_class>(std::move(cls));
+	auto field = object_class->get_field("nativePtr_");
+	native_object_field = std::make_unique<mono_class_field>(std::move(field));
 }
 
 object::~object() = default;
@@ -32,9 +32,8 @@ object::object(MonoObject* obj)
 {
 	mono_object instance(obj);
 
-	//assert(mono_class_is_subclass_of(instance.get_class().get_internal_ptr(), object_class.get_internal_ptr(),
-	//								 false) &&
-	//	   "Mono wrapper classes must inherit from Monopp.Core.NativeObject.");
+	assert(object_class->is_instance_of(instance) &&
+		   "Mono wrapper classes must inherit from Monopp.Core.NativeObject.");
 
 	// Give mono the ownership of the this pointer.
 	// When the c# finalize is called then our finalize will

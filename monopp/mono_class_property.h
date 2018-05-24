@@ -6,6 +6,7 @@
 #include "mono_domain.h"
 #include "mono_noncopyable.h"
 #include "mono_object.h"
+#include "mono_type.h"
 #include "mono_type_conversion.h"
 
 namespace mono
@@ -28,10 +29,13 @@ public:
 	template <typename T>
 	auto get_value(const mono_object& obj) const -> T;
 
-	auto get_name() const -> std::string;
-	auto is_valuetype() const -> bool;
+	auto get_name() const -> const std::string&;
+	auto get_fullname() const -> const std::string&;
+	auto get_type() const -> const mono_type&;
+    auto get_get_method() const -> mono_method;
+    auto get_set_method() const -> mono_method;
 
-	auto get_class() const -> const mono_class&;
+	auto get_owning_class() const -> const mono_class&;
 	auto get_internal_ptr() const -> MonoProperty*;
 
 private:
@@ -41,9 +45,10 @@ private:
 	auto __get_value(const mono_object* obj) const -> T;
 
 	const mono_class& class_;
+	mono_type type_;
 	non_owning_ptr<MonoProperty> property_ = nullptr;
 	std::string name_;
-	bool valuetype_ = false;
+	std::string fullname_;
 };
 
 template <typename T>
@@ -62,7 +67,7 @@ template <typename T>
 void mono_class_property::__set_value(const mono_object* object, const T& val) const
 {
 	assert(get_internal_ptr());
-	const auto& cls = get_class();
+	const auto& cls = get_owning_class();
 	const auto& assembly = cls.get_assembly();
 	MonoObject* ex = nullptr;
 	auto mono_val = convert_mono_type<T>::to_mono(assembly, val);

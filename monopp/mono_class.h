@@ -3,7 +3,7 @@
 #include "mono_config.h"
 
 #include "mono_method_thunk.h"
-#include "mono_noncopyable.h"
+#include "mono_type.h"
 
 #include <mono/metadata/class.h>
 #include <mono/metadata/image.h>
@@ -16,7 +16,7 @@ class mono_method;
 class mono_class_field;
 class mono_class_property;
 
-class mono_class : public common::noncopyable
+class mono_class : public mono_type
 {
 public:
 	explicit mono_class(const mono_assembly& assembly, const std::string& name);
@@ -38,22 +38,19 @@ public:
 	auto get_fields() const -> std::vector<mono_class_field>;
 
 	auto get_properties() const -> std::vector<mono_class_property>;
+	
+	auto get_methods() const -> std::vector<mono_method>;
+	
+	auto get_base_class() const -> mono_class;
 
-	auto get_name() const -> const std::string&;
-
-	auto is_valuetype() const -> bool;
-
-	auto get_internal_ptr() const -> MonoClass*;
+    auto is_instance_of(const mono_object& obj) const -> bool;
+    
+    auto get_internal_ptr() const -> MonoClass*;
 	auto get_assembly() const -> const mono_assembly&;
-
 private:
 	const mono_assembly& assembly_;
 
 	non_owning_ptr<MonoClass> class_ = nullptr;
-
-	std::string namespace_;
-	std::string name_;
-	bool valuetype_ = false;
 };
 
 template <typename function_signature_t>

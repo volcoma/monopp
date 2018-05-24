@@ -8,6 +8,7 @@
 #include "mono_domain.h"
 #include "mono_object.h"
 #include "mono_type_conversion.h"
+#include "mono_type.h"
 
 namespace mono
 {
@@ -28,10 +29,13 @@ public:
 	template <typename T>
 	auto get_value(const mono_object& obj) const -> T;
 
-	auto get_name() const -> std::string;
-	auto is_valuetype() const -> bool;
-
-	auto get_class() const -> const mono_class&;
+	auto get_name() const -> const std::string&;
+	auto get_fullname() const -> const std::string&;
+    auto get_type() const -> const mono_type&;
+    auto get_visibility() const -> visibility;
+    auto is_static() const -> bool;
+    
+	auto get_owning_class() const -> const mono_class&;
 	auto get_internal_ptr() const -> MonoClassField*;
 
 private:
@@ -41,11 +45,11 @@ private:
 	auto __get_value(const mono_object* obj) const -> T;
 
 	const mono_class& class_;
-
+    mono_type type_;
 	non_owning_ptr<MonoClassField> field_ = nullptr;
 
 	std::string name_;
-	bool valuetype_ = true;
+	std::string fullname_;
 };
 
 template <typename T>
@@ -65,7 +69,7 @@ void mono_class_field::__set_value(const mono_object* object, const T& val) cons
 {
 	assert(get_internal_ptr());
 
-	const auto& cls = get_class();
+	const auto& cls = get_owning_class();
 	const auto& assembly = cls.get_assembly();
 
 	auto mono_val = convert_mono_type<T>::to_mono(assembly, val);
@@ -108,7 +112,7 @@ auto mono_class_field::__get_value(const mono_object* object) const -> T
 	assert(get_internal_ptr());
 	MonoObject* refvalue = nullptr;
 	auto arg = reinterpret_cast<void*>(&val);
-	if(!is_valuetype())
+	if(!type_.is_valuetype())
 	{
 		arg = &refvalue;
 	}
@@ -120,7 +124,7 @@ auto mono_class_field::__get_value(const mono_object* object) const -> T
 	}
 	else
 	{
-		const auto& cls = get_class();
+		const auto& cls = get_owning_class();
 		const auto& assembly = cls.get_assembly();
 		const auto& domain = assembly.get_domain();
 		MonoVTable* vtable = mono_class_vtable(domain.get_internal_ptr(), cls.get_internal_ptr());
@@ -129,7 +133,7 @@ auto mono_class_field::__get_value(const mono_object* object) const -> T
 		mono_field_static_get_value(vtable, get_internal_ptr(), arg);
 	}
 
-	if(!is_valuetype())
+	if(!type_.is_valuetype())
 	{
 		val = convert_mono_type<T>::from_mono(refvalue);
 	}

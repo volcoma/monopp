@@ -228,6 +228,25 @@ TEST_CASE("get valid class", "[assembly]")
 		auto cls = assembly.get_class("ClassInstanceTest");
 
 		REQUIRE(cls.get_internal_ptr() != nullptr);
+    
+		auto fields = cls.get_fields();
+		auto props = cls.get_properties();
+		auto methods = cls.get_methods();
+		for(const auto& field : fields)
+		{
+			std::cout << field.get_name() << std::endl;
+			std::cout << field.get_fullname() << std::endl;
+		}
+		for(const auto& prop : props)
+		{
+			std::cout << prop.get_name() << std::endl;
+			std::cout << prop.get_fullname() << std::endl;
+		}
+		for(const auto& method : methods)
+		{
+			std::cout << method.get_name() << std::endl;
+			std::cout << method.get_fullname() << std::endl;
+		}
 		// clang-format off
 	};
 	// clang-format on
@@ -249,12 +268,14 @@ TEST_CASE("get valid method", "[class]")
 
 		auto method1 = cls.get_method<void()>("Method");
 		REQUIRE(method1.get_internal_ptr() != nullptr);
-
+		std::cout << method1.get_fullname() << std::endl;
 		auto method2 = cls.get_method<void(int)>("MethodWithParameter");
 		REQUIRE(method2.get_internal_ptr() != nullptr);
-
+		std::cout << method2.get_fullname() << std::endl;
 		auto method3 = cls.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
 		REQUIRE(method3.get_internal_ptr() != nullptr);
+		std::cout << method3.get_fullname() << std::endl;
+
 		// clang-format off
 	};
 	// clang-format on
