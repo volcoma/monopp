@@ -3,26 +3,20 @@
 #include "mono_config.h"
 
 #include "mono_noncopyable.h"
-
-#include <mono/metadata/object.h>
+#include "mono_object.h"
 
 namespace mono
 {
 
-class mono_object;
-
-class mono_gc_handle
+class mono_gc_handle : public mono_object
 {
 public:
-	explicit mono_gc_handle(mono_object& obj);
-	explicit mono_gc_handle(MonoObject* obj);
-	~mono_gc_handle();
+	using mono_object::mono_object;
 
 	void lock();
 	void unlock();
 
 private:
-	MonoObject* object_ = nullptr;
 	std::uint32_t handle_ = 0;
 };
 

@@ -1,55 +1,41 @@
 #include "mono_class.h"
+#include "mono_assembly.h"
+#include "mono_exception.h"
+
 #include "mono_class_field.h"
 #include "mono_class_property.h"
-#include "mono_exception.h"
 #include "mono_method.h"
 
 namespace mono
 {
 
-mono_class::mono_class(const mono_assembly* assembly, MonoClass* cls)
-	: assembly_(assembly)
-	, class_(cls)
+mono_class::mono_class(const mono_assembly& assembly, const std::string& name)
+	: mono_class(assembly, "", name)
 {
 }
 
-mono_class::mono_class(const mono_assembly* assembly, MonoImage* image, const std::string& name)
-	: mono_class(assembly, image, "", name)
-{
-}
-
-mono_class::mono_class(const mono_assembly* assembly, MonoImage* image, const std::string& name_space,
-					   const std::string& name)
+mono_class::mono_class(const mono_assembly& assembly, const std::string& name_space, const std::string& name)
 	: assembly_(assembly)
+	, namespace_(name_space)
+	, name_(name)
 {
-	class_ = mono_class_from_name(image, name_space.c_str(), name.c_str());
+	auto image_ptr = assembly.get_image_ptr();
+	class_ = mono_class_from_name(image_ptr, name_space.c_str(), name.c_str());
 
 	if(!class_)
-		throw mono_exception("NATIVE::Could not get class : " + name_space + "::" + name);
+		throw mono_exception("NATIVE::Could not get class : " + name_space + "." + name);
+
+	valuetype_ = !!mono_class_is_valuetype(get_internal_ptr());
 }
 
-mono_class::mono_class(mono_class&&) = default;
-
-auto mono_class::operator=(mono_class &&) -> mono_class& = default;
-
-auto mono_class::get_static_method(const std::string& name_with_args) const -> mono_method
+auto mono_class::get_method(const std::string& name_with_args) const -> mono_method
 {
-	assert(class_);
-	assert(assembly_);
-	return mono_method(assembly_, class_, nullptr, name_with_args);
+	return mono_method(*this, name_with_args);
 }
 
-auto mono_class::get_static_method(const std::string& name, int argc) const -> mono_method
+auto mono_class::get_method(const std::string& name, int argc) const -> mono_method
 {
-	assert(class_);
-	assert(assembly_);
-	return mono_method(assembly_, class_, nullptr, name, argc);
-}
-
-auto mono_class::get_internal_ptr() const -> MonoClass*
-{
-	assert(class_);
-	return class_;
+	return mono_method(*this, name, argc);
 }
 
 auto mono_class::get_field(const std::string& name) const -> mono_class_field
@@ -62,20 +48,16 @@ auto mono_class::get_property(const std::string& name) const -> mono_class_prope
 	return mono_class_property(*this, name);
 }
 
-auto mono_class::get_name() const -> std::string
-{
-	return mono_class_get_name(get_internal_ptr());
-}
-
 auto mono_class::get_fields() const -> std::vector<mono_class_field>
 {
 	void* iter = nullptr;
-	MonoClassField* field = mono_class_get_fields(class_, &iter);
+	auto field = mono_class_get_fields(class_, &iter);
 	std::vector<mono_class_field> fields;
 	while(field)
 	{
 		std::string name = mono_field_get_name(field);
-		fields.emplace_back(*this, name);
+
+		fields.emplace_back(get_field(name));
 
 		field = mono_class_get_fields(class_, &iter);
 	}
@@ -85,21 +67,38 @@ auto mono_class::get_fields() const -> std::vector<mono_class_field>
 auto mono_class::get_properties() const -> std::vector<mono_class_property>
 {
 	void* iter = nullptr;
-	MonoProperty* prop = mono_class_get_properties(class_, &iter);
+	auto prop = mono_class_get_properties(class_, &iter);
 	std::vector<mono_class_property> props;
 	while(prop)
 	{
 		std::string name = mono_property_get_name(prop);
-		props.emplace_back(*this, name);
+
+		props.emplace_back(get_property(name));
 
 		prop = mono_class_get_properties(class_, &iter);
 	}
 	return props;
 }
 
+auto mono_class::get_internal_ptr() const -> MonoClass*
+{
+	assert(class_);
+	return class_;
+}
+
+auto mono_class::get_assembly() const -> const mono_assembly&
+{
+	return assembly_;
+}
+
+auto mono_class::get_name() const -> const std::string&
+{
+	return name_;
+}
+
 auto mono_class::is_valuetype() const -> bool
 {
-    return !!mono_class_is_valuetype(get_internal_ptr());
+	return valuetype_;
 }
 
 } // namespace mono

@@ -10,13 +10,12 @@ namespace mono
 class mono_object
 {
 public:
-	mono_object() = default;
 	explicit mono_object(MonoObject* object);
 
-	auto get_mono_object() const -> MonoObject*;
+	auto get_internal_ptr() const -> MonoObject*;
 
 protected:
-	MonoObject* object_ = nullptr;
+	non_owning_ptr<MonoObject> object_ = nullptr;
 };
 
 } // namespace mono

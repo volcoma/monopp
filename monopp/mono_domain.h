@@ -16,13 +16,13 @@ class mono_domain : public common::noncopyable
 public:
 	mono_domain(const std::string& name);
 	~mono_domain();
+	auto get_assembly(const std::string& path) const -> const mono_assembly&;
 
-	auto get_assembly(const std::string& path) -> mono_assembly&;
-	auto get_internal_ptr() -> MonoDomain*;
+	auto get_internal_ptr() const -> MonoDomain*;
 
 private:
-	MonoDomain* domain_ = nullptr;
-	std::unordered_map<std::string, mono_assembly> assembies_;
+	mutable std::unordered_map<std::string, mono_assembly> assemblies_;
+	non_owning_ptr<MonoDomain> domain_ = nullptr;
 };
 
 } // namespace mono

@@ -199,5 +199,5 @@ inline std::pair<std::string, bool> get_args_signature(const std::tuple<Args...>
 	auto args = apply(inv, tup);
 	return std::make_pair(args, all_types_known);
 }
-}
-}
+} // namespace types
+} // namespace mono

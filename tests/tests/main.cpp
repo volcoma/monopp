@@ -2,11 +2,12 @@
 
 #include "monopp/mono_assembly.h"
 #include "monopp/mono_class.h"
+#include "monopp/mono_class_field.h"
 #include "monopp/mono_class_instance.h"
+#include "monopp/mono_class_property.h"
 #include "monopp/mono_domain.h"
 #include "monopp/mono_method.h"
 #include "monopp/mono_string.h"
-
 #include <iostream>
 #include <memory>
 
@@ -246,16 +247,13 @@ TEST_CASE("get valid method", "[class]")
 		auto cls = assembly.get_class("ClassInstanceTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_class_instance(cls);
-		REQUIRE(obj.get_mono_object() != nullptr);
-
-		auto method1 = obj.get_method("Method");
+		auto method1 = cls.get_method<void()>("Method");
 		REQUIRE(method1.get_internal_ptr() != nullptr);
 
-		auto method2 = obj.get_method<void(int)>("MethodWithParameter");
+		auto method2 = cls.get_method<void(int)>("MethodWithParameter");
 		REQUIRE(method2.get_internal_ptr() != nullptr);
 
-		auto method3 = obj.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
+		auto method3 = cls.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
 		REQUIRE(method3.get_internal_ptr() != nullptr);
 		// clang-format off
 	};
@@ -279,16 +277,16 @@ TEST_CASE("get/set field", "[class]")
 		auto field = cls.get_field("someField");
 		REQUIRE(field.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_class_instance(cls);
-		REQUIRE(obj.get_mono_object() != nullptr);
+		auto obj = assembly.new_instance(cls);
+		REQUIRE(obj.get_internal_ptr() != nullptr);
 
-		auto someField = obj.get_field_value<int>(field);
+		auto someField = field.get_value<int>(obj);
 		REQUIRE(someField == 12);
 
 		int arg = 6;
-		obj.set_field_value(field, arg);
+		field.set_value(obj, arg);
 
-		someField = obj.get_field_value<int>(field);
+		someField = field.get_value<int>(obj);
 		REQUIRE(someField == 6);
 		// clang-format off
 	};
@@ -332,16 +330,16 @@ TEST_CASE("get/set property", "[class]")
 		auto prop = cls.get_property("someProperty");
 		REQUIRE(prop.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_class_instance(cls);
-		REQUIRE(obj.get_mono_object() != nullptr);
+		auto obj = assembly.new_instance(cls);
+		REQUIRE(obj.get_internal_ptr() != nullptr);
 
-		auto someProp = obj.get_property_value<int>(prop);
+		auto someProp = prop.get_value<int>(obj);
 		REQUIRE(someProp == 12);
 
 		int arg = 55;
-		obj.set_property_value(prop, arg);
+		prop.set_value(obj, arg);
 
-		someProp = obj.get_property_value<int>(prop);
+		someProp = prop.get_value<int>(obj);
 		REQUIRE(someProp == 55);
 		// clang-format off
 	};
@@ -378,7 +376,7 @@ TEST_CASE("call static method 1", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto method_thunk = cls.get_static_method<int(int)>("FunctionWithIntParam");
+		auto method_thunk = cls.get_method<int(int)>("FunctionWithIntParam");
 		const auto number = 1000;
 		auto result = method_thunk(number);
 		REQUIRE(number + 1337 == result);
@@ -397,7 +395,7 @@ TEST_CASE("call static method 2", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto method_thunk = cls.get_static_method<void(float, int, float)>("VoidFunction");
+		auto method_thunk = cls.get_method<void(float, int, float)>("VoidFunction");
 		method_thunk(13.37f, 42, 9000.0f);
 		// clang-format off
 	};
@@ -414,7 +412,7 @@ TEST_CASE("call static method 3", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto method_thunk = cls.get_static_method<void(std::string)>("FunctionWithStringParam");
+		auto method_thunk = cls.get_method<void(std::string)>("FunctionWithStringParam");
 		method_thunk("Hello!");
 		// clang-format off
 	};
@@ -430,7 +428,7 @@ TEST_CASE("call static method 4", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto method_thunk = cls.get_static_method<std::string(std::string)>("StringReturnFunction");
+		auto method_thunk = cls.get_method<std::string(std::string)>("StringReturnFunction");
 		auto expected_string = std::string("Hello!");
 		auto result = method_thunk(expected_string);
 		REQUIRE(result == std::string("The string value was: " + expected_string));
@@ -449,7 +447,7 @@ TEST_CASE("call static method 5", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto method_thunk = cls.get_static_method<void()>("ExceptionFunction");
+		auto method_thunk = cls.get_method<void()>("ExceptionFunction");
 		method_thunk();
 		// clang-format off
 	};
@@ -466,7 +464,7 @@ TEST_CASE("call static method 6", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto method_thunk = cls.get_static_method<void()>("CreateStruct");
+		auto method_thunk = cls.get_method<void()>("CreateStruct");
 		method_thunk();
 		// clang-format off
 	};
@@ -483,9 +481,9 @@ TEST_CASE("call member method 1", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto cls_instance = assembly.new_class_instance(cls);
-		auto method_thunk = cls_instance.get_method<void()>("Method");
-		method_thunk();
+		auto obj = assembly.new_instance(cls);
+		auto method_thunk = cls.get_method<void()>("Method");
+		method_thunk(obj);
 		// clang-format off
 	};
 	// clang-format on
@@ -501,10 +499,10 @@ TEST_CASE("call member method 2", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto cls_instance = assembly.new_class_instance(cls);
+		auto obj = assembly.new_instance(cls);
 		auto method_thunk =
-			cls_instance.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
-		auto result = method_thunk("test", 5);
+			cls.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
+		auto result = method_thunk(obj, "test", 5);
 		REQUIRE("Return Value: test" == result);
 		// clang-format off
 	};
@@ -512,7 +510,6 @@ TEST_CASE("call member method 2", "[method]")
 
 	REQUIRE_NOTHROW(expression());
 }
-
 
 TEST_CASE("call member method 3", "[method]")
 {
@@ -522,13 +519,13 @@ TEST_CASE("call member method 3", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto cls_instance = assembly.new_class_instance(cls);
+		auto obj = assembly.new_instance(cls);
 
-		auto method_thunk = cls_instance.get_method<vec2f(vec2f)>("MethodPodAR");
+		auto method_thunk = cls.get_method<vec2f(vec2f)>("MethodPodAR");
 		vec2f p;
 		p.x = 12;
 		p.y = 15;
-		auto result = method_thunk(p);
+		auto result = method_thunk(obj, p);
 		REQUIRE(165.0f == result.x);
 		REQUIRE(7.0f == result.y);
 		// clang-format off
@@ -545,10 +542,10 @@ TEST_CASE("call member method 4", "[method]")
 		// clang-format on
 		auto& assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto fields = cls.get_fields();
-		auto props = cls.get_properties();
+		// auto fields = cls.get_fields();
+		// auto props = cls.get_properties();
 
-		auto cls_instance = assembly.new_class_instance(cls);
+		auto obj = assembly.new_instance(cls);
 
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 
@@ -556,8 +553,8 @@ TEST_CASE("call member method 4", "[method]")
 		ptr->x = 12;
 		ptr->y = 15;
 
-		auto method_thunk = cls_instance.get_method<vec2f_ptr(vec2f_ptr)>("MethodPodARW");
-		auto result = method_thunk(ptr);
+		auto method_thunk = cls.get_method<vec2f_ptr(vec2f_ptr)>("MethodPodARW");
+		auto result = method_thunk(obj, ptr);
 
 		REQUIRE(result != nullptr);
 		REQUIRE(55.0f == result->x);
@@ -584,17 +581,17 @@ TEST_CASE("test member POD field", "[method]")
 		auto field = cls.get_field("someFieldPOD");
 		REQUIRE(field.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_class_instance(cls);
-		REQUIRE(obj.get_mono_object() != nullptr);
+		auto obj = assembly.new_instance(cls);
+		REQUIRE(obj.get_internal_ptr() != nullptr);
 
-		auto someField = obj.get_field_value<vec2f>(field);
+		auto someField = field.get_value<vec2f>(obj);
 		REQUIRE(someField.x == 12.0f);
 		REQUIRE(someField.y == 13.0f);
 
 		vec2f arg = {6.0f, 7.0f};
-		obj.set_field_value(field, arg);
+		field.set_value(obj, arg);
 
-		someField = obj.get_field_value<vec2f>(field);
+		someField = field.get_value<vec2f>(obj);
 		REQUIRE(someField.x == 6.0f);
 		REQUIRE(someField.y == 7.0f);
 		// clang-format off
@@ -618,17 +615,17 @@ TEST_CASE("test member POD property", "[method]")
 		auto prop = cls.get_property("somePropertyPOD");
 		REQUIRE(prop.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_class_instance(cls);
-		REQUIRE(obj.get_mono_object() != nullptr);
+		auto obj = assembly.new_instance(cls);
+		REQUIRE(obj.get_internal_ptr() != nullptr);
 
-		auto someProp = obj.get_property_value<vec2f>(prop);
+		auto someProp = prop.get_value<vec2f>(obj);
 		REQUIRE(someProp.x == 12.0f);
 		REQUIRE(someProp.y == 13.0f);
 
 		vec2f arg = {55.0f, 56.0f};
-		obj.set_property_value(prop, arg);
+		prop.set_value(obj, arg);
 
-		someProp = obj.get_property_value<vec2f>(prop);
+		someProp = prop.get_value<vec2f>(obj);
 		REQUIRE(someProp.x == 55.0f);
 		REQUIRE(someProp.y == 56.0f);
 		// clang-format off
@@ -653,14 +650,14 @@ TEST_CASE("test static POD field", "[method]")
 		auto field = cls.get_field("someFieldPODStatic");
 		REQUIRE(field.get_internal_ptr() != nullptr);
 
-		auto someField = cls.get_static_field_value<vec2f>(field);
+		auto someField = field.get_value<vec2f>();
 		REQUIRE(someField.x == 12.0f);
 		REQUIRE(someField.y == 13.0f);
 
 		vec2f arg = {6.0f, 7.0f};
-		cls.set_static_field_value(field, arg);
+		field.set_value(arg);
 
-		someField = cls.get_static_field_value<vec2f>(field);
+		someField = field.get_value<vec2f>();
 		REQUIRE(someField.x == 6.0f);
 		REQUIRE(someField.y == 7.0f);
 		// clang-format off
@@ -684,14 +681,14 @@ TEST_CASE("test static POD property", "[method]")
 		auto prop = cls.get_property("somePropertyPODStatic");
 		REQUIRE(prop.get_internal_ptr() != nullptr);
 
-		auto someProp = cls.get_static_property_value<vec2f>(prop);
+		auto someProp = prop.get_value<vec2f>();
 		REQUIRE(someProp.x == 6.0f);
 		REQUIRE(someProp.y == 7.0f);
 
 		vec2f arg = {55.0f, 56.0f};
-		cls.set_static_property_value(prop, arg);
+		prop.set_value(arg);
 
-		someProp = cls.get_static_property_value<vec2f>(prop);
+		someProp = prop.get_value<vec2f>();
 		REQUIRE(someProp.x == 55.0f);
 		REQUIRE(someProp.y == 56.0f);
 		// clang-format off
@@ -718,14 +715,14 @@ TEST_CASE("test static NON-POD field", "[method]")
 
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 
-		auto someField = cls.get_static_field_value<vec2f_ptr>(field);
+		auto someField = field.get_value<vec2f_ptr>();
 		REQUIRE(someField->x == 12.0f);
 		REQUIRE(someField->y == 13.0f);
 
 		vec2f_ptr arg = std::make_shared<vec2f>(vec2f{6.0f, 7.0f});
-		cls.set_static_field_value(field, arg);
+		field.set_value(arg);
 
-		someField = cls.get_static_field_value<vec2f_ptr>(field);
+		someField = field.get_value<vec2f_ptr>();
 		REQUIRE(someField->x == 6.0f);
 		REQUIRE(someField->y == 7.0f);
 		// clang-format off
@@ -751,14 +748,14 @@ TEST_CASE("test static NON-POD property", "[method]")
 
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 
-		auto someProp = cls.get_static_property_value<vec2f_ptr>(prop);
+		auto someProp = prop.get_value<vec2f_ptr>();
 		REQUIRE(someProp->x == 6.0f);
 		REQUIRE(someProp->y == 7.0f);
 
 		vec2f_ptr arg = std::make_shared<vec2f>(vec2f{55.0f, 56.0f});
-		cls.set_static_property_value(prop, arg);
+		prop.set_value(arg);
 
-		someProp = cls.get_static_property_value<vec2f_ptr>(prop);
+		someProp = prop.get_value<vec2f_ptr>();
 		REQUIRE(someProp->x == 55.0f);
 		REQUIRE(someProp->y == 56.0f);
 		// clang-format off

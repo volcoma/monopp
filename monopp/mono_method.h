@@ -11,25 +11,23 @@ namespace mono
 {
 
 class mono_object;
+class mono_class;
 class mono_assembly;
 
 class mono_method : public common::noncopyable
 {
 public:
-	mono_method() = default;
-	explicit mono_method(const mono_assembly* assembly, MonoClass* cls, MonoObject* object,
-						 const std::string& name_with_args);
-	explicit mono_method(const mono_assembly* assembly, MonoClass* cls, MonoObject* object, const std::string& name,
-						 int argc);
-	mono_method(mono_method&& o);
-	auto operator=(mono_method&& o) -> mono_method&;
+	explicit mono_method(const mono_class& cls, const std::string& name_with_args);
+	explicit mono_method(const mono_class& cls, const std::string& name, int argc);
+	mono_method(mono_method&& o) = default;
 
 	auto get_internal_ptr() const -> MonoMethod*;
+	auto get_class() const -> const mono_class&;
+	auto get_assembly() const -> const mono_assembly&;
 
-protected:
-	const mono_assembly* assembly_ = nullptr;
-	MonoObject* object_ = nullptr;
-	MonoMethod* method_ = nullptr;
+private:
+	const mono_class& class_;
+	non_owning_ptr<MonoMethod> method_ = nullptr;
 };
 
 } // namespace mono

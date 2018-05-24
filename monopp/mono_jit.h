@@ -15,7 +15,7 @@ bool init(const std::string& domain, bool enable_debugging = false);
 void shutdown();
 
 class mono_assembly;
-auto get_auto_wrap_assembly() -> mono_assembly&;
+auto get_auto_wrap_assembly() -> const mono_assembly&;
 void set_auto_wrap_assembly(const mono_assembly& assembly);
 
 template <typename F>
@@ -42,8 +42,8 @@ struct mono_jit_internal_call_wrapper<return_t(args_t...), func>
 	static typename convert_mono_type<return_t>::mono_type_name
 	wrapper(typename convert_mono_type<args_t>::mono_type_name... args)
 	{
-		auto& internal_call_assembly = get_auto_wrap_assembly();
-		assert(internal_call_assembly.valid() &&
+		const auto& internal_call_assembly = get_auto_wrap_assembly();
+		assert(internal_call_assembly.get_internal_ptr() &&
 			   "Internal call assembly not set. Call mono_jit::set_auto_wrap_assembly before execution.");
 		return convert_mono_type<return_t>::to_mono(
 			internal_call_assembly, func(convert_mono_type<args_t>::from_mono(std::move(args))...));

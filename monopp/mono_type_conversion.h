@@ -84,7 +84,7 @@ struct convert_mono_type<std::string>
 
 	static auto to_mono(const mono_assembly& assembly, const cpp_type_name& str) -> mono_type_name
 	{
-		return assembly.new_string(str).get_mono_object();
+		return mono_string(assembly, str).get_internal_ptr();
 	}
 
 	static auto from_mono(mono_type_name mono_str) -> cpp_type_name

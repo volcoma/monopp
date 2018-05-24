@@ -1,45 +1,19 @@
 #include "mono_class_instance.h"
 #include "mono_class.h"
-#include "mono_method.h"
 
 namespace mono
 {
 
-mono_class_instance::mono_class_instance(MonoObject* obj)
-	: mono_object(obj)
-	, class_(mono_object_get_class(obj))
+auto mono_class_instance::get_class() const -> const mono_class&
 {
+	return class_;
 }
 
-mono_class_instance::mono_class_instance(const mono_assembly* assembly, mono_domain* domain, MonoClass* cls)
-	: mono_object(mono_object_new(domain->get_internal_ptr(), cls))
+mono_class_instance::mono_class_instance(const mono_class& cls)
+	: mono_object(mono_object_new(cls.get_assembly().get_domain().get_internal_ptr(), cls.get_internal_ptr()))
 	, class_(cls)
-	, assembly_(assembly)
 {
 	mono_runtime_object_init(object_);
-}
-
-mono_class_instance::mono_class_instance(mono_class_instance&&) = default;
-
-auto mono_class_instance::operator=(mono_class_instance &&) -> mono_class_instance& = default;
-
-auto mono_class_instance::get_method(const std::string& name_with_args) const -> mono_method
-{
-	assert(assembly_);
-	assert(object_);
-	return mono_method(assembly_, class_, object_, name_with_args);
-}
-
-auto mono_class_instance::get_method(const std::string& name, int argc) const -> mono_method
-{
-	assert(assembly_);
-	assert(object_);
-	return mono_method(assembly_, class_, object_, name, argc);
-}
-
-auto mono_class_instance::get_class() const -> mono_class
-{
-	return mono_class(assembly_, class_);
 }
 
 } // namespace mono

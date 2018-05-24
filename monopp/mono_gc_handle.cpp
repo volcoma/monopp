@@ -4,18 +4,6 @@
 namespace mono
 {
 
-mono_gc_handle::mono_gc_handle(mono_object& obj)
-	: mono_gc_handle(obj.get_mono_object())
-{
-}
-
-mono_gc_handle::mono_gc_handle(MonoObject* obj)
-	: object_(obj)
-{
-}
-
-mono_gc_handle::~mono_gc_handle() = default;
-
 void mono_gc_handle::lock()
 {
 	assert(handle_ == 0);

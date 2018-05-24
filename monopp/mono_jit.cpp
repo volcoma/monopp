@@ -13,8 +13,8 @@ namespace mono
 namespace detail
 {
 static MonoDomain* jit_domain_ = nullptr;
-static mono_assembly internal_call_assembly_;
-}
+static const mono_assembly* internal_call_assembly_ = nullptr;
+} // namespace detail
 
 bool init(const std::string& domain, bool enable_debugging)
 {
@@ -47,12 +47,12 @@ void shutdown()
 
 void set_auto_wrap_assembly(const mono_assembly& assembly)
 {
-	detail::internal_call_assembly_ = assembly;
+	detail::internal_call_assembly_ = &assembly;
 }
 
-auto get_auto_wrap_assembly() -> mono_assembly&
+auto get_auto_wrap_assembly() -> const mono_assembly&
 {
-	return detail::internal_call_assembly_;
+	return *detail::internal_call_assembly_;
 }
 
 } // namespace mono

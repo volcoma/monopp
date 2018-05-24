@@ -8,7 +8,7 @@ mono_object::mono_object(MonoObject* object)
 {
 }
 
-auto mono_object::get_mono_object() const -> MonoObject*
+auto mono_object::get_internal_ptr() const -> MonoObject*
 {
 	return object_;
 }
