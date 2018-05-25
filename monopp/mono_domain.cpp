@@ -1,7 +1,7 @@
 #include "mono_domain.h"
 #include "mono_assembly.h"
 
-#include "mono_jit.h"
+#include "mono_string.h"
 
 #include <mono/metadata/appdomain.h>
 #include <mono/metadata/assembly.h>
@@ -10,10 +10,26 @@
 
 namespace mono
 {
+static const mono_domain* current_domain = nullptr;
 
 auto mono_domain::get_internal_ptr() const -> MonoDomain*
 {
 	return domain_;
+}
+
+void mono_domain::set_current_domain(const mono_domain& domain)
+{
+	current_domain = &domain;
+}
+
+auto mono_domain::get_current_domain() -> const mono_domain&
+{
+	return *current_domain;
+}
+
+auto mono_domain::new_string(const std::string& str) const -> mono_string
+{
+	return mono_string(*this, str);
 }
 
 mono_domain::mono_domain(const std::string& name)
@@ -41,22 +57,18 @@ mono_domain::~mono_domain()
 	mono_gc_collect(mono_gc_max_generation());
 }
 
-auto mono_domain::get_assembly(const std::string& path) const -> const mono_assembly&
+auto mono_domain::get_assembly(const std::string& path) const -> mono_assembly
 {
 	auto it = assemblies_.find(path);
 	if(it != assemblies_.end())
 	{
 		const auto& assembly = it->second;
 
-		set_auto_wrap_assembly(assembly);
-
 		return assembly;
 	}
 	auto res = assemblies_.emplace(path, mono_assembly{*this, path});
 
 	const auto& assembly = res.first->second;
-
-	set_auto_wrap_assembly(assembly);
 
 	return assembly;
 }

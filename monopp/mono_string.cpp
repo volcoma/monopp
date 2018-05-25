@@ -1,12 +1,11 @@
 #include "mono_string.h"
-#include "mono_assembly.h"
 #include "mono_domain.h"
+
 namespace mono
 {
 
-mono_string::mono_string(const mono_assembly& assembly, const std::string& str)
-	: mono_object(reinterpret_cast<MonoObject*>(
-		  mono_string_new(assembly.get_domain().get_internal_ptr(), str.c_str())))
+mono_string::mono_string(const mono_domain& domain, const std::string& str)
+	: mono_object(reinterpret_cast<MonoObject*>(mono_string_new(domain.get_internal_ptr(), str.c_str())))
 {
 }
 

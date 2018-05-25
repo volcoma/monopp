@@ -30,7 +30,7 @@ struct convert_mono_type
 
 	static_assert(is_mono_valuetype<T>::value, "Specialize for non-pod types");
 
-	static auto to_mono(const mono_assembly&, const cpp_type_name& t) -> mono_type_name
+	static auto to_mono(const cpp_type_name& t) -> mono_type_name
 	{
 		return t;
 	}
@@ -65,7 +65,7 @@ struct convert_mono_type<MonoObject*>
 	using cpp_type_name = MonoObject*;
 	using mono_type_name = MonoObject*;
 
-	static auto to_mono(const mono_assembly&, cpp_type_name t) -> mono_type_name
+	static auto to_mono(cpp_type_name t) -> mono_type_name
 	{
 		return t;
 	}
@@ -82,9 +82,10 @@ struct convert_mono_type<std::string>
 	using cpp_type_name = std::string;
 	using mono_type_name = MonoObject*;
 
-	static auto to_mono(const mono_assembly& assembly, const cpp_type_name& str) -> mono_type_name
+	static auto to_mono(const cpp_type_name& str) -> mono_type_name
 	{
-		return mono_string(assembly, str).get_internal_ptr();
+        const auto& domain = mono_domain::get_current_domain();
+		return mono_string(domain, str).get_internal_ptr();
 	}
 
 	static auto from_mono(mono_type_name mono_str) -> cpp_type_name

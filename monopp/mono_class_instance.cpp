@@ -4,15 +4,8 @@
 namespace mono
 {
 
-auto mono_class_instance::get_class() const -> const mono_class&
-{
-	return class_;
-}
-
-
-mono_class_instance::mono_class_instance(const mono_class& cls)
-	: mono_object(mono_object_new(cls.get_assembly().get_domain().get_internal_ptr(), cls.get_internal_ptr()))
-	, class_(cls)
+mono_class_instance::mono_class_instance(const mono_domain& domain, const mono_class& cls)
+	: mono_object(mono_object_new(domain.get_internal_ptr(), cls.get_internal_ptr()))
 {
 	mono_runtime_object_init(object_);
 }

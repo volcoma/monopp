@@ -3,7 +3,6 @@
 #include "mono_config.h"
 
 #include "mono_assembly.h"
-#include "mono_noncopyable.h"
 #include "mono_type_conversion.h"
 
 #include <mono/metadata/loader.h>
@@ -13,10 +12,6 @@ namespace mono
 
 bool init(const std::string& domain, bool enable_debugging = false);
 void shutdown();
-
-class mono_assembly;
-auto get_auto_wrap_assembly() -> const mono_assembly&;
-void set_auto_wrap_assembly(const mono_assembly& assembly);
 
 template <typename F>
 inline void add_internal_call(const std::string& name, F&& func)
@@ -42,11 +37,8 @@ struct mono_jit_internal_call_wrapper<return_t(args_t...), func>
 	static typename convert_mono_type<return_t>::mono_type_name
 	wrapper(typename convert_mono_type<args_t>::mono_type_name... args)
 	{
-		const auto& internal_call_assembly = get_auto_wrap_assembly();
-		assert(internal_call_assembly.get_internal_ptr() &&
-			   "Internal call assembly not set. Call mono_jit::set_auto_wrap_assembly before execution.");
 		return convert_mono_type<return_t>::to_mono(
-			internal_call_assembly, func(convert_mono_type<args_t>::from_mono(std::move(args))...));
+			func(convert_mono_type<args_t>::from_mono(std::move(args))...));
 	}
 };
 

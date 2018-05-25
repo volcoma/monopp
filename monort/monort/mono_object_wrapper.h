@@ -14,9 +14,9 @@ namespace managed_interface
 	{                                                                                                        \
 		using mono_type_name = MonoObject*;                                                                  \
                                                                                                              \
-		static auto to_mono(const mono_assembly& assembly, type wrapper) -> mono_type_name                         \
+		static auto to_mono(type wrapper) -> mono_type_name                         \
 		{                                                                                                    \
-			return managed_interface::mono_object_wrapper<type>::create(assembly, std::move(wrapper));       \
+			return managed_interface::mono_object_wrapper<type>::create(std::move(wrapper));       \
 		}                                                                                                    \
                                                                                                              \
 		static auto from_mono(mono_type_name object) -> type                                                 \
@@ -35,7 +35,7 @@ public:
 	/*!
 	 * Create a new MonoObject and associate this wrapper to it.
 	 */
-	static auto create(const mono_assembly& assembly, T obj) -> MonoObject*;
+	static auto create(T obj) -> MonoObject*;
 
 	/*!
 	 * Create a wrapper for an existing MonoObject.
@@ -49,9 +49,9 @@ private:
 };
 
 template <typename T>
-auto mono_object_wrapper<T>::create(const mono_assembly& assembly, T obj) -> MonoObject*
+auto mono_object_wrapper<T>::create(T obj) -> MonoObject*
 {
-	auto instance = assembly.new_instance(*object::object_class).get_internal_ptr();
+	auto instance = object::object_class->new_instance().get_internal_ptr();
 	create(instance, std::move(obj));
 	return instance;
 }

@@ -12,7 +12,6 @@ namespace mono
 {
 
 mono_assembly::mono_assembly(const mono_domain& domain, const std::string& path)
-	: domain_(domain)
 {
 	assembly_ = mono_domain_assembly_open(domain.get_internal_ptr(), path.c_str());
 
@@ -24,22 +23,12 @@ mono_assembly::mono_assembly(const mono_domain& domain, const std::string& path)
 
 auto mono_assembly::get_class(const std::string& name) const -> mono_class
 {
-	return mono_class(*this, name);
+	return mono_class(image_, name);
 }
 
 auto mono_assembly::get_class(const std::string& name_space, const std::string& name) const -> mono_class
 {
-	return mono_class(*this, name_space, name);
-}
-
-auto mono_assembly::new_instance(const mono_class& cls) const -> mono_class_instance
-{
-	return mono_class_instance(cls);
-}
-
-auto mono_assembly::new_string(const std::string& str) const -> mono_string
-{
-	return mono_string(*this, str);
+	return mono_class(image_, name_space, name);
 }
 
 bool mono_assembly::valid() const
@@ -50,15 +39,6 @@ bool mono_assembly::valid() const
 auto mono_assembly::get_internal_ptr() const -> MonoAssembly*
 {
 	return assembly_;
-}
-auto mono_assembly::get_image_ptr() const -> MonoImage*
-{
-	return image_;
-}
-
-auto mono_assembly::get_domain() const -> const mono_domain&
-{
-	return domain_;
 }
 
 } // namespace mono

@@ -110,7 +110,7 @@ public
 			someFieldPOD = value;
 		}
 	}
-	
+
 public
 	static Tests.Vector2f someFieldPODStatic = new Tests.Vector2f(12, 13);
 
@@ -144,7 +144,7 @@ public
 			someFieldNONPOD = value;
 		}
 	}
-	
+
 public
 	static Tests.WrapperVector2f someFieldNONPODStatic = new Tests.WrapperVector2f(12, 13);
 
@@ -162,6 +162,10 @@ public
 		}
 	}
 
+	static ClassInstanceTest()
+	{
+		Console.WriteLine("FROM C# : STATIC CONSTRUCTOR.");
+	}
 public
 	ClassInstanceTest()
 	{

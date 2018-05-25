@@ -3,22 +3,27 @@
 #include "mono_config.h"
 
 #include "mono_assembly.h"
-#include "mono_noncopyable.h"
 #include <mono/metadata/metadata.h>
 
 #include <unordered_map>
 
 namespace mono
 {
+class mono_string;
 
-class mono_domain : public common::noncopyable
+class mono_domain
 {
 public:
 	mono_domain(const std::string& name);
 	~mono_domain();
-	auto get_assembly(const std::string& path) const -> const mono_assembly&;
+	auto get_assembly(const std::string& path) const -> mono_assembly;
 
 	auto get_internal_ptr() const -> MonoDomain*;
+
+	auto new_string(const std::string& str) const -> mono_string;
+
+	static void set_current_domain(const mono_domain& domain);
+	static const mono_domain& get_current_domain();
 
 private:
 	mutable std::unordered_map<std::string, mono_assembly> assemblies_;

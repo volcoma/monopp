@@ -8,22 +8,13 @@
 namespace mono
 {
 
-mono_method::mono_method(const mono_class& cls, MonoMethod* method)
-	: class_(cls)
+mono_method::mono_method(MonoMethod* method)
 {
 	method_ = method;
-	if(!method_)
-	{
-		const auto& cls_name = cls.get_name();
-		throw mono_exception("NATIVE::Could not get method : for class " + cls_name);
-	}
-
-	name_ = mono_method_get_name(method_);
-	fullname_ = mono_method_full_name(method_, true);
+	__generate_meta();
 }
 
 mono_method::mono_method(const mono_class& cls, const std::string& name_with_args)
-	: class_(cls)
 {
 	auto desc = mono_method_desc_new((":" + name_with_args).c_str(), 0);
 	method_ = mono_method_desc_search_in_class(desc, cls.get_internal_ptr());
@@ -34,13 +25,10 @@ mono_method::mono_method(const mono_class& cls, const std::string& name_with_arg
 		const auto& cls_name = cls.get_name();
 		throw mono_exception("NATIVE::Could not get method : " + name_with_args + " for class " + cls_name);
 	}
-
-	name_ = mono_method_get_name(method_);
-	fullname_ = mono_method_full_name(method_, true);
+	__generate_meta();
 }
 
 mono_method::mono_method(const mono_class& cls, const std::string& name, int argc)
-	: class_(cls)
 {
 	method_ = mono_class_get_method_from_name(cls.get_internal_ptr(), name.c_str(), argc);
 
@@ -49,9 +37,7 @@ mono_method::mono_method(const mono_class& cls, const std::string& name, int arg
 		const auto& cls_name = cls.get_name();
 		throw mono_exception("NATIVE::Could not get method : " + name + " for class " + cls_name);
 	}
-
-	name_ = mono_method_get_name(method_);
-	fullname_ = mono_method_full_name(method_, true);
+	__generate_meta();
 }
 
 auto mono_method::get_internal_ptr() const -> MonoMethod*
@@ -59,20 +45,18 @@ auto mono_method::get_internal_ptr() const -> MonoMethod*
 	return method_;
 }
 
-auto mono_method::get_owning_class() const -> const mono_class&
+void mono_method::__generate_meta()
 {
-	return class_;
-}
-
-auto mono_method::get_assembly() const -> const mono_assembly&
-{
-	return class_.get_assembly();
+	signature_ = mono_method_signature(method_);
+	name_ = mono_method_get_name(method_);
+	fullname_ = mono_method_full_name(method_, true);
+	std::string storage = (is_static() ? " static " : " ");
+	full_declname_ = to_string(get_visibility()) + storage + fullname_;
 }
 
 auto mono_method::get_return_type() const -> mono_type
 {
-	auto sig = mono_method_get_signature(method_, nullptr, 0);
-	return mono_type(mono_signature_get_return_type(sig));
+	return mono_type(mono_signature_get_return_type(signature_));
 }
 
 auto mono_method::get_name() const -> const std::string&
@@ -84,7 +68,10 @@ auto mono_method::get_fullname() const -> const std::string&
 {
 	return fullname_;
 }
-
+auto mono_method::get_full_declname() const -> const std::string&
+{
+	return full_declname_;
+}
 auto mono_method::get_visibility() const -> visibility
 {
 
@@ -104,6 +91,11 @@ auto mono_method::get_visibility() const -> visibility
 	assert(false);
 
 	return visibility::private_;
+}
+
+auto mono_method::is_static() const -> bool
+{
+	return !mono_signature_is_instance(signature_);
 }
 
 } // namespace mono

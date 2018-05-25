@@ -2,22 +2,19 @@
 
 #include "mono_config.h"
 
-#include "mono_noncopyable.h"
-
 #include "mono_class.h"
 #include "mono_domain.h"
 #include "mono_object.h"
-#include "mono_type_conversion.h"
 #include "mono_type.h"
+#include "mono_type_conversion.h"
 
 namespace mono
 {
 
-class mono_class_field : public common::noncopyable
+class mono_class_field
 {
 public:
 	explicit mono_class_field(const mono_class& cls, const std::string& name);
-	mono_class_field(mono_class_field&& o) = default;
 
 	template <typename T>
 	void set_value(const T& val) const;
@@ -31,25 +28,27 @@ public:
 
 	auto get_name() const -> const std::string&;
 	auto get_fullname() const -> const std::string&;
-    auto get_type() const -> const mono_type&;
-    auto get_visibility() const -> visibility;
-    auto is_static() const -> bool;
-    
-	auto get_owning_class() const -> const mono_class&;
+	auto get_full_declname() const -> const std::string&;
+
+	auto get_type() const -> const mono_type&;
+	auto get_visibility() const -> visibility;
+	auto is_static() const -> bool;
+
 	auto get_internal_ptr() const -> MonoClassField*;
 
 private:
+	void __generate_meta();
 	template <typename T>
 	void __set_value(const mono_object* obj, const T& val) const;
 	template <typename T>
 	auto __get_value(const mono_object* obj) const -> T;
 
-	const mono_class& class_;
-    mono_type type_;
+	mono_type type_;
 	non_owning_ptr<MonoClassField> field_ = nullptr;
-
+	non_owning_ptr<MonoVTable> class_vtable_ = nullptr;
 	std::string name_;
 	std::string fullname_;
+	std::string full_declname_;
 };
 
 template <typename T>
@@ -69,10 +68,7 @@ void mono_class_field::__set_value(const mono_object* object, const T& val) cons
 {
 	assert(get_internal_ptr());
 
-	const auto& cls = get_owning_class();
-	const auto& assembly = cls.get_assembly();
-
-	auto mono_val = convert_mono_type<T>::to_mono(assembly, val);
+	auto mono_val = convert_mono_type<T>::to_mono(val);
 	auto arg = to_mono_arg(mono_val);
 
 	if(object)
@@ -83,12 +79,7 @@ void mono_class_field::__set_value(const mono_object* object, const T& val) cons
 	}
 	else
 	{
-		const auto& domain = assembly.get_domain();
-
-		MonoVTable* vtable = mono_class_vtable(domain.get_internal_ptr(), cls.get_internal_ptr());
-		mono_runtime_class_init(vtable);
-
-		mono_field_static_set_value(vtable, get_internal_ptr(), arg);
+		mono_field_static_set_value(class_vtable_, get_internal_ptr(), arg);
 	}
 }
 
@@ -124,13 +115,7 @@ auto mono_class_field::__get_value(const mono_object* object) const -> T
 	}
 	else
 	{
-		const auto& cls = get_owning_class();
-		const auto& assembly = cls.get_assembly();
-		const auto& domain = assembly.get_domain();
-		MonoVTable* vtable = mono_class_vtable(domain.get_internal_ptr(), cls.get_internal_ptr());
-		mono_runtime_class_init(vtable);
-
-		mono_field_static_get_value(vtable, get_internal_ptr(), arg);
+		mono_field_static_get_value(class_vtable_, get_internal_ptr(), arg);
 	}
 
 	if(!type_.is_valuetype())

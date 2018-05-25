@@ -15,14 +15,15 @@ class mono_assembly;
 class mono_method;
 class mono_class_field;
 class mono_class_property;
+class mono_class_instance;
 
 class mono_class : public mono_type
 {
 public:
-	explicit mono_class(const mono_assembly& assembly, const std::string& name);
-	explicit mono_class(const mono_assembly& assembly, const std::string& name_space,
-						const std::string& name);
-	mono_class(mono_class&& o) = default;
+	explicit mono_class(MonoImage* image, const std::string& name);
+	explicit mono_class(MonoImage* image, const std::string& name_space, const std::string& name);
+
+	auto new_instance() const -> mono_class_instance;
 
 	template <typename function_signature_t>
 	auto get_method(const std::string& name);
@@ -38,18 +39,18 @@ public:
 	auto get_fields() const -> std::vector<mono_class_field>;
 
 	auto get_properties() const -> std::vector<mono_class_property>;
-	
+
 	auto get_methods() const -> std::vector<mono_method>;
-	
+
 	auto get_base_class() const -> mono_class;
 
-    auto is_instance_of(const mono_object& obj) const -> bool;
-    
-    auto get_internal_ptr() const -> MonoClass*;
-	auto get_assembly() const -> const mono_assembly&;
-private:
-	const mono_assembly& assembly_;
+	auto is_instance_of(const mono_object& obj) const -> bool;
 
+	auto get_internal_ptr() const -> MonoClass*;
+	auto get_assembly() const -> const mono_assembly&;
+
+private:
+    explicit mono_class(MonoClass* cls);
 	non_owning_ptr<MonoClass> class_ = nullptr;
 };
 

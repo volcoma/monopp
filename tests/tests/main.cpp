@@ -110,6 +110,7 @@ TEST_CASE("create mono domain", "[domain]")
 	{
 		// clang-format on
 		domain = std::make_unique<mono::mono_domain>("domain");
+		mono::mono_domain::set_current_domain(*domain);
 		// clang-format off
 	};
 	// clang-format on
@@ -139,7 +140,7 @@ TEST_CASE("load valid assembly", "[domain]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 		// clang-format off
 	};
@@ -154,7 +155,7 @@ TEST_CASE("load valid assembly and bind", "[domain]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		mono::add_internal_call("Tests.MyObject::CreateInternal", internal_call(MyObject_CreateInternal));
@@ -174,7 +175,7 @@ TEST_CASE("init monort", "[monort]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& core_assembly = domain->get_assembly("monort_managed.dll");
+		auto core_assembly = domain->get_assembly("monort_managed.dll");
 		mono::managed_interface::init(core_assembly);
 		// clang-format off
 	};
@@ -205,7 +206,7 @@ TEST_CASE("get invalid class", "[assembly]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		REQUIRE_THROWS([&]() { assembly.get_class("SomeClassThatDoesntExist12345"); }());
@@ -222,30 +223,27 @@ TEST_CASE("get valid class", "[assembly]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
 
 		REQUIRE(cls.get_internal_ptr() != nullptr);
-    
+
 		auto fields = cls.get_fields();
 		auto props = cls.get_properties();
 		auto methods = cls.get_methods();
 		for(const auto& field : fields)
 		{
-			std::cout << field.get_name() << std::endl;
-			std::cout << field.get_fullname() << std::endl;
+			std::cout << field.get_full_declname() << std::endl;
 		}
 		for(const auto& prop : props)
 		{
-			std::cout << prop.get_name() << std::endl;
-			std::cout << prop.get_fullname() << std::endl;
+			std::cout << prop.get_full_declname() << std::endl;
 		}
 		for(const auto& method : methods)
 		{
-			std::cout << method.get_name() << std::endl;
-			std::cout << method.get_fullname() << std::endl;
+			std::cout << method.get_full_declname() << std::endl;
 		}
 		// clang-format off
 	};
@@ -260,7 +258,7 @@ TEST_CASE("get valid method", "[class]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -268,14 +266,10 @@ TEST_CASE("get valid method", "[class]")
 
 		auto method1 = cls.get_method<void()>("Method");
 		REQUIRE(method1.get_internal_ptr() != nullptr);
-		std::cout << method1.get_fullname() << std::endl;
 		auto method2 = cls.get_method<void(int)>("MethodWithParameter");
 		REQUIRE(method2.get_internal_ptr() != nullptr);
-		std::cout << method2.get_fullname() << std::endl;
 		auto method3 = cls.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
 		REQUIRE(method3.get_internal_ptr() != nullptr);
-		std::cout << method3.get_fullname() << std::endl;
-
 		// clang-format off
 	};
 	// clang-format on
@@ -289,7 +283,7 @@ TEST_CASE("get/set field", "[class]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -298,7 +292,7 @@ TEST_CASE("get/set field", "[class]")
 		auto field = cls.get_field("someField");
 		REQUIRE(field.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_instance(cls);
+		auto obj = cls.new_instance();
 		REQUIRE(obj.get_internal_ptr() != nullptr);
 
 		auto someField = field.get_value<int>(obj);
@@ -322,7 +316,7 @@ TEST_CASE("get invalid field", "[class]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -342,7 +336,7 @@ TEST_CASE("get/set property", "[class]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -351,7 +345,7 @@ TEST_CASE("get/set property", "[class]")
 		auto prop = cls.get_property("someProperty");
 		REQUIRE(prop.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_instance(cls);
+		auto obj = cls.new_instance();
 		REQUIRE(obj.get_internal_ptr() != nullptr);
 
 		auto someProp = prop.get_value<int>(obj);
@@ -375,7 +369,7 @@ TEST_CASE("get invalid property", "[class]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -395,7 +389,7 @@ TEST_CASE("call static method 1", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_method<int(int)>("FunctionWithIntParam");
 		const auto number = 1000;
@@ -414,7 +408,7 @@ TEST_CASE("call static method 2", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_method<void(float, int, float)>("VoidFunction");
 		method_thunk(13.37f, 42, 9000.0f);
@@ -431,7 +425,7 @@ TEST_CASE("call static method 3", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_method<void(std::string)>("FunctionWithStringParam");
 		method_thunk("Hello!");
@@ -447,7 +441,7 @@ TEST_CASE("call static method 4", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_method<std::string(std::string)>("StringReturnFunction");
 		auto expected_string = std::string("Hello!");
@@ -466,7 +460,7 @@ TEST_CASE("call static method 5", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_method<void()>("ExceptionFunction");
 		method_thunk();
@@ -483,7 +477,7 @@ TEST_CASE("call static method 6", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		auto method_thunk = cls.get_method<void()>("CreateStruct");
 		method_thunk();
@@ -500,9 +494,9 @@ TEST_CASE("call member method 1", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto obj = assembly.new_instance(cls);
+		auto obj = cls.new_instance();
 		auto method_thunk = cls.get_method<void()>("Method");
 		method_thunk(obj);
 		// clang-format off
@@ -518,9 +512,9 @@ TEST_CASE("call member method 2", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto obj = assembly.new_instance(cls);
+		auto obj = cls.new_instance();
 		auto method_thunk =
 			cls.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
 		auto result = method_thunk(obj, "test", 5);
@@ -538,9 +532,9 @@ TEST_CASE("call member method 3", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
-		auto obj = assembly.new_instance(cls);
+		auto obj = cls.new_instance();
 
 		auto method_thunk = cls.get_method<vec2f(vec2f)>("MethodPodAR");
 		vec2f p;
@@ -561,12 +555,12 @@ TEST_CASE("call member method 4", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto cls = assembly.get_class("ClassInstanceTest");
 		// auto fields = cls.get_fields();
 		// auto props = cls.get_properties();
 
-		auto obj = assembly.new_instance(cls);
+		auto obj = cls.new_instance();
 
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 
@@ -593,7 +587,7 @@ TEST_CASE("test member POD field", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -602,7 +596,7 @@ TEST_CASE("test member POD field", "[method]")
 		auto field = cls.get_field("someFieldPOD");
 		REQUIRE(field.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_instance(cls);
+		auto obj = cls.new_instance();
 		REQUIRE(obj.get_internal_ptr() != nullptr);
 
 		auto someField = field.get_value<vec2f>(obj);
@@ -627,7 +621,7 @@ TEST_CASE("test member POD property", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -636,7 +630,7 @@ TEST_CASE("test member POD property", "[method]")
 		auto prop = cls.get_property("somePropertyPOD");
 		REQUIRE(prop.get_internal_ptr() != nullptr);
 
-		auto obj = assembly.new_instance(cls);
+		auto obj = cls.new_instance();
 		REQUIRE(obj.get_internal_ptr() != nullptr);
 
 		auto someProp = prop.get_value<vec2f>(obj);
@@ -662,7 +656,7 @@ TEST_CASE("test static POD field", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -693,7 +687,7 @@ TEST_CASE("test static POD property", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -725,7 +719,7 @@ TEST_CASE("test static NON-POD field", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -758,7 +752,7 @@ TEST_CASE("test static NON-POD property", "[method]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto& assembly = domain->get_assembly("tests_managed.dll");
+		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("ClassInstanceTest");
@@ -802,7 +796,7 @@ TEST_CASE("destroy mono domain", "[domain]")
 
 int main(int argc, char* argv[])
 {
-	if(!mono::init("mono"))
+	if(!mono::init("mono", true))
 	{
 		return 1;
 	}

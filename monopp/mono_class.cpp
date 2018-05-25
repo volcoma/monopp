@@ -3,6 +3,7 @@
 #include "mono_exception.h"
 
 #include "mono_class_field.h"
+#include "mono_class_instance.h"
 #include "mono_class_property.h"
 #include "mono_method.h"
 
@@ -10,22 +11,32 @@
 namespace mono
 {
 
-mono_class::mono_class(const mono_assembly& assembly, const std::string& name)
-	: mono_class(assembly, "", name)
+mono_class::mono_class(MonoImage* image, const std::string& name)
+	: mono_class(image, "", name)
 {
 }
 
-mono_class::mono_class(const mono_assembly& assembly, const std::string& name_space, const std::string& name)
-	: assembly_(assembly)
-
+mono_class::mono_class(MonoImage* image, const std::string& name_space, const std::string& name)
 {
-	auto image_ptr = assembly.get_image_ptr();
-	class_ = mono_class_from_name(image_ptr, name_space.c_str(), name.c_str());
+	class_ = mono_class_from_name(image, name_space.c_str(), name.c_str());
 
 	if(!class_)
 		throw mono_exception("NATIVE::Could not get class : " + name_space + "." + name);
 
 	type_ = mono_class_get_type(class_);
+}
+
+mono_class::mono_class(MonoClass* cls)
+{
+	class_ = cls;
+
+	type_ = mono_class_get_type(class_);
+}
+
+auto mono_class::new_instance() const -> mono_class_instance
+{
+	const auto& domain = mono_domain::get_current_domain();
+	return mono_class_instance(domain, *this);
 }
 
 auto mono_class::get_method(const std::string& name_with_args) const -> mono_method
@@ -96,15 +107,13 @@ auto mono_class::get_methods() const -> std::vector<mono_method>
 		method = mono_class_get_methods(class_, &iter);
 	}
 
-    return methods;
+	return methods;
 }
 
 auto mono_class::get_base_class() const -> mono_class
 {
-    auto base = mono_class_get_parent(class_);
-    auto name_space = mono_class_get_namespace(base);
-    auto name = mono_class_get_name(base);
-    return mono_class(assembly_, name_space, name);
+	auto base = mono_class_get_parent(class_);
+	return mono_class(base);
 }
 
 auto mono_class::get_internal_ptr() const -> MonoClass*
@@ -113,20 +122,15 @@ auto mono_class::get_internal_ptr() const -> MonoClass*
 	return class_;
 }
 
-auto mono_class::get_assembly() const -> const mono_assembly&
+auto mono_class::is_instance_of(const mono_object& obj) const -> bool
 {
-	return assembly_;
-}
+	auto object = obj.get_internal_ptr();
+	if(object == nullptr)
+		return false;
 
-auto mono_class::is_instance_of(const mono_object &obj) const -> bool
-{
-    auto object = obj.get_internal_ptr();
-    if(object == nullptr)
-        return false;
-    
-    auto cls = mono_object_get_class(object);
-    
-    return mono_class_is_subclass_of(cls, class_, false) != 0;
+	auto cls = mono_object_get_class(object);
+
+	return mono_class_is_subclass_of(cls, class_, false) != 0;
 }
 
 } // namespace mono

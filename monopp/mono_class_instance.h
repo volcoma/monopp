@@ -10,17 +10,11 @@ namespace mono
 
 class mono_domain;
 class mono_class;
-class mono_assembly;
 
 class mono_class_instance : public mono_object
 {
 public:
-	explicit mono_class_instance(const mono_class& cls);
-
-	auto get_class() const -> const mono_class&;
-
-private:
-	const mono_class& class_;
+	explicit mono_class_instance(const mono_domain& domain, const mono_class& cls);
 };
 
 } // namespace mono

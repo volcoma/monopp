@@ -41,14 +41,12 @@ private:
 	void invoke(const mono_object* obj, args_t... args)
 	{
 		auto method = this->get_internal_ptr();
-		const auto& assembly = this->get_assembly();
 		MonoObject* object = nullptr;
 		if(obj)
 		{
 			object = obj->get_internal_ptr();
 		}
-		auto tup =
-			std::make_tuple(convert_mono_type<args_t>::to_mono(assembly, std::forward<args_t>(args))...);
+		auto tup = std::make_tuple(convert_mono_type<args_t>::to_mono(std::forward<args_t>(args))...);
 
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
@@ -93,9 +91,7 @@ private:
 		{
 			object = obj->get_internal_ptr();
 		}
-		const auto& assembly = this->get_assembly();
-		auto tup =
-			std::make_tuple(convert_mono_type<args_t>::to_mono(assembly, std::forward<args_t>(args))...);
+		auto tup = std::make_tuple(convert_mono_type<args_t>::to_mono(std::forward<args_t>(args))...);
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 
