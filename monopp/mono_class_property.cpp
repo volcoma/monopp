@@ -91,7 +91,7 @@ auto mono_class_property::is_static() const -> bool
 void mono_class_property::__generate_meta()
 {
 	auto get_method = get_get_method();
-	class_ = get_method.get_return_class();
+	class_ = get_method.get_return_type();
 	fullname_ = name_;
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;

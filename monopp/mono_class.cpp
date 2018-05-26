@@ -153,26 +153,17 @@ auto mono_class::get_internal_ptr() const -> MonoClass*
 
 void mono_class::__generate_meta()
 {
-	if(class_ == nullptr)
-	{
-		return;
-	}
-	valuetype_ = !!mono_class_is_valuetype(class_);
 	namespace_ = mono_class_get_namespace(class_);
 	name_ = mono_class_get_name(class_);
 	fullname_ = namespace_.empty() ? name_ : namespace_ + "." + name_;
 	rank_ = mono_class_get_rank(class_);
+	valuetype_ = !!mono_class_is_valuetype(class_);
+	sizeof_ = std::uint32_t(mono_class_value_size(class_, &alignof_));
 }
 
-auto mono_class::is_instance_of(const mono_object& obj) const -> bool
+auto mono_class::is_subclass_of(const mono_class& cls) const -> bool
 {
-	auto object = obj.get_internal_ptr();
-	if(object == nullptr)
-		return false;
-
-	auto cls = mono_object_get_class(object);
-
-	return mono_class_is_subclass_of(cls, class_, false) != 0;
+	return mono_class_is_subclass_of(class_, cls.get_internal_ptr(), false) != 0;
 }
 auto mono_class::get_namespace() const -> const std::string&
 {
@@ -194,5 +185,15 @@ auto mono_class::is_valuetype() const -> bool
 auto mono_class::get_rank() const -> int
 {
 	return rank_;
+}
+
+uint32_t mono_class::get_sizeof() const
+{
+	return sizeof_;
+}
+
+uint32_t mono_class::get_alignof() const
+{
+	return alignof_;
 }
 } // namespace mono

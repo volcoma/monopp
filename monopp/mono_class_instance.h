@@ -15,6 +15,7 @@ class mono_class;
 class mono_class_instance : public mono_object
 {
 public:
+	explicit mono_class_instance(const mono_object& obj);
 	explicit mono_class_instance(const mono_domain& domain, const mono_class& cls);
 
 	auto get_class() const -> const mono_class&;

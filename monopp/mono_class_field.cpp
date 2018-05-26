@@ -13,8 +13,7 @@ mono_class_field::mono_class_field(const mono_class& cls, const std::string& nam
 {
 	if(!field_)
 	{
-		std::string cls_name = cls.get_name();
-		throw mono_exception("NATIVE::Could not get field : " + name + " for class " + cls_name);
+		throw mono_exception("NATIVE::Could not get field : " + name + " for class " + cls.get_name());
 	}
 	const auto& domain = mono_domain::get_current_domain();
 

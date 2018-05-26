@@ -50,13 +50,21 @@ public:
 
 	auto get_nested_classes() const -> std::vector<mono_class>;
 
-	auto is_instance_of(const mono_object& obj) const -> bool;
+	auto is_subclass_of(const mono_class& cls) const -> bool;
 
 	auto get_namespace() const -> const std::string&;
+	
 	auto get_name() const -> const std::string&;
+	
 	auto get_fullname() const -> const std::string&;
+	
 	auto is_valuetype() const -> bool;
+	
 	auto get_rank() const -> int;
+	
+	auto get_sizeof() const -> std::uint32_t;
+	
+	auto get_alignof() const -> std::uint32_t;
 
 	auto get_internal_ptr() const -> MonoClass*;
 
@@ -69,6 +77,8 @@ private:
 	std::string fullname_;
 	int rank_ = 0;
 	bool valuetype_ = true;
+	std::uint32_t sizeof_ = 0;
+	std::uint32_t alignof_ = 0;
 };
 
 template <typename function_signature_t>

@@ -251,6 +251,14 @@ TEST_CASE("get valid class", "[assembly]")
 		for(const auto& method : methods)
 		{
 			std::cout << method.get_full_declname() << std::endl;
+			auto return_type = method.get_return_type();
+			auto param_types = method.get_param_types();
+			std::cout << "Return Type: " << return_type.get_fullname() << std::endl;
+			std::cout << "Param Types: ";
+			for(const auto& param : param_types)
+			{
+				std::cout << param.get_name() << std::endl;
+			}
 		}
 		// clang-format off
 	};

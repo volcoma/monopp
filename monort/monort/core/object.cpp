@@ -31,9 +31,9 @@ object::object(MonoObject* obj)
 	, gc_handle_(obj)
 	, gc_scoped_handle_(gc_handle_)
 {
-	mono_object instance(obj);
-
-	assert(object_class->is_instance_of(instance) &&
+	mono_class_instance instance(managed_object_);
+	const auto& obj_class = instance.get_class();
+	assert(obj_class.is_subclass_of(*object_class) &&
 		   "Mono wrapper classes must inherit from Monopp.Core.NativeObject.");
 
 	// Give mono the ownership of the this pointer.
