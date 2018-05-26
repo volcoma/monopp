@@ -3,7 +3,7 @@
 #include "mono_config.h"
 
 #include "mono_method_thunk.h"
-#include "mono_type.h"
+#include "mono_visibility.h"
 
 #include <mono/metadata/class.h>
 #include <mono/metadata/image.h>
@@ -17,11 +17,14 @@ class mono_class_field;
 class mono_class_property;
 class mono_class_instance;
 
-class mono_class : public mono_type
+class mono_class
 {
 public:
+	mono_class() = default;
 	explicit mono_class(MonoImage* image, const std::string& name);
 	explicit mono_class(MonoImage* image, const std::string& name_space, const std::string& name);
+	explicit mono_class(MonoClass* cls);
+	auto operator=(MonoClass* cls) -> mono_class&;
 
 	auto new_instance() const -> mono_class_instance;
 
@@ -42,16 +45,30 @@ public:
 
 	auto get_methods() const -> std::vector<mono_method>;
 
+	auto has_base_class() const -> bool;
 	auto get_base_class() const -> mono_class;
+
+	auto get_nested_classes() const -> std::vector<mono_class>;
 
 	auto is_instance_of(const mono_object& obj) const -> bool;
 
+	auto get_namespace() const -> const std::string&;
+	auto get_name() const -> const std::string&;
+	auto get_fullname() const -> const std::string&;
+	auto is_valuetype() const -> bool;
+	auto get_rank() const -> int;
+
 	auto get_internal_ptr() const -> MonoClass*;
-	auto get_assembly() const -> const mono_assembly&;
 
 private:
-    explicit mono_class(MonoClass* cls);
+	void __generate_meta();
 	non_owning_ptr<MonoClass> class_ = nullptr;
+
+	std::string namespace_;
+	std::string name_;
+	std::string fullname_;
+	int rank_ = 0;
+	bool valuetype_ = true;
 };
 
 template <typename function_signature_t>

@@ -243,6 +243,8 @@ public
 	{
 		Tests.MyObject obj = new Tests.MyObject();
 		obj.DoStuff("blalba");
+		string str = obj.ReturnAString("fafafa");
+		Console.WriteLine("FROM C# : ReturnAString : {0}", str);
 	}
 
 public

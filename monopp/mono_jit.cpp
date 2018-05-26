@@ -10,10 +10,8 @@
 
 namespace mono
 {
-namespace detail
-{
+
 static MonoDomain* jit_domain_ = nullptr;
-} // namespace detail
 
 bool init(const std::string& domain, bool enable_debugging)
 {
@@ -46,20 +44,20 @@ bool init(const std::string& domain, bool enable_debugging)
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 	}
 
-	detail::jit_domain_ = mono_jit_init(domain.c_str());
+	jit_domain_ = mono_jit_init(domain.c_str());
 
 	mono_thread_set_main(mono_thread_current());
 
-	return detail::jit_domain_ != nullptr;
+	return jit_domain_ != nullptr;
 }
 
 void shutdown()
 {
-	if(detail::jit_domain_)
+	if(jit_domain_)
 	{
-		mono_jit_cleanup(detail::jit_domain_);
+		mono_jit_cleanup(jit_domain_);
 	}
-	detail::jit_domain_ = nullptr;
+	jit_domain_ = nullptr;
 }
 
 } // namespace mono

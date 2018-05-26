@@ -23,14 +23,27 @@ mono_class::mono_class(MonoImage* image, const std::string& name_space, const st
 	if(!class_)
 		throw mono_exception("NATIVE::Could not get class : " + name_space + "." + name);
 
-	type_ = mono_class_get_type(class_);
+	__generate_meta();
 }
 
 mono_class::mono_class(MonoClass* cls)
 {
 	class_ = cls;
+	if(!class_)
+		throw mono_exception("NATIVE::Could not get class");
 
-	type_ = mono_class_get_type(class_);
+	__generate_meta();
+}
+
+auto mono_class::operator=(MonoClass* cls) -> mono_class&
+{
+	class_ = cls;
+	if(!class_)
+		throw mono_exception("NATIVE::Could not get class");
+
+	__generate_meta();
+
+	return *this;
 }
 
 auto mono_class::new_instance() const -> mono_class_instance
@@ -110,16 +123,45 @@ auto mono_class::get_methods() const -> std::vector<mono_method>
 	return methods;
 }
 
+auto mono_class::has_base_class() const -> bool
+{
+	return mono_class_get_parent(class_) != nullptr;
+}
+
 auto mono_class::get_base_class() const -> mono_class
 {
 	auto base = mono_class_get_parent(class_);
 	return mono_class(base);
 }
 
+auto mono_class::get_nested_classes() const -> std::vector<mono_class>
+{
+	void* iter = nullptr;
+	auto nested = mono_class_get_nested_types(class_, &iter);
+	std::vector<mono_class> nested_clases;
+	while(nested)
+	{
+		nested_clases.emplace_back(mono_class(nested));
+	}
+	return nested_clases;
+}
+
 auto mono_class::get_internal_ptr() const -> MonoClass*
 {
-	assert(class_);
 	return class_;
+}
+
+void mono_class::__generate_meta()
+{
+	if(class_ == nullptr)
+	{
+		return;
+	}
+	valuetype_ = !!mono_class_is_valuetype(class_);
+	namespace_ = mono_class_get_namespace(class_);
+	name_ = mono_class_get_name(class_);
+	fullname_ = namespace_.empty() ? name_ : namespace_ + "." + name_;
+	rank_ = mono_class_get_rank(class_);
 }
 
 auto mono_class::is_instance_of(const mono_object& obj) const -> bool
@@ -132,5 +174,25 @@ auto mono_class::is_instance_of(const mono_object& obj) const -> bool
 
 	return mono_class_is_subclass_of(cls, class_, false) != 0;
 }
+auto mono_class::get_namespace() const -> const std::string&
+{
+	return namespace_;
+}
+auto mono_class::get_name() const -> const std::string&
+{
+	return name_;
+}
+auto mono_class::get_fullname() const -> const std::string&
+{
+	return fullname_;
+}
+auto mono_class::is_valuetype() const -> bool
+{
+	return valuetype_;
+}
 
+auto mono_class::get_rank() const -> int
+{
+	return rank_;
+}
 } // namespace mono

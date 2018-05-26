@@ -5,7 +5,6 @@
 #include "mono_class.h"
 #include "mono_domain.h"
 #include "mono_object.h"
-#include "mono_type.h"
 #include "mono_type_conversion.h"
 
 namespace mono
@@ -30,7 +29,7 @@ public:
 	auto get_fullname() const -> const std::string&;
 	auto get_full_declname() const -> const std::string&;
 
-	auto get_type() const -> const mono_type&;
+	auto get_class() const -> const mono_class&;
 	auto get_visibility() const -> visibility;
 	auto is_static() const -> bool;
 
@@ -43,7 +42,7 @@ private:
 	template <typename T>
 	auto __get_value(const mono_object* obj) const -> T;
 
-	mono_type type_;
+	mono_class class_;
 	non_owning_ptr<MonoClassField> field_ = nullptr;
 	non_owning_ptr<MonoVTable> class_vtable_ = nullptr;
 	std::string name_;
@@ -103,7 +102,7 @@ auto mono_class_field::__get_value(const mono_object* object) const -> T
 	assert(get_internal_ptr());
 	MonoObject* refvalue = nullptr;
 	auto arg = reinterpret_cast<void*>(&val);
-	if(!type_.is_valuetype())
+	if(!class_.is_valuetype())
 	{
 		arg = &refvalue;
 	}
@@ -118,7 +117,7 @@ auto mono_class_field::__get_value(const mono_object* object) const -> T
 		mono_field_static_get_value(class_vtable_, get_internal_ptr(), arg);
 	}
 
-	if(!type_.is_valuetype())
+	if(!class_.is_valuetype())
 	{
 		val = convert_mono_type<T>::from_mono(refvalue);
 	}

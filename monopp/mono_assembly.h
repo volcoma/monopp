@@ -20,9 +20,9 @@ public:
 
 	auto valid() const -> bool;
 
-	auto get_internal_ptr() const -> MonoAssembly*;
-private:
+	auto dump_references() const -> std::vector<std::string>;
 
+private:
 	non_owning_ptr<MonoAssembly> assembly_ = nullptr;
 	non_owning_ptr<MonoImage> image_ = nullptr;
 };

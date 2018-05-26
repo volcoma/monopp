@@ -1,3 +1,4 @@
+#include "monopp/mono_internal_call.h"
 #include "monopp/mono_jit.h"
 
 #include "monopp/mono_assembly.h"
@@ -142,6 +143,11 @@ TEST_CASE("load valid assembly", "[domain]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
+		auto refs = assembly.dump_references();
+		for(const auto& ref : refs)
+		{
+			std::cout << ref << std::endl;
+		}
 		// clang-format off
 	};
 	// clang-format on
@@ -230,6 +236,7 @@ TEST_CASE("get valid class", "[assembly]")
 
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
+		std::cout << cls.get_fullname() << "  rank : " << cls.get_rank() << std::endl;
 		auto fields = cls.get_fields();
 		auto props = cls.get_properties();
 		auto methods = cls.get_methods();

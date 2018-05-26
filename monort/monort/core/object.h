@@ -39,8 +39,8 @@ private:
 template <typename T>
 auto& object::get_managed_object_as(MonoObject* this_ptr)
 {
-    mono::mono_object obj(this_ptr);
-    return *native_object_field->get_value<T*>(obj);
+	mono::mono_object obj(this_ptr);
+	return *native_object_field->get_value<T*>(obj);
 }
 
 } // namespace managed_interface

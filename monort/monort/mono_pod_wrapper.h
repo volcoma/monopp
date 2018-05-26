@@ -13,7 +13,7 @@ namespace managed_interface
 	{                                                                                                        \
 		using mono_type_name = MonoObject*;                                                                  \
 		static_assert(std::is_pod<mono_type>::value, "basic_mono_converter is only for pod types");          \
-		static auto to_mono(cpp_type val) -> mono_type                                       \
+		static auto to_mono(cpp_type val) -> mono_type                                                       \
 		{                                                                                                    \
 			return managed_interface::converter::convert<cpp_type, mono_type>(val);                          \
 		}                                                                                                    \

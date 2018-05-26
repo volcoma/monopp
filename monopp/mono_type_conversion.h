@@ -84,7 +84,7 @@ struct convert_mono_type<std::string>
 
 	static auto to_mono(const cpp_type_name& str) -> mono_type_name
 	{
-        const auto& domain = mono_domain::get_current_domain();
+		const auto& domain = mono_domain::get_current_domain();
 		return mono_string(domain, str).get_internal_ptr();
 	}
 

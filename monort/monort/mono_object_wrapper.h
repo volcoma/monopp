@@ -14,9 +14,9 @@ namespace managed_interface
 	{                                                                                                        \
 		using mono_type_name = MonoObject*;                                                                  \
                                                                                                              \
-		static auto to_mono(type wrapper) -> mono_type_name                         \
+		static auto to_mono(type wrapper) -> mono_type_name                                                  \
 		{                                                                                                    \
-			return managed_interface::mono_object_wrapper<type>::create(std::move(wrapper));       \
+			return managed_interface::mono_object_wrapper<type>::create(std::move(wrapper));                 \
 		}                                                                                                    \
                                                                                                              \
 		static auto from_mono(mono_type_name object) -> type                                                 \

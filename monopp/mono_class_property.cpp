@@ -38,9 +38,9 @@ auto mono_class_property::get_full_declname() const -> const std::string&
 	return full_declname_;
 }
 
-auto mono_class_property::get_type() const -> const mono_type&
+auto mono_class_property::get_class() const -> const mono_class&
 {
-	return type_;
+	return class_;
 }
 
 auto mono_class_property::get_get_method() const -> mono_method
@@ -91,7 +91,7 @@ auto mono_class_property::is_static() const -> bool
 void mono_class_property::__generate_meta()
 {
 	auto get_method = get_get_method();
-	type_ = get_method.get_return_type();
+	class_ = get_method.get_return_class();
 	fullname_ = name_;
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;

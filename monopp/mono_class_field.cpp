@@ -19,7 +19,7 @@ mono_class_field::mono_class_field(const mono_class& cls, const std::string& nam
 	const auto& domain = mono_domain::get_current_domain();
 
 	class_vtable_ = mono_class_vtable(domain.get_internal_ptr(), cls.get_internal_ptr());
-    mono_runtime_class_init(class_vtable_);
+	mono_runtime_class_init(class_vtable_);
 	__generate_meta();
 }
 
@@ -30,7 +30,8 @@ auto mono_class_field::get_internal_ptr() const -> MonoClassField*
 
 void mono_class_field::__generate_meta()
 {
-	type_ = mono_field_get_type(field_);
+	auto type = mono_field_get_type(field_);
+	class_ = mono_class_from_mono_type(type);
 	fullname_ = mono_field_full_name(field_);
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;
@@ -48,9 +49,9 @@ auto mono_class_field::get_full_declname() const -> const std::string&
 {
 	return full_declname_;
 }
-auto mono_class_field::get_type() const -> const mono_type&
+auto mono_class_field::get_class() const -> const mono_class&
 {
-	return type_;
+	return class_;
 }
 
 auto mono_class_field::get_visibility() const -> visibility

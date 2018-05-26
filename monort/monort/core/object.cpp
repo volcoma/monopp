@@ -1,5 +1,6 @@
 #include "object.h"
 #include "monopp/mono_class.h"
+#include "monopp/mono_internal_call.h"
 #include "monopp/mono_jit.h"
 
 namespace mono
@@ -19,7 +20,7 @@ void object::initialize_class_field(const mono_assembly& assembly)
 {
 	auto cls = assembly.get_class("Monopp.Core", "NativeObject");
 	object_class = std::make_unique<mono_class>(std::move(cls));
-	auto field = object_class->get_field("nativePtr_");
+	auto field = object_class->get_field("native_this_");
 	native_object_field = std::make_unique<mono_class_field>(std::move(field));
 }
 

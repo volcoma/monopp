@@ -5,7 +5,6 @@
 #include "mono_class.h"
 #include "mono_domain.h"
 #include "mono_object.h"
-#include "mono_type.h"
 #include "mono_type_conversion.h"
 
 namespace mono
@@ -32,7 +31,7 @@ public:
 	auto get_fullname() const -> const std::string&;
 	auto get_full_declname() const -> const std::string&;
 
-	auto get_type() const -> const mono_type&;
+	auto get_class() const -> const mono_class&;
 	auto get_get_method() const -> mono_method;
 	auto get_set_method() const -> mono_method;
 	auto get_visibility() const -> visibility;
@@ -47,7 +46,7 @@ private:
 	template <typename T>
 	auto __get_value(const mono_object* obj) const -> T;
 
-	mono_type type_;
+	mono_class class_;
 	non_owning_ptr<MonoProperty> property_ = nullptr;
 	std::string name_;
 	std::string fullname_;

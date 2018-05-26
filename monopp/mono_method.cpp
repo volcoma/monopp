@@ -54,9 +54,10 @@ void mono_method::__generate_meta()
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;
 }
 
-auto mono_method::get_return_type() const -> mono_type
+auto mono_method::get_return_class() const -> mono_class
 {
-	return mono_type(mono_signature_get_return_type(signature_));
+	auto type = mono_signature_get_return_type(signature_);
+	return mono_class(mono_class_from_mono_type(type));
 }
 
 auto mono_method::get_name() const -> const std::string&

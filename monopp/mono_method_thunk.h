@@ -2,7 +2,6 @@
 
 #include "mono_config.h"
 
-#include "mono_assembly.h"
 #include "mono_exception.h"
 #include "mono_method.h"
 #include "mono_object.h"
@@ -45,6 +44,7 @@ private:
 		if(obj)
 		{
 			object = obj->get_internal_ptr();
+			method = mono_object_get_virtual_method(object, method);
 		}
 		auto tup = std::make_tuple(convert_mono_type<args_t>::to_mono(std::forward<args_t>(args))...);
 
@@ -90,6 +90,7 @@ private:
 		if(obj)
 		{
 			object = obj->get_internal_ptr();
+			method = mono_object_get_virtual_method(object, method);
 		}
 		auto tup = std::make_tuple(convert_mono_type<args_t>::to_mono(std::forward<args_t>(args))...);
 		auto inv = [method, object](auto... args) {

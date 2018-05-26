@@ -5,6 +5,7 @@
 #include "mono_class.h"
 #include "mono_class_instance.h"
 #include "mono_string.h"
+#include <sstream>
 
 #include <mono/metadata/appdomain.h>
 #include <mono/metadata/assembly.h>
@@ -31,14 +32,47 @@ auto mono_assembly::get_class(const std::string& name_space, const std::string& 
 	return mono_class(image_, name_space, name);
 }
 
-bool mono_assembly::valid() const
+auto mono_assembly::valid() const -> bool
 {
-	return get_internal_ptr() != nullptr;
+	return assembly_ != nullptr && image_ != nullptr;
 }
 
-auto mono_assembly::get_internal_ptr() const -> MonoAssembly*
+auto mono_assembly::dump_references() const -> std::vector<std::string>
 {
-	return assembly_;
+	std::vector<std::string> refs;
+	/* Get a pointer to the AssemblyRef metadata table */
+	auto table_info = mono_image_get_table_info(image_, MONO_TABLE_ASSEMBLYREF);
+
+	/* Fetch the number of rows available in the table */
+	int rows = mono_table_info_get_rows(table_info);
+
+	refs.reserve(size_t(rows));
+	/* For each row, print some of its values */
+	for(int i = 0; i < rows; i++)
+	{
+		/* Space where we extract one row from the metadata table */
+		uint32_t cols[MONO_ASSEMBLYREF_SIZE];
+
+		/* Extract the row into the array cols */
+		mono_metadata_decode_row(table_info, i, cols, MONO_ASSEMBLYREF_SIZE);
+
+		std::stringstream s;
+		s << i + 1;
+		s << " Version=";
+		s << cols[MONO_ASSEMBLYREF_MAJOR_VERSION];
+		s << ".";
+		s << cols[MONO_ASSEMBLYREF_MINOR_VERSION];
+		s << ".";
+		s << cols[MONO_ASSEMBLYREF_BUILD_NUMBER];
+		s << ".";
+		s << cols[MONO_ASSEMBLYREF_REV_NUMBER];
+		s << "\n\tName=";
+		s << mono_metadata_string_heap(image_, cols[MONO_ASSEMBLYREF_NAME]);
+
+		refs.emplace_back(s.str());
+	}
+
+	return refs;
 }
 
 } // namespace mono
