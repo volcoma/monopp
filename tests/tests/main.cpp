@@ -14,37 +14,16 @@
 
 #include "monort/monort.h"
 
-struct vec2f
-{
-	float x;
-	float y;
-};
+// Let Catch provide main():
+#define CATCH_IMPL
+#define CATCH_CONFIG_ALL_PARTS
+#include "catch/catch.hpp"
 
-namespace mono
-{
-namespace managed_interface
-{
-struct vector2f
-{
-	float x;
-	float y;
-};
-template <>
-inline auto converter::convert(const vec2f& v) -> vector2f
-{
-	return vector2f{v.x, v.y};
-}
+static std::unique_ptr<mono::mono_domain> domain;
 
-template <>
-inline auto converter::convert(const vector2f& v) -> vec2f
-{
-	return vec2f{v.x, v.y};
-}
-} // namespace managed_interface
-
-register_basic_mono_converter_for_pod(vec2f, managed_interface::vector2f);
-register_basic_mono_converter_for_wrapper(std::shared_ptr<vec2f>);
-} // namespace mono
+///////////////////////////////////////////////////////////////
+/// \brief MONORT TESTS
+///////////////////////////////////////////////////////////////
 
 void MyObject_CreateInternal(MonoObject* this_ptr, float x, std::string v)
 {
@@ -75,36 +54,7 @@ std::string MyObject_ReturnAString(MonoObject* this_ptr, std::string value)
 	return "The value: " + value;
 }
 
-void MyVec_CreateInternalCtor(MonoObject* this_ptr, float x, float y)
-{
-	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
-	using vec2f_ptr = std::shared_ptr<vec2f>;
-	auto p = std::make_shared<vec2f>();
-	p->x = x;
-	p->y = y;
-
-	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
-}
-
-void MyVec_CreateInternalCopyCtor(MonoObject* this_ptr, std::shared_ptr<vec2f> rhs)
-{
-	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
-	using vec2f_ptr = std::shared_ptr<vec2f>;
-	auto p = std::make_shared<vec2f>();
-	p->x = rhs->x;
-	p->y = rhs->y;
-
-	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
-}
-
-// Let Catch provide main():
-#define CATCH_IMPL
-#define CATCH_CONFIG_ALL_PARTS
-#include "catch/catch.hpp"
-
-static std::unique_ptr<mono::mono_domain> domain;
-
-TEST_CASE("create mono domain", "[domain]")
+TEST_CASE("create MONOPP domain", "[domain]")
 {
 	// clang-format off
 	auto expression = []()
@@ -175,37 +125,6 @@ TEST_CASE("load valid assembly and bind", "[domain]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("init monort", "[monort]")
-{
-	// clang-format off
-	auto expression = []()
-	{
-		// clang-format on
-		auto core_assembly = domain->get_assembly("monort_managed.dll");
-		mono::managed_interface::init(core_assembly);
-		// clang-format off
-	};
-	// clang-format on
-
-	REQUIRE_NOTHROW(expression());
-}
-
-TEST_CASE("bind monort", "[monort]")
-{
-	// clang-format off
-	auto expression = []()
-	{
-		// clang-format on
-		mono::add_internal_call("Tests.WrapperVector2f::.ctor(single,single)",
-								internal_call(MyVec_CreateInternalCtor));
-		mono::add_internal_call("Tests.WrapperVector2f::.ctor(Tests.WrapperVector2f)",
-								internal_call(MyVec_CreateInternalCopyCtor));
-		// clang-format off
-	};
-	// clang-format on
-
-	REQUIRE_NOTHROW(expression());
-}
 TEST_CASE("get invalid class", "[assembly]")
 {
 	// clang-format off
@@ -223,7 +142,7 @@ TEST_CASE("get invalid class", "[assembly]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get valid class", "[assembly]")
+TEST_CASE("get monopp valid class", "[assembly]")
 {
 	// clang-format off
 	auto expression = []()
@@ -232,11 +151,11 @@ TEST_CASE("get valid class", "[assembly]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
-		std::cout << cls.get_fullname() << "  rank : " << cls.get_rank() << std::endl;
+		std::cout << cls.get_fullname() << std::endl;
 		auto fields = cls.get_fields();
 		auto props = cls.get_properties();
 		auto methods = cls.get_methods();
@@ -251,14 +170,6 @@ TEST_CASE("get valid class", "[assembly]")
 		for(const auto& method : methods)
 		{
 			std::cout << method.get_full_declname() << std::endl;
-			auto return_type = method.get_return_type();
-			auto param_types = method.get_param_types();
-			std::cout << "Return Type: " << return_type.get_fullname() << std::endl;
-			std::cout << "Param Types: ";
-			for(const auto& param : param_types)
-			{
-				std::cout << param.get_name() << std::endl;
-			}
 		}
 		// clang-format off
 	};
@@ -276,7 +187,7 @@ TEST_CASE("get valid method", "[class]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto method1 = cls.get_method<void()>("Method");
@@ -301,7 +212,7 @@ TEST_CASE("get/set field", "[class]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto field = cls.get_field("someField");
@@ -334,7 +245,7 @@ TEST_CASE("get invalid field", "[class]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		REQUIRE_THROWS([&]() { cls.get_field("someInvalidField"); }());
@@ -354,7 +265,7 @@ TEST_CASE("get/set property", "[class]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto prop = cls.get_property("someProperty");
@@ -387,7 +298,7 @@ TEST_CASE("get invalid property", "[class]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		REQUIRE_THROWS([&]() { cls.get_property("someInvalidProperty"); }());
@@ -405,7 +316,7 @@ TEST_CASE("call static method 1", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		auto method_thunk = cls.get_method<int(int)>("FunctionWithIntParam");
 		const auto number = 1000;
 		auto result = method_thunk(number);
@@ -424,7 +335,7 @@ TEST_CASE("call static method 2", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		auto method_thunk = cls.get_method<void(float, int, float)>("VoidFunction");
 		method_thunk(13.37f, 42, 9000.0f);
 		// clang-format off
@@ -441,7 +352,7 @@ TEST_CASE("call static method 3", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		auto method_thunk = cls.get_method<void(std::string)>("FunctionWithStringParam");
 		method_thunk("Hello!");
 		// clang-format off
@@ -457,7 +368,7 @@ TEST_CASE("call static method 4", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		auto method_thunk = cls.get_method<std::string(std::string)>("StringReturnFunction");
 		auto expected_string = std::string("Hello!");
 		auto result = method_thunk(expected_string);
@@ -476,7 +387,7 @@ TEST_CASE("call static method 5", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		auto method_thunk = cls.get_method<void()>("ExceptionFunction");
 		method_thunk();
 		// clang-format off
@@ -493,7 +404,7 @@ TEST_CASE("call static method 6", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		auto method_thunk = cls.get_method<void()>("CreateStruct");
 		method_thunk();
 		// clang-format off
@@ -510,7 +421,7 @@ TEST_CASE("call member method 1", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		auto obj = cls.new_instance();
 		auto method_thunk = cls.get_method<void()>("Method");
 		method_thunk(obj);
@@ -528,12 +439,167 @@ TEST_CASE("call member method 2", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonoppTest");
 		auto obj = cls.new_instance();
 		auto method_thunk =
 			cls.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
 		auto result = method_thunk(obj, "test", 5);
 		REQUIRE("Return Value: test" == result);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+TEST_CASE("destroy MONOPP domain", "[domain]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		domain.reset();
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+///////////////////////////////////////////////////////////////
+/// \brief MONORT TESTS
+///////////////////////////////////////////////////////////////
+
+struct vec2f
+{
+	float x;
+	float y;
+};
+
+namespace mono
+{
+namespace managed_interface
+{
+struct vector2f
+{
+	float x;
+	float y;
+};
+template <>
+inline auto converter::convert(const vec2f& v) -> vector2f
+{
+	return vector2f{v.x, v.y};
+}
+
+template <>
+inline auto converter::convert(const vector2f& v) -> vec2f
+{
+	return vec2f{v.x, v.y};
+}
+} // namespace managed_interface
+
+register_basic_mono_converter_for_pod(vec2f, managed_interface::vector2f);
+register_basic_mono_converter_for_wrapper(std::shared_ptr<vec2f>);
+} // namespace mono
+
+void MyVec_CreateInternalCtor(MonoObject* this_ptr, float x, float y)
+{
+	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
+	using vec2f_ptr = std::shared_ptr<vec2f>;
+	auto p = std::make_shared<vec2f>();
+	p->x = x;
+	p->y = y;
+
+	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
+}
+
+void MyVec_CreateInternalCopyCtor(MonoObject* this_ptr, std::shared_ptr<vec2f> rhs)
+{
+	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
+	using vec2f_ptr = std::shared_ptr<vec2f>;
+	auto p = std::make_shared<vec2f>();
+	p->x = rhs->x;
+	p->y = rhs->y;
+
+	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
+}
+
+TEST_CASE("create MONORT domain", "[domain]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		domain = std::make_unique<mono::mono_domain>("domain");
+		mono::mono_domain::set_current_domain(*domain);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+TEST_CASE("init monort", "[monort]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto core_assembly = domain->get_assembly("monort_managed.dll");
+		mono::managed_interface::init(core_assembly);
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+TEST_CASE("bind monort", "[monort]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		mono::add_internal_call("Tests.WrapperVector2f::.ctor(single,single)",
+								internal_call(MyVec_CreateInternalCtor));
+		mono::add_internal_call("Tests.WrapperVector2f::.ctor(Tests.WrapperVector2f)",
+								internal_call(MyVec_CreateInternalCopyCtor));
+		// clang-format off
+	};
+	// clang-format on
+
+	REQUIRE_NOTHROW(expression());
+}
+
+TEST_CASE("get monort valid class", "[assembly]")
+{
+	// clang-format off
+	auto expression = []()
+	{
+		// clang-format on
+		auto assembly = domain->get_assembly("tests_managed.dll");
+		REQUIRE(assembly.valid() == true);
+
+		auto cls = assembly.get_class("Tests", "MonortTest");
+
+		REQUIRE(cls.get_internal_ptr() != nullptr);
+
+		std::cout << cls.get_fullname() << std::endl;
+		auto fields = cls.get_fields();
+		auto props = cls.get_properties();
+		auto methods = cls.get_methods();
+		for(const auto& field : fields)
+		{
+			std::cout << field.get_full_declname() << std::endl;
+		}
+		for(const auto& prop : props)
+		{
+			std::cout << prop.get_full_declname() << std::endl;
+		}
+		for(const auto& method : methods)
+		{
+			std::cout << method.get_full_declname() << std::endl;
+		}
 		// clang-format off
 	};
 	// clang-format on
@@ -548,7 +614,7 @@ TEST_CASE("call member method 3", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonortTest");
 		auto obj = cls.new_instance();
 
 		auto method_thunk = cls.get_method<vec2f(vec2f)>("MethodPodAR");
@@ -571,9 +637,7 @@ TEST_CASE("call member method 4", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("ClassInstanceTest");
-		// auto fields = cls.get_fields();
-		// auto props = cls.get_properties();
+		auto cls = assembly.get_class("Tests", "MonortTest");
 
 		auto obj = cls.new_instance();
 
@@ -605,7 +669,7 @@ TEST_CASE("test member POD field", "[method]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonortTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto field = cls.get_field("someFieldPOD");
@@ -639,7 +703,7 @@ TEST_CASE("test member POD property", "[method]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonortTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto prop = cls.get_property("somePropertyPOD");
@@ -674,7 +738,7 @@ TEST_CASE("test static POD field", "[method]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonortTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto field = cls.get_field("someFieldPODStatic");
@@ -705,7 +769,7 @@ TEST_CASE("test static POD property", "[method]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonortTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto prop = cls.get_property("somePropertyPODStatic");
@@ -737,7 +801,7 @@ TEST_CASE("test static NON-POD field", "[method]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonortTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto field = cls.get_field("someFieldNONPODStatic");
@@ -770,7 +834,7 @@ TEST_CASE("test static NON-POD property", "[method]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		REQUIRE(assembly.valid() == true);
 
-		auto cls = assembly.get_class("ClassInstanceTest");
+		auto cls = assembly.get_class("Tests", "MonortTest");
 		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto prop = cls.get_property("somePropertyNONPODStatic");
@@ -795,7 +859,7 @@ TEST_CASE("test static NON-POD property", "[method]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("destroy mono domain", "[domain]")
+TEST_CASE("destroy MONORT domain", "[domain]")
 {
 	// clang-format off
 	auto expression = []()

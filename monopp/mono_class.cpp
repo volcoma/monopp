@@ -46,6 +46,11 @@ auto mono_class::operator=(MonoClass* cls) -> mono_class&
 	return *this;
 }
 
+auto mono_class::valid() const -> bool
+{
+	return class_ != nullptr;
+}
+
 auto mono_class::new_instance() const -> mono_class_instance
 {
 	const auto& domain = mono_domain::get_current_domain();

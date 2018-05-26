@@ -26,6 +26,8 @@ public:
 	explicit mono_class(MonoClass* cls);
 	auto operator=(MonoClass* cls) -> mono_class&;
 
+	auto valid() const -> bool;
+
 	auto new_instance() const -> mono_class_instance;
 
 	template <typename function_signature_t>
@@ -53,17 +55,17 @@ public:
 	auto is_subclass_of(const mono_class& cls) const -> bool;
 
 	auto get_namespace() const -> const std::string&;
-	
+
 	auto get_name() const -> const std::string&;
-	
+
 	auto get_fullname() const -> const std::string&;
-	
+
 	auto is_valuetype() const -> bool;
-	
+
 	auto get_rank() const -> int;
-	
+
 	auto get_sizeof() const -> std::uint32_t;
-	
+
 	auto get_alignof() const -> std::uint32_t;
 
 	auto get_internal_ptr() const -> MonoClass*;
