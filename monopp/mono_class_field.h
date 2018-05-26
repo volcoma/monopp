@@ -44,7 +44,7 @@ private:
 
 	mono_class class_;
 	non_owning_ptr<MonoClassField> field_ = nullptr;
-	non_owning_ptr<MonoVTable> class_vtable_ = nullptr;
+	non_owning_ptr<MonoVTable> owning_class_vtable_ = nullptr;
 	std::string name_;
 	std::string fullname_;
 	std::string full_declname_;
@@ -78,7 +78,7 @@ void mono_class_field::__set_value(const mono_object* object, const T& val) cons
 	}
 	else
 	{
-		mono_field_static_set_value(class_vtable_, get_internal_ptr(), arg);
+		mono_field_static_set_value(owning_class_vtable_, get_internal_ptr(), arg);
 	}
 }
 
@@ -114,7 +114,7 @@ auto mono_class_field::__get_value(const mono_object* object) const -> T
 	}
 	else
 	{
-		mono_field_static_get_value(class_vtable_, get_internal_ptr(), arg);
+		mono_field_static_get_value(owning_class_vtable_, get_internal_ptr(), arg);
 	}
 
 	if(!class_.is_valuetype())

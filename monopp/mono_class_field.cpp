@@ -18,8 +18,8 @@ mono_class_field::mono_class_field(const mono_class& cls, const std::string& nam
 	}
 	const auto& domain = mono_domain::get_current_domain();
 
-	class_vtable_ = mono_class_vtable(domain.get_internal_ptr(), cls.get_internal_ptr());
-	mono_runtime_class_init(class_vtable_);
+	owning_class_vtable_ = mono_class_vtable(domain.get_internal_ptr(), cls.get_internal_ptr());
+	mono_runtime_class_init(owning_class_vtable_);
 	__generate_meta();
 }
 
