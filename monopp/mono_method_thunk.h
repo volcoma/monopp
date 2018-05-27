@@ -21,6 +21,10 @@ template <typename... args_t>
 class mono_method_thunk<void(args_t...)> : public mono_method
 {
 public:
+	mono_method_thunk(const mono_method& o)
+		: mono_method(o)
+	{
+	}
 	mono_method_thunk(mono_method&& o)
 		: mono_method(std::move(o))
 	{
@@ -46,7 +50,8 @@ private:
 			object = obj->get_internal_ptr();
 			method = mono_object_get_virtual_method(object, method);
 		}
-		auto tup = std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
+		auto tup =
+			std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
 
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
@@ -67,6 +72,10 @@ template <typename return_type_t, typename... args_t>
 class mono_method_thunk<return_type_t(args_t...)> : public mono_method
 {
 public:
+	mono_method_thunk(const mono_method& o)
+		: mono_method(o)
+	{
+	}
 	mono_method_thunk(mono_method&& o)
 		: mono_method(std::move(o))
 	{
@@ -92,7 +101,8 @@ private:
 			object = obj->get_internal_ptr();
 			method = mono_object_get_virtual_method(object, method);
 		}
-		auto tup = std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
+		auto tup =
+			std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 
@@ -110,5 +120,11 @@ private:
 		return convert_mono_type<std::decay_t<return_type_t>>::from_mono(std::move(result));
 	}
 };
+
+template <typename signature_t>
+mono_method_thunk<signature_t> make_thunk(mono_method&& method)
+{
+	return mono_method_thunk<signature_t>(std::move(method));
+}
 
 } // namespace mono

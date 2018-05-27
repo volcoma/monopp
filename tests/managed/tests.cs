@@ -76,57 +76,57 @@ class MonoppTest
 		Console.WriteLine("FROM C# : MonoppTest destroyed.");
 	}
 	
-    public void Method()
+    void Method1()
 	{
 		Console.WriteLine("FROM C# : Hello Mono World from instance.");
 	}
 	
-	void MethodWithParameter(string s)
+	void Method2(string s)
 	{
 		Console.WriteLine("FROM C# : WithParam string: " + s);
 	}
-	void MethodWithParameter(int s)
+	void Method3(int s)
 	{
 		Console.WriteLine("FROM C# : WithParam int: " + s);
 	}
-	void MethodWithParameter(int s, int s1)
+	void Method4(int s, int s1)
 	{
 		Console.WriteLine("FROM C# : WithParam int, int: {0}, {1}", s, s1);
 	}
 	
-    public string MethodWithParameterAndReturnValue(string s, int b)
+    public string Method5(string s, int b)
 	{
 		Console.WriteLine("FROM C# : WithParam: {0}, {1}", s, b);
 		return "Return Value: " + s;
 	}
 
-    public static int FunctionWithIntParam(int a)
+    public static int Function1(int a)
 	{
 		Console.WriteLine("FROM C# : Int value: " + a);
 		return a + 1337;
 	}
 
-    public static void VoidFunction(float a, int b, float c)
+    public static void Function2(float a, int b, float c)
 	{
-		Console.WriteLine("FROM C# : VoidMethod: " + a + ", " + b + ", " + c);
+		Console.WriteLine("FROM C# : VoidMethod: {0}, {1}, {2}", a, b, c);
 	}
 
-    public static void FunctionWithStringParam(string a)
+    public static void Function3(string a)
 	{
-		Console.WriteLine("FROM C# : String value: " + a);
+		Console.WriteLine("FROM C# : String value: {0}", a);
 	}
 
-    public static void ExceptionFunction()
-	{
-		throw new Exception("Hello!");
-	}
-
-    public static string StringReturnFunction(string str)
+    public static string Function4(string str)
 	{
 		return "The string value was: " + str;
 	}
 	
-    public static void CreateStruct()
+    public static void Function5()
+	{
+		throw new Exception("Hello!");
+	}
+	
+    public static void Function6()
 	{
 		Tests.MyObject obj = new Tests.MyObject();
 		obj.DoStuff("blalba");
