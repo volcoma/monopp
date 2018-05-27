@@ -29,34 +29,35 @@ C++
 
 	/// Sets the current domain
 	mono::mono_domain::set_current_domain(my_domain);
+
 	/// Get or load an assembly
 	auto assembly = my_domain.get_assembly("tests_managed.dll");
 
-	/// Get access to a c# class
-	auto cls = assembly.get_class("Tests", "MonoppTest");
+	/// Get access to a c# type
+	auto type = assembly.get_type("Tests", "MonoppTest");
 
 	/// Prints out Tests
-	std::cout << cls.get_namespace() << std::endl;
+	std::cout << type.get_namespace() << std::endl;
 
 	/// Prints out MonoppTest
-	std::cout << cls.get_name() << std::endl;
+	std::cout << type.get_name() << std::endl;
 
 	/// Prints out Tests.MonoppTest
-	std::cout << cls.get_fullname() << std::endl;
+	std::cout << type.get_fullname() << std::endl;
 
-	/// Checks and gets the base class of Tests.MonoppTest
-	if(cls.has_base_class())
+	/// Checks and gets the base type of Tests.MonoppTest
+	if(type.has_base_type())
 	{
-		auto base_class = cls.get_base_class();
-		std::cout << base_class.get_fullname() << std::endl;
+		auto base_type = type.get_base_type();
+		std::cout << base_type.get_fullname() << std::endl;
 	}
 
 	/// Create an instance of it. Default constructed.
-	auto obj = cls.new_instance();
+	auto obj = type.new_instance();
 
 	/// There are several ways of getting access to methods
 	/// Way 1, name + arg count
-	auto method1 = cls.get_method("Method1", 0);
+	auto method1 = type.get_method("Method1", 0);
 
 	/// You can invoke it by creating a thunk and calling it passing
 	/// the object it belongs to as the first parameter. Not passing
@@ -65,17 +66,17 @@ C++
 	thunk1(obj);
 
 	/// Way 2, name + args
-	auto method2 = cls.get_method("Method2(string)");
+	auto method2 = type.get_method("Method2(string)");
 	auto thunk2 = mono::mono_method_thunk<void(std::string)>(std::move(method1));
 	thunk2(obj, "str_param");
 
 	/// Way 3, use the template method
-	auto method3 = cls.get_method<std::string(std::string, int)>("Method5");
+	auto method3 = type.get_method<std::string(std::string, int)>("Method5");
 	auto result3 = method3(obj, "test", 5);
 
 	/// You can also get and invoke static methods without passing
 	/// an object as the first parameter
-	auto method4 = cls.get_method<int(int)>("Function1");
+	auto method4 = type.get_method<int(int)>("Function1");
 	auto result4 = method4(55);
 	std::cout << result4 << std::endl;
 	/// You can query various information about a method
@@ -91,15 +92,15 @@ C++
 	/// You can catch exceptions like so
 	try
 	{
-		cls.get_method<int(int, float)>("NonExistingFunction");
+		type.get_method<int(int, float)>("NonExistingFunction");
 	}
 	catch(const mono::mono_exception& e)
 	{
 		std::cout << e.what() << std::endl;
 	}
 
-	/// You can access class fields by name
-	auto field = cls.get_field("someField");
+	/// You can access type fields by name
+	auto field = type.get_field("someField");
 
 	/// You can get their values. Not passing an
 	/// object as the parameter would treat
@@ -120,19 +121,20 @@ C++
 	field.get_name();
 	field.get_fullname();
 	field.get_full_declname();
-	field.get_class();
+	field.get_type();
 	field.get_visibility();
 	field.is_static();
 	/// etc..
 
-	auto prop = cls.get_property("someProperty");
+	auto prop = type.get_property("someProperty");
 
 	/// You can get their values. Not passing an
 	/// object as the parameter would treat
 	/// it as being static.
 	auto prop_value = prop.get_value<int>(obj);
 	// auto prop_value = prop.get_value<int>();
-    
+	std::cout << prop_value << std::endl;
+
 	/// You can set their values. Not passing an
 	/// object as the parameter would treat
 	/// it as being static.
@@ -155,29 +157,29 @@ C++
 	prop.get_name();
 	prop.get_fullname();
 	prop.get_full_declname();
-	prop.get_class();
+	prop.get_type();
 	prop.get_visibility();
 	prop.is_static();
 	/// etc..
 
-	/// Get all the fields of the class
-	auto fields = cls.get_fields();
+	/// Get all the fields of the type
+	auto fields = type.get_fields();
 
 	for(const auto& field : fields)
 	{
 		std::cout << field.get_full_declname() << std::endl;
 	}
 
-	/// Get all the properties of the class
-	auto props = cls.get_properties();
+	/// Get all the properties of the type
+	auto props = type.get_properties();
 
 	for(const auto& prop : props)
 	{
 		std::cout << prop.get_full_declname() << std::endl;
 	}
 
-	/// Get All the methods of the class
-	auto methods = cls.get_methods();
+	/// Get All the methods of the type
+	auto methods = type.get_methods();
 
 	for(const auto& method : methods)
 	{

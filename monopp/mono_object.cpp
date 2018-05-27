@@ -1,6 +1,6 @@
 #include "mono_object.h"
-#include "mono_type.h"
 #include "mono_domain.h"
+#include "mono_type.h"
 
 namespace mono
 {

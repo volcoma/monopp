@@ -156,7 +156,7 @@ auto mono_type::get_internal_ptr() const -> MonoClass*
 
 void mono_type::__generate_meta()
 {
-    type_ = mono_class_get_type(class_);
+	type_ = mono_class_get_type(class_);
 	namespace_ = mono_class_get_namespace(class_);
 	name_ = mono_class_get_name(class_);
 	fullname_ = namespace_.empty() ? name_ : namespace_ + "." + name_;

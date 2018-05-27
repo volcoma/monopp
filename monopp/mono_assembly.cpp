@@ -2,8 +2,8 @@
 #include "mono_domain.h"
 #include "mono_exception.h"
 
-#include "mono_type.h"
 #include "mono_string.h"
+#include "mono_type.h"
 #include <sstream>
 
 #include <mono/metadata/appdomain.h>
