@@ -22,20 +22,20 @@ struct mono_jit_internal_call_wrapper;
 template <typename... args_t, void (&func)(args_t...)>
 struct mono_jit_internal_call_wrapper<void(args_t...), func>
 {
-	static void wrapper(typename convert_mono_type<args_t>::mono_type_name... args)
+	static void wrapper(typename convert_mono_type<std::decay_t<args_t>>::mono_type_name... args)
 	{
-		func(convert_mono_type<args_t>::from_mono(std::move(args))...);
+		func(convert_mono_type<std::decay_t<args_t>>::from_mono(std::move(args))...);
 	}
 };
 
 template <typename return_t, typename... args_t, return_t (&func)(args_t...)>
 struct mono_jit_internal_call_wrapper<return_t(args_t...), func>
 {
-	static typename convert_mono_type<return_t>::mono_type_name
-	wrapper(typename convert_mono_type<args_t>::mono_type_name... args)
+	static typename convert_mono_type<std::decay_t<return_t>>::mono_type_name
+	wrapper(typename convert_mono_type<std::decay_t<args_t>>::mono_type_name... args)
 	{
-		return convert_mono_type<return_t>::to_mono(
-			func(convert_mono_type<args_t>::from_mono(std::move(args))...));
+		return convert_mono_type<std::decay_t<return_t>>::to_mono(
+			func(convert_mono_type<std::decay_t<args_t>>::from_mono(std::move(args))...));
 	}
 };
 

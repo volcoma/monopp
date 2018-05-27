@@ -46,7 +46,7 @@ private:
 			object = obj->get_internal_ptr();
 			method = mono_object_get_virtual_method(object, method);
 		}
-		auto tup = std::make_tuple(convert_mono_type<args_t>::to_mono(std::forward<args_t>(args))...);
+		auto tup = std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
 
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
@@ -92,7 +92,7 @@ private:
 			object = obj->get_internal_ptr();
 			method = mono_object_get_virtual_method(object, method);
 		}
-		auto tup = std::make_tuple(convert_mono_type<args_t>::to_mono(std::forward<args_t>(args))...);
+		auto tup = std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 
@@ -107,7 +107,7 @@ private:
 		};
 
 		auto result = apply(inv, tup);
-		return convert_mono_type<return_type_t>::from_mono(std::move(result));
+		return convert_mono_type<std::decay_t<return_type_t>>::from_mono(std::move(result));
 	}
 };
 
