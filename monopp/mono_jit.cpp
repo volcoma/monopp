@@ -84,8 +84,8 @@ bool init(const std::string& domain, bool enable_debugging)
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 	}
 
-	mono_trace_set_level_string("warning");
-	mono_trace_set_log_handler(on_log_callback, nullptr);
+	//mono_trace_set_level_string("warning");
+	//mono_trace_set_log_handler(on_log_callback, nullptr);
 
 	set_log_handler("default", [](const std::string& msg) { std::cout << msg << std::endl; });
 
