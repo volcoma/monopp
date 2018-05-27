@@ -5,6 +5,7 @@
 
 ### A C++14 wrapper for embeddig C# into C++ using Mono. Clean and easy API.
 ### Only dependency is c++ standard library and Mono.
+### Make sure you download the latest Mono stable version.
 ### You can download Mono from : http://www.mono-project.com/download/stable/
 ### Not feature complete but useable.
 
