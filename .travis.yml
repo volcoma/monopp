@@ -94,7 +94,7 @@ before_install:
   - sudo apt install apt-transport-https
   - echo "deb https://download.mono-project.com/repo/ubuntu stable-xenial main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
   - sudo apt update
-  - sudo apt-get install mono-devel
+  - sudo apt install mono-devel
   
 install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
