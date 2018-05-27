@@ -2,7 +2,7 @@
 #include "mono_domain.h"
 #include "mono_exception.h"
 
-#include "mono_class.h"
+#include "mono_type.h"
 #include "mono_string.h"
 #include <sstream>
 
@@ -21,14 +21,14 @@ mono_assembly::mono_assembly(const mono_domain& domain, const std::string& path)
 	image_ = mono_assembly_get_image(assembly_);
 }
 
-auto mono_assembly::get_class(const std::string& name) const -> mono_class
+auto mono_assembly::get_type(const std::string& name) const -> mono_type
 {
-	return mono_class(image_, name);
+	return mono_type(image_, name);
 }
 
-auto mono_assembly::get_class(const std::string& name_space, const std::string& name) const -> mono_class
+auto mono_assembly::get_type(const std::string& name_space, const std::string& name) const -> mono_type
 {
-	return mono_class(image_, name_space, name);
+	return mono_type(image_, name_space, name);
 }
 
 auto mono_assembly::dump_references() const -> std::vector<std::string>

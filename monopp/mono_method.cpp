@@ -1,6 +1,6 @@
 #include "mono_method.h"
-#include "mono_class.h"
 #include "mono_exception.h"
+#include "mono_type.h"
 
 #include <mono/metadata/attrdefs.h>
 #include <mono/metadata/debug-helpers.h>
@@ -18,29 +18,29 @@ mono_method::mono_method(MonoMethod* method)
 	__generate_meta();
 }
 
-mono_method::mono_method(const mono_class& cls, const std::string& name_with_args)
+mono_method::mono_method(const mono_type& type, const std::string& name_with_args)
 {
 	auto desc = mono_method_desc_new((":" + name_with_args).c_str(), 0);
-	method_ = mono_method_desc_search_in_class(desc, cls.get_internal_ptr());
+	method_ = mono_method_desc_search_in_class(desc, type.get_internal_ptr());
 	mono_method_desc_free(desc);
 
 	if(!method_)
 	{
-		const auto& cls_name = cls.get_name();
+		const auto& type_name = type.get_name();
 		throw mono_exception("NATIVE::Could not create method : " + name_with_args + " for class " +
-							 cls_name);
+							 type_name);
 	}
 	__generate_meta();
 }
 
-mono_method::mono_method(const mono_class& cls, const std::string& name, int argc)
+mono_method::mono_method(const mono_type& type, const std::string& name, int argc)
 {
-	method_ = mono_class_get_method_from_name(cls.get_internal_ptr(), name.c_str(), argc);
+	method_ = mono_class_get_method_from_name(type.get_internal_ptr(), name.c_str(), argc);
 
 	if(!method_)
 	{
-		const auto& cls_name = cls.get_name();
-		throw mono_exception("NATIVE::Could not create method : " + name + " for class " + cls_name);
+		const auto& type_name = type.get_name();
+		throw mono_exception("NATIVE::Could not create method : " + name + " for class " + type_name);
 	}
 	__generate_meta();
 }
@@ -54,20 +54,20 @@ void mono_method::__generate_meta()
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;
 }
 
-auto mono_method::get_return_type() const -> mono_class
+auto mono_method::get_return_type() const -> mono_type
 {
 	auto type = mono_signature_get_return_type(signature_);
-	return mono_class(mono_class_from_mono_type(type));
+	return mono_type(type);
 }
 
-std::vector<mono_class> mono_method::get_param_types() const
+std::vector<mono_type> mono_method::get_param_types() const
 {
 	void* iter = nullptr;
 	auto type = mono_signature_get_params(signature_, &iter);
-	std::vector<mono_class> params;
+	std::vector<mono_type> params;
 	while(type)
 	{
-		params.emplace_back(mono_class(mono_class_from_mono_type(type)));
+		params.emplace_back(mono_type(type));
 
 		type = mono_signature_get_params(signature_, &iter);
 	}

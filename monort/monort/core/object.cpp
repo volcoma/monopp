@@ -1,5 +1,5 @@
 #include "object.h"
-#include "monopp/mono_class.h"
+#include "monopp/mono_type.h"
 #include "monopp/mono_internal_call.h"
 #include "monopp/mono_jit.h"
 
@@ -8,7 +8,7 @@ namespace mono
 namespace managed_interface
 {
 
-std::unique_ptr<mono_class> object::object_class;
+std::unique_ptr<mono_type> object::object_type;
 std::unique_ptr<mono_field> object::native_object_field;
 
 void object::register_internal_calls()
@@ -16,11 +16,11 @@ void object::register_internal_calls()
 	add_internal_call("Monopp.Core.NativeObject::Finalize", internal_call(object::finalize));
 }
 
-void object::initialize_class_field(const mono_assembly& assembly)
+void object::initialize_type_field(const mono_assembly& assembly)
 {
-	auto cls = assembly.get_class("Monopp.Core", "NativeObject");
-	object_class = std::make_unique<mono_class>(std::move(cls));
-	auto field = object_class->get_field("native_this_");
+	auto type = assembly.get_type("Monopp.Core", "NativeObject");
+	object_type = std::make_unique<mono_type>(std::move(type));
+	auto field = object_type->get_field("native_this_");
 	native_object_field = std::make_unique<mono_field>(std::move(field));
 }
 
@@ -31,8 +31,8 @@ object::object(MonoObject* obj)
 	, gc_handle_(obj)
 	, gc_scoped_handle_(gc_handle_)
 {
-	const auto& obj_class = managed_object_.get_class();
-	assert(obj_class.is_subclass_of(*object_class) &&
+	const auto& type = managed_object_.get_type();
+	assert(type.is_derived_from(*object_type) &&
 		   "Mono wrapper classes must inherit from Monopp.Core.NativeObject.");
 
 	// Give mono the ownership of the this pointer.

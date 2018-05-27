@@ -1,4 +1,4 @@
-#include "mono_class.h"
+#include "mono_type.h"
 #include "mono_assembly.h"
 #include "mono_exception.h"
 
@@ -11,14 +11,14 @@
 namespace mono
 {
 
-mono_class::mono_class() = default;
+mono_type::mono_type() = default;
 
-mono_class::mono_class(MonoImage* image, const std::string& name)
-	: mono_class(image, "", name)
+mono_type::mono_type(MonoImage* image, const std::string& name)
+	: mono_type(image, "", name)
 {
 }
 
-mono_class::mono_class(MonoImage* image, const std::string& name_space, const std::string& name)
+mono_type::mono_type(MonoImage* image, const std::string& name_space, const std::string& name)
 {
 	class_ = mono_class_from_name(image, name_space.c_str(), name.c_str());
 
@@ -28,7 +28,7 @@ mono_class::mono_class(MonoImage* image, const std::string& name_space, const st
 	__generate_meta();
 }
 
-mono_class::mono_class(MonoClass* cls)
+mono_type::mono_type(MonoClass* cls)
 {
 	class_ = cls;
 	if(!class_)
@@ -36,39 +36,46 @@ mono_class::mono_class(MonoClass* cls)
 
 	__generate_meta();
 }
+mono_type::mono_type(MonoType* type)
+{
+	class_ = mono_class_from_mono_type(type);
+	if(!class_)
+		throw mono_exception("NATIVE::Could not get class");
 
-auto mono_class::valid() const -> bool
+	__generate_meta();
+}
+auto mono_type::valid() const -> bool
 {
 	return class_ != nullptr;
 }
 
-auto mono_class::new_instance() const -> mono_object
+auto mono_type::new_instance() const -> mono_object
 {
 	const auto& domain = mono_domain::get_current_domain();
 	return mono_object(domain, *this);
 }
 
-auto mono_class::get_method(const std::string& name_with_args) const -> mono_method
+auto mono_type::get_method(const std::string& name_with_args) const -> mono_method
 {
 	return mono_method(*this, name_with_args);
 }
 
-auto mono_class::get_method(const std::string& name, int argc) const -> mono_method
+auto mono_type::get_method(const std::string& name, int argc) const -> mono_method
 {
 	return mono_method(*this, name, argc);
 }
 
-auto mono_class::get_field(const std::string& name) const -> mono_field
+auto mono_type::get_field(const std::string& name) const -> mono_field
 {
 	return mono_field(*this, name);
 }
 
-auto mono_class::get_property(const std::string& name) const -> mono_property
+auto mono_type::get_property(const std::string& name) const -> mono_property
 {
 	return mono_property(*this, name);
 }
 
-auto mono_class::get_fields() const -> std::vector<mono_field>
+auto mono_type::get_fields() const -> std::vector<mono_field>
 {
 	void* iter = nullptr;
 	auto field = mono_class_get_fields(class_, &iter);
@@ -84,7 +91,7 @@ auto mono_class::get_fields() const -> std::vector<mono_field>
 	return fields;
 }
 
-auto mono_class::get_properties() const -> std::vector<mono_property>
+auto mono_type::get_properties() const -> std::vector<mono_property>
 {
 	void* iter = nullptr;
 	auto prop = mono_class_get_properties(class_, &iter);
@@ -100,7 +107,7 @@ auto mono_class::get_properties() const -> std::vector<mono_property>
 	return props;
 }
 
-auto mono_class::get_methods() const -> std::vector<mono_method>
+auto mono_type::get_methods() const -> std::vector<mono_method>
 {
 	void* iter = nullptr;
 	auto method = mono_class_get_methods(class_, &iter);
@@ -119,36 +126,37 @@ auto mono_class::get_methods() const -> std::vector<mono_method>
 	return methods;
 }
 
-auto mono_class::has_base_class() const -> bool
+auto mono_type::has_base_type() const -> bool
 {
 	return mono_class_get_parent(class_) != nullptr;
 }
 
-auto mono_class::get_base_class() const -> mono_class
+auto mono_type::get_base_type() const -> mono_type
 {
 	auto base = mono_class_get_parent(class_);
-	return mono_class(base);
+	return mono_type(base);
 }
 
-auto mono_class::get_nested_classes() const -> std::vector<mono_class>
+auto mono_type::get_nested_types() const -> std::vector<mono_type>
 {
 	void* iter = nullptr;
 	auto nested = mono_class_get_nested_types(class_, &iter);
-	std::vector<mono_class> nested_clases;
+	std::vector<mono_type> nested_clases;
 	while(nested)
 	{
-		nested_clases.emplace_back(mono_class(nested));
+		nested_clases.emplace_back(mono_type(nested));
 	}
 	return nested_clases;
 }
 
-auto mono_class::get_internal_ptr() const -> MonoClass*
+auto mono_type::get_internal_ptr() const -> MonoClass*
 {
 	return class_;
 }
 
-void mono_class::__generate_meta()
+void mono_type::__generate_meta()
 {
+    type_ = mono_class_get_type(class_);
 	namespace_ = mono_class_get_namespace(class_);
 	name_ = mono_class_get_name(class_);
 	fullname_ = namespace_.empty() ? name_ : namespace_ + "." + name_;
@@ -157,38 +165,38 @@ void mono_class::__generate_meta()
 	sizeof_ = std::uint32_t(mono_class_value_size(class_, &alignof_));
 }
 
-auto mono_class::is_subclass_of(const mono_class& cls) const -> bool
+auto mono_type::is_derived_from(const mono_type& type) const -> bool
 {
-	return mono_class_is_subclass_of(class_, cls.get_internal_ptr(), false) != 0;
+	return mono_class_is_subclass_of(class_, type.get_internal_ptr(), false) != 0;
 }
-auto mono_class::get_namespace() const -> const std::string&
+auto mono_type::get_namespace() const -> const std::string&
 {
 	return namespace_;
 }
-auto mono_class::get_name() const -> const std::string&
+auto mono_type::get_name() const -> const std::string&
 {
 	return name_;
 }
-auto mono_class::get_fullname() const -> const std::string&
+auto mono_type::get_fullname() const -> const std::string&
 {
 	return fullname_;
 }
-auto mono_class::is_valuetype() const -> bool
+auto mono_type::is_valuetype() const -> bool
 {
 	return valuetype_;
 }
 
-auto mono_class::get_rank() const -> int
+auto mono_type::get_rank() const -> int
 {
 	return rank_;
 }
 
-uint32_t mono_class::get_sizeof() const
+uint32_t mono_type::get_sizeof() const
 {
 	return sizeof_;
 }
 
-uint32_t mono_class::get_alignof() const
+uint32_t mono_type::get_alignof() const
 {
 	return alignof_;
 }

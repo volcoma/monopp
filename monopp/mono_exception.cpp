@@ -1,4 +1,7 @@
 #include "mono_exception.h"
+#include "mono_object.h"
+#include "mono_property.h"
+#include "mono_type.h"
 
 namespace mono
 {
@@ -28,22 +31,14 @@ mono_thunk_exception::mono_thunk_exception(const mono_exception_info& info)
 
 auto mono_thunk_exception::__get_exception_info(MonoException* ex) -> mono_exception_info
 {
-	auto exception_obj = reinterpret_cast<MonoObject*>(ex);
-	auto exception_class = mono_object_get_class(exception_obj);
-	auto exception_type = mono_class_get_type(exception_class);
-	std::string exception_typename = mono_type_get_name(exception_type);
-	std::string message = __get_string_property("Message", exception_class, exception_obj);
-	std::string stacktrace = __get_string_property("StackTrace", exception_class, exception_obj);
+	auto obj = mono_object(reinterpret_cast<MonoObject*>(ex));
+	auto type = obj.get_type();
+	auto exception_typename = type.get_fullname();
+	auto message_prop = type.get_property("Message");
+	auto stacktrace_prop = type.get_property("StackTrace");
+	auto message = message_prop.get_value<std::string>(obj);
+	auto stacktrace = stacktrace_prop.get_value<std::string>(obj);
 	return {exception_typename, message, stacktrace};
-}
-
-auto mono_thunk_exception::__get_string_property(const char* property_name, MonoClass* cls, MonoObject* obj)
-	-> char*
-{
-	auto property = mono_class_get_property_from_name(cls, property_name);
-	auto getter = mono_property_get_get_method(property);
-	auto value = reinterpret_cast<MonoString*>(mono_runtime_invoke(getter, obj, nullptr, nullptr));
-	return mono_string_to_utf8(value);
 }
 
 } // namespace mono

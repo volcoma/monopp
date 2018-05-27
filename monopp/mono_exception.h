@@ -45,7 +45,6 @@ private:
 	explicit mono_thunk_exception(const mono_exception_info& info);
 
 	static auto __get_exception_info(MonoException* ex) -> mono_exception_info;
-	static auto __get_string_property(const char* property_name, MonoClass* cls, MonoObject* obj) -> char*;
 
 	std::string exception_typename_;
 	std::string message_;

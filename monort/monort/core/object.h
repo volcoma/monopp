@@ -1,7 +1,7 @@
 #pragma once
 
 #include "monopp/mono_assembly.h"
-#include "monopp/mono_class.h"
+#include "monopp/mono_type.h"
 #include "monopp/mono_field.h"
 #include "monopp/mono_gc_handle.h"
 #include "monopp/mono_noncopyable.h"
@@ -17,12 +17,12 @@ class object : public common::noncopyable
 {
 public:
 	static void register_internal_calls();
-	static void initialize_class_field(const mono_assembly& assembly);
+	static void initialize_type_field(const mono_assembly& assembly);
 
 	explicit object(MonoObject* object);
 	virtual ~object();
 
-	static std::unique_ptr<mono_class> object_class;
+	static std::unique_ptr<mono_type> object_type;
 	static std::unique_ptr<mono_field> native_object_field;
 
 	template <typename T>

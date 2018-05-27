@@ -10,7 +10,7 @@ namespace managed_interface
 {
     inline void init(const mono_assembly& core_assembly)
     {
-        mono::managed_interface::object::initialize_class_field(core_assembly);
+        mono::managed_interface::object::initialize_type_field(core_assembly);
         mono::managed_interface::object::register_internal_calls();        
     }
 } // namespace managed_interface

@@ -83,7 +83,7 @@ C++
 	method1.get_fullname();
 	method1.get_full_declname();
 	method1.get_visibility();
-	method1.get_return_type();
+	method1.is_static();
 	method1.get_param_types();
 	method1.get_return_type();
 	/// etc.

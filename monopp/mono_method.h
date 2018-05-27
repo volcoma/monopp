@@ -9,17 +9,17 @@ namespace mono
 {
 
 class mono_object;
-class mono_class;
+class mono_type;
 
 class mono_method
 {
 public:
 	explicit mono_method(MonoMethod* method);
-	explicit mono_method(const mono_class& cls, const std::string& name_with_args);
-	explicit mono_method(const mono_class& cls, const std::string& name, int argc);
+	explicit mono_method(const mono_type& type, const std::string& name_with_args);
+	explicit mono_method(const mono_type& type, const std::string& name, int argc);
 
-	auto get_return_type() const -> mono_class;
-	auto get_param_types() const -> std::vector<mono_class>;
+	auto get_return_type() const -> mono_type;
+	auto get_param_types() const -> std::vector<mono_type>;
 	auto get_name() const -> const std::string&;
 	auto get_fullname() const -> const std::string&;
 	auto get_full_declname() const -> const std::string&;

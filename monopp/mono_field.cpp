@@ -1,5 +1,5 @@
 #include "mono_field.h"
-#include "mono_class.h"
+#include "mono_type.h"
 #include "mono_exception.h"
 
 #include <mono/metadata/attrdefs.h>
@@ -7,25 +7,25 @@
 namespace mono
 {
 
-mono_field::mono_field(const mono_class& cls, const std::string& name)
-	: field_(mono_class_get_field_from_name(cls.get_internal_ptr(), name.c_str()))
+mono_field::mono_field(const mono_type& type, const std::string& name)
+	: field_(mono_class_get_field_from_name(type.get_internal_ptr(), name.c_str()))
 	, name_(name)
 {
 	if(!field_)
 	{
-		throw mono_exception("NATIVE::Could not get field : " + name + " for class " + cls.get_name());
+		throw mono_exception("NATIVE::Could not get field : " + name + " for class " + type.get_name());
 	}
 	const auto& domain = mono_domain::get_current_domain();
 
-	owning_class_vtable_ = mono_class_vtable(domain.get_internal_ptr(), cls.get_internal_ptr());
-	mono_runtime_class_init(owning_class_vtable_);
+	owning_type_vtable_ = mono_class_vtable(domain.get_internal_ptr(), type.get_internal_ptr());
+	mono_runtime_class_init(owning_type_vtable_);
 	__generate_meta();
 }
 
 void mono_field::__generate_meta()
 {
 	auto type = mono_field_get_type(field_);
-	class_ = std::make_shared<mono_class>(mono_class_from_mono_type(type));
+	type_ = std::make_shared<mono_type>(mono_class_from_mono_type(type));
 	fullname_ = mono_field_full_name(field_);
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;
@@ -33,7 +33,7 @@ void mono_field::__generate_meta()
 
 auto mono_field::__is_valuetype() const -> bool
 {
-	return get_class().is_valuetype();
+	return get_type().is_valuetype();
 }
 
 auto mono_field::get_name() const -> const std::string&
@@ -48,9 +48,9 @@ auto mono_field::get_full_declname() const -> const std::string&
 {
 	return full_declname_;
 }
-auto mono_field::get_class() const -> const mono_class&
+auto mono_field::get_type() const -> const mono_type&
 {
-	return *class_;
+	return *type_;
 }
 
 auto mono_field::get_visibility() const -> visibility

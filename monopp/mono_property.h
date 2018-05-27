@@ -8,12 +8,12 @@
 namespace mono
 {
 
-class mono_class;
+class mono_type;
 
 class mono_property
 {
 public:
-	explicit mono_property(const mono_class& cls, const std::string& name);
+	explicit mono_property(const mono_type& type, const std::string& name);
 
 	template <typename T>
 	void set_value(const T& val) const;
@@ -33,7 +33,7 @@ public:
 
 	auto get_full_declname() const -> const std::string&;
 
-	auto get_class() const -> const mono_class&;
+	auto get_type() const -> const mono_type&;
 
 	auto get_get_method() const -> mono_method;
 
@@ -48,7 +48,7 @@ public:
 private:
 	void __generate_meta();
 
-	std::shared_ptr<mono_class> class_;
+	std::shared_ptr<mono_type> type_;
 
 	non_owning_ptr<MonoProperty> property_ = nullptr;
 

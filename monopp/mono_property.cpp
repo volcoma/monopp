@@ -1,6 +1,6 @@
 #include "mono_property.h"
 #include "mono_assembly.h"
-#include "mono_class.h"
+#include "mono_type.h"
 #include "mono_exception.h"
 
 #include <mono/metadata/attrdefs.h>
@@ -9,12 +9,12 @@
 namespace mono
 {
 
-mono_property::mono_property(const mono_class& cls, const std::string& name)
-	: property_(mono_class_get_property_from_name(cls.get_internal_ptr(), name.c_str()))
+mono_property::mono_property(const mono_type& type, const std::string& name)
+	: property_(mono_class_get_property_from_name(type.get_internal_ptr(), name.c_str()))
 	, name_(name)
 {
 	if(!property_)
-		throw mono_exception("NATIVE::Could not get property : " + name + " for class " + cls.get_name());
+		throw mono_exception("NATIVE::Could not get property : " + name + " for class " + type.get_name());
 
 	__generate_meta();
 }
@@ -38,9 +38,9 @@ auto mono_property::get_full_declname() const -> const std::string&
 	return full_declname_;
 }
 
-auto mono_property::get_class() const -> const mono_class&
+auto mono_property::get_type() const -> const mono_type&
 {
-	return *class_;
+	return *type_;
 }
 
 auto mono_property::get_get_method() const -> mono_method
@@ -91,7 +91,7 @@ auto mono_property::is_static() const -> bool
 void mono_property::__generate_meta()
 {
 	auto get_method = get_get_method();
-	class_ = std::make_shared<mono_class>(get_method.get_return_type());
+	type_ = std::make_shared<mono_type>(get_method.get_return_type());
 	fullname_ = name_;
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;

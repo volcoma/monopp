@@ -9,12 +9,12 @@
 
 namespace mono
 {
-class mono_class;
+class mono_type;
 
 class mono_field
 {
 public:
-	explicit mono_field(const mono_class& cls, const std::string& name);
+	explicit mono_field(const mono_type& type, const std::string& name);
 
 	template <typename T>
 	void set_value(const T& val) const;
@@ -34,7 +34,7 @@ public:
 
 	auto get_full_declname() const -> const std::string&;
 
-	auto get_class() const -> const mono_class&;
+	auto get_type() const -> const mono_type&;
 
 	auto get_visibility() const -> visibility;
 
@@ -50,11 +50,11 @@ private:
 	template <typename T>
 	auto __get_value(const mono_object* obj) const -> T;
 
-	std::shared_ptr<mono_class> class_;
+	std::shared_ptr<mono_type> type_;
 
 	non_owning_ptr<MonoClassField> field_ = nullptr;
 
-	non_owning_ptr<MonoVTable> owning_class_vtable_ = nullptr;
+	non_owning_ptr<MonoVTable> owning_type_vtable_ = nullptr;
 
 	std::string name_;
 
@@ -91,7 +91,7 @@ void mono_field::__set_value(const mono_object* object, const T& val) const
 	}
 	else
 	{
-		mono_field_static_set_value(owning_class_vtable_, field_, arg);
+		mono_field_static_set_value(owning_type_vtable_, field_, arg);
 	}
 }
 
@@ -127,7 +127,7 @@ auto mono_field::__get_value(const mono_object* object) const -> T
 	}
 	else
 	{
-		mono_field_static_get_value(owning_class_vtable_, field_, arg);
+		mono_field_static_get_value(owning_type_vtable_, field_, arg);
 	}
 
 	if(!__is_valuetype())

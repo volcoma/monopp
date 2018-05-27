@@ -2,13 +2,13 @@
 #include "monopp/mono_jit.h"
 
 #include "monopp/mono_assembly.h"
-#include "monopp/mono_class.h"
 #include "monopp/mono_domain.h"
 #include "monopp/mono_field.h"
 #include "monopp/mono_method.h"
 #include "monopp/mono_object.h"
 #include "monopp/mono_property.h"
 #include "monopp/mono_string.h"
+#include "monopp/mono_type.h"
 #include <iostream>
 #include <memory>
 
@@ -121,7 +121,7 @@ TEST_CASE("load valid assembly and bind", "[domain]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get invalid class", "[assembly]")
+TEST_CASE("get invalid type", "[assembly]")
 {
 	// clang-format off
 	auto expression = []()
@@ -129,7 +129,7 @@ TEST_CASE("get invalid class", "[assembly]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 
-		REQUIRE_THROWS([&]() { assembly.get_class("SomeClassThatDoesntExist12345"); }());
+		REQUIRE_THROWS([&]() { assembly.get_type("SometypeThatDoesntExist12345"); }());
 		// clang-format off
 	};
 	// clang-format on
@@ -137,14 +137,14 @@ TEST_CASE("get invalid class", "[assembly]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get monopp valid class", "[assembly]")
+TEST_CASE("get monopp valid type", "[assembly]")
 {
 	// clang-format off
 	auto expression = []()
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		assembly.get_class("Tests", "MonoppTest");
+		assembly.get_type("Tests", "MonoppTest");
 		// clang-format off
 	};
 	// clang-format on
@@ -152,20 +152,20 @@ TEST_CASE("get monopp valid class", "[assembly]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get valid method", "[class]")
+TEST_CASE("get valid method", "[type]")
 {
 	// clang-format off
 	auto expression = []()
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
+		auto type = assembly.get_type("Tests", "MonoppTest");
 
-		auto method1 = cls.get_method<void()>("Method1");
-		auto method2 = cls.get_method<void(std::string)>("Method2");
-		auto method3 = cls.get_method<void(int)>("Method3");
-		auto method4 = cls.get_method<void(int, int)>("Method4");
-		auto method5 = cls.get_method<std::string(std::string, int)>("Method5");
+		auto method1 = type.get_method<void()>("Method1");
+		auto method2 = type.get_method<void(std::string)>("Method2");
+		auto method3 = type.get_method<void(int)>("Method3");
+		auto method4 = type.get_method<void(int, int)>("Method4");
+		auto method5 = type.get_method<std::string(std::string, int)>("Method5");
 		// clang-format off
 	};
 	// clang-format on
@@ -173,7 +173,7 @@ TEST_CASE("get valid method", "[class]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get/set field", "[class]")
+TEST_CASE("get/set field", "[type]")
 {
 	// clang-format off
 	auto expression = []()
@@ -181,11 +181,11 @@ TEST_CASE("get/set field", "[class]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 
-		auto cls = assembly.get_class("Tests", "MonoppTest");
+		auto type = assembly.get_type("Tests", "MonoppTest");
 
-		auto field = cls.get_field("someField");
+		auto field = type.get_field("someField");
 
-		auto obj = cls.new_instance();
+		auto obj = type.new_instance();
 
 		auto someField = field.get_value<int>(obj);
 		REQUIRE(someField == 12);
@@ -202,7 +202,7 @@ TEST_CASE("get/set field", "[class]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get/set static field", "[class]")
+TEST_CASE("get/set static field", "[type]")
 {
 	// clang-format off
 	auto expression = []()
@@ -210,9 +210,9 @@ TEST_CASE("get/set static field", "[class]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 
-		auto cls = assembly.get_class("Tests", "MonoppTest");
+		auto type = assembly.get_type("Tests", "MonoppTest");
 
-		auto field = cls.get_field("someFieldStatic");
+		auto field = type.get_field("someFieldStatic");
 
 		auto someField = field.get_value<int>();
 		REQUIRE(someField == 12);
@@ -229,16 +229,16 @@ TEST_CASE("get/set static field", "[class]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get invalid field", "[class]")
+TEST_CASE("get invalid field", "[type]")
 {
 	// clang-format off
 	auto expression = []()
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
+		auto type = assembly.get_type("Tests", "MonoppTest");
 
-		REQUIRE_THROWS([&]() { cls.get_field("someInvalidField"); }());
+		REQUIRE_THROWS([&]() { type.get_field("someInvalidField"); }());
 		// clang-format off
 	};
 	// clang-format on
@@ -246,16 +246,16 @@ TEST_CASE("get invalid field", "[class]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get/set property", "[class]")
+TEST_CASE("get/set property", "[type]")
 {
 	// clang-format off
 	auto expression = []()
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto prop = cls.get_property("someProperty");
-		auto obj = cls.new_instance();
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto prop = type.get_property("someProperty");
+		auto obj = type.new_instance();
 		REQUIRE(obj.valid());
 
 		auto someProp = prop.get_value<int>(obj);
@@ -273,15 +273,15 @@ TEST_CASE("get/set property", "[class]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get/set static property", "[class]")
+TEST_CASE("get/set static property", "[type]")
 {
 	// clang-format off
 	auto expression = []()
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto prop = cls.get_property("somePropertyStatic");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto prop = type.get_property("somePropertyStatic");
 
 		auto someProp = prop.get_value<int>();
 		REQUIRE(someProp == 6);
@@ -298,15 +298,15 @@ TEST_CASE("get/set static property", "[class]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get invalid property", "[class]")
+TEST_CASE("get invalid property", "[type]")
 {
 	// clang-format off
 	auto expression = []()
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		REQUIRE_THROWS([&]() { cls.get_property("someInvalidProperty"); }());
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		REQUIRE_THROWS([&]() { type.get_property("someInvalidProperty"); }());
 		// clang-format off
 	};
 	// clang-format on
@@ -321,8 +321,8 @@ TEST_CASE("call static method 1", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto method_thunk = cls.get_method<int(int)>("Function1");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto method_thunk = type.get_method<int(int)>("Function1");
 		const auto number = 1000;
 		auto result = method_thunk(number);
 		REQUIRE(number + 1337 == result);
@@ -340,8 +340,8 @@ TEST_CASE("call static method 2", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto method_thunk = cls.get_method<void(float, int, float)>("Function2");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto method_thunk = type.get_method<void(float, int, float)>("Function2");
 		method_thunk(13.37f, 42, 9000.0f);
 		// clang-format off
 	};
@@ -357,8 +357,8 @@ TEST_CASE("call static method 3", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto method_thunk = cls.get_method<void(std::string)>("Function3");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto method_thunk = type.get_method<void(std::string)>("Function3");
 		method_thunk("Hello!");
 		// clang-format off
 	};
@@ -373,8 +373,8 @@ TEST_CASE("call static method 4", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto method_thunk = cls.get_method<std::string(std::string)>("Function4");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto method_thunk = type.get_method<std::string(std::string)>("Function4");
 		auto expected_string = std::string("Hello!");
 		auto result = method_thunk(expected_string);
 		REQUIRE(result == std::string("The string value was: " + expected_string));
@@ -392,8 +392,8 @@ TEST_CASE("call static method 5", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto method_thunk = cls.get_method<void()>("Function5");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto method_thunk = type.get_method<void()>("Function5");
 		method_thunk();
 		// clang-format off
 	};
@@ -409,8 +409,8 @@ TEST_CASE("call static method 6", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto method_thunk = cls.get_method<void()>("Function6");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto method_thunk = type.get_method<void()>("Function6");
 		method_thunk();
 		// clang-format off
 	};
@@ -426,9 +426,9 @@ TEST_CASE("call member method 1", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto obj = cls.new_instance();
-		auto method_thunk = cls.get_method<void()>("Method1");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto obj = type.new_instance();
+		auto method_thunk = type.get_method<void()>("Method1");
 		method_thunk(obj);
 		// clang-format off
 	};
@@ -444,9 +444,9 @@ TEST_CASE("call member method 2", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonoppTest");
-		auto obj = cls.new_instance();
-		auto method_thunk = cls.get_method<std::string(std::string, int)>("Method5");
+		auto type = assembly.get_type("Tests", "MonoppTest");
+		auto obj = type.new_instance();
+		auto method_thunk = type.get_method<std::string(std::string, int)>("Method5");
 		auto result = method_thunk(obj, "test", 5);
 		REQUIRE("Return Value: test" == result);
 		// clang-format off
@@ -477,34 +477,35 @@ TEST_CASE("full example", "[monopp]")
 
 	/// Sets the current domain
 	mono::mono_domain::set_current_domain(my_domain);
+
 	/// Get or load an assembly
 	auto assembly = my_domain.get_assembly("tests_managed.dll");
 
-	/// Get access to a c# class
-	auto cls = assembly.get_class("Tests", "MonoppTest");
+	/// Get access to a c# type
+	auto type = assembly.get_type("Tests", "MonoppTest");
 
 	/// Prints out Tests
-	std::cout << cls.get_namespace() << std::endl;
+	std::cout << type.get_namespace() << std::endl;
 
 	/// Prints out MonoppTest
-	std::cout << cls.get_name() << std::endl;
+	std::cout << type.get_name() << std::endl;
 
 	/// Prints out Tests.MonoppTest
-	std::cout << cls.get_fullname() << std::endl;
+	std::cout << type.get_fullname() << std::endl;
 
-	/// Checks and gets the base class of Tests.MonoppTest
-	if(cls.has_base_class())
+	/// Checks and gets the base type of Tests.MonoppTest
+	if(type.has_base_type())
 	{
-		auto base_class = cls.get_base_class();
-		std::cout << base_class.get_fullname() << std::endl;
+		auto base_type = type.get_base_type();
+		std::cout << base_type.get_fullname() << std::endl;
 	}
 
 	/// Create an instance of it. Default constructed.
-	auto obj = cls.new_instance();
+	auto obj = type.new_instance();
 
 	/// There are several ways of getting access to methods
 	/// Way 1, name + arg count
-	auto method1 = cls.get_method("Method1", 0);
+	auto method1 = type.get_method("Method1", 0);
 
 	/// You can invoke it by creating a thunk and calling it passing
 	/// the object it belongs to as the first parameter. Not passing
@@ -513,25 +514,25 @@ TEST_CASE("full example", "[monopp]")
 	thunk1(obj);
 
 	/// Way 2, name + args
-	auto method2 = cls.get_method("Method2(string)");
+	auto method2 = type.get_method("Method2(string)");
 	auto thunk2 = mono::mono_method_thunk<void(std::string)>(std::move(method1));
 	thunk2(obj, "str_param");
 
 	/// Way 3, use the template method
-	auto method3 = cls.get_method<std::string(std::string, int)>("Method5");
+	auto method3 = type.get_method<std::string(std::string, int)>("Method5");
 	auto result3 = method3(obj, "test", 5);
 
 	/// You can also get and invoke static methods without passing
 	/// an object as the first parameter
-	auto method4 = cls.get_method<int(int)>("Function1");
+	auto method4 = type.get_method<int(int)>("Function1");
 	auto result4 = method4(55);
-
+	std::cout << result4 << std::endl;
 	/// You can query various information about a method
 	method1.get_name();
 	method1.get_fullname();
 	method1.get_full_declname();
 	method1.get_visibility();
-	method1.get_return_type();
+	method1.is_static();
 	method1.get_param_types();
 	method1.get_return_type();
 	/// etc.
@@ -539,15 +540,15 @@ TEST_CASE("full example", "[monopp]")
 	/// You can catch exceptions like so
 	try
 	{
-		cls.get_method<int(int, float)>("NonExistingFunction");
+		type.get_method<int(int, float)>("NonExistingFunction");
 	}
 	catch(const mono::mono_exception& e)
 	{
 		std::cout << e.what() << std::endl;
 	}
 
-	/// You can access class fields by name
-	auto field = cls.get_field("someField");
+	/// You can access type fields by name
+	auto field = type.get_field("someField");
 
 	/// You can get their values. Not passing an
 	/// object as the parameter would treat
@@ -555,6 +556,7 @@ TEST_CASE("full example", "[monopp]")
 
 	auto field_value = field.get_value<int>(obj);
 	// auto field_value = field.get_value<int>();
+	std::cout << field_value << std::endl;
 
 	/// You can set their values. Not passing an
 	/// object as the parameter would treat
@@ -567,18 +569,19 @@ TEST_CASE("full example", "[monopp]")
 	field.get_name();
 	field.get_fullname();
 	field.get_full_declname();
-	field.get_class();
+	field.get_type();
 	field.get_visibility();
 	field.is_static();
 	/// etc..
 
-	auto prop = cls.get_property("someProperty");
+	auto prop = type.get_property("someProperty");
 
 	/// You can get their values. Not passing an
 	/// object as the parameter would treat
 	/// it as being static.
 	auto prop_value = prop.get_value<int>(obj);
 	// auto prop_value = prop.get_value<int>();
+	std::cout << prop_value << std::endl;
 
 	/// You can set their values. Not passing an
 	/// object as the parameter would treat
@@ -602,29 +605,29 @@ TEST_CASE("full example", "[monopp]")
 	prop.get_name();
 	prop.get_fullname();
 	prop.get_full_declname();
-	prop.get_class();
+	prop.get_type();
 	prop.get_visibility();
 	prop.is_static();
 	/// etc..
 
-	/// Get all the fields of the class
-	auto fields = cls.get_fields();
+	/// Get all the fields of the type
+	auto fields = type.get_fields();
 
 	for(const auto& field : fields)
 	{
 		std::cout << field.get_full_declname() << std::endl;
 	}
 
-	/// Get all the properties of the class
-	auto props = cls.get_properties();
+	/// Get all the properties of the type
+	auto props = type.get_properties();
 
 	for(const auto& prop : props)
 	{
 		std::cout << prop.get_full_declname() << std::endl;
 	}
 
-	/// Get All the methods of the class
-	auto methods = cls.get_methods();
+	/// Get All the methods of the type
+	auto methods = type.get_methods();
 
 	for(const auto& method : methods)
 	{
@@ -736,19 +739,19 @@ TEST_CASE("bind monort", "[monort]")
 	REQUIRE_NOTHROW(expression());
 }
 
-TEST_CASE("get monort valid class", "[assembly]")
+TEST_CASE("get monort valid type", "[assembly]")
 {
 	// clang-format off
 	auto expression = []()
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
+		auto type = assembly.get_type("Tests", "MonortTest");
 
-		std::cout << cls.get_fullname() << std::endl;
-		auto fields = cls.get_fields();
-		auto props = cls.get_properties();
-		auto methods = cls.get_methods();
+		std::cout << type.get_fullname() << std::endl;
+		auto fields = type.get_fields();
+		auto props = type.get_properties();
+		auto methods = type.get_methods();
 		for(const auto& field : fields)
 		{
 			std::cout << field.get_full_declname() << std::endl;
@@ -775,10 +778,10 @@ TEST_CASE("call member method 3", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
-		auto obj = cls.new_instance();
+		auto type = assembly.get_type("Tests", "MonortTest");
+		auto obj = type.new_instance();
 
-		auto method_thunk = cls.get_method<vec2f(vec2f)>("MethodPodAR");
+		auto method_thunk = type.get_method<vec2f(vec2f)>("MethodPodAR");
 		vec2f p;
 		p.x = 12;
 		p.y = 15;
@@ -798,9 +801,9 @@ TEST_CASE("call member method 4", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
+		auto type = assembly.get_type("Tests", "MonortTest");
 
-		auto obj = cls.new_instance();
+		auto obj = type.new_instance();
 
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 
@@ -808,7 +811,7 @@ TEST_CASE("call member method 4", "[method]")
 		ptr->x = 12;
 		ptr->y = 15;
 
-		auto method_thunk = cls.get_method<vec2f_ptr(vec2f_ptr)>("MethodPodARW");
+		auto method_thunk = type.get_method<vec2f_ptr(vec2f_ptr)>("MethodPodARW");
 		auto result = method_thunk(obj, ptr);
 
 		REQUIRE(result != nullptr);
@@ -828,9 +831,9 @@ TEST_CASE("test member POD field", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
-		auto field = cls.get_field("someFieldPOD");
-		auto obj = cls.new_instance();
+		auto type = assembly.get_type("Tests", "MonortTest");
+		auto field = type.get_field("someFieldPOD");
+		auto obj = type.new_instance();
 		REQUIRE(obj.valid());
 
 		auto someField = field.get_value<vec2f>(obj);
@@ -856,9 +859,9 @@ TEST_CASE("test member POD property", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
-		auto prop = cls.get_property("somePropertyPOD");
-		auto obj = cls.new_instance();
+		auto type = assembly.get_type("Tests", "MonortTest");
+		auto prop = type.get_property("somePropertyPOD");
+		auto obj = type.new_instance();
 		REQUIRE(obj.valid());
 
 		auto someProp = prop.get_value<vec2f>(obj);
@@ -885,8 +888,8 @@ TEST_CASE("test static POD field", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
-		auto field = cls.get_field("someFieldPODStatic");
+		auto type = assembly.get_type("Tests", "MonortTest");
+		auto field = type.get_field("someFieldPODStatic");
 		auto someField = field.get_value<vec2f>();
 		REQUIRE(someField.x == 12.0f);
 		REQUIRE(someField.y == 13.0f);
@@ -910,8 +913,8 @@ TEST_CASE("test static POD property", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
-		auto prop = cls.get_property("somePropertyPODStatic");
+		auto type = assembly.get_type("Tests", "MonortTest");
+		auto prop = type.get_property("somePropertyPODStatic");
 		auto someProp = prop.get_value<vec2f>();
 		REQUIRE(someProp.x == 6.0f);
 		REQUIRE(someProp.y == 7.0f);
@@ -936,8 +939,8 @@ TEST_CASE("test static NON-POD field", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
-		auto field = cls.get_field("someFieldNONPODStatic");
+		auto type = assembly.get_type("Tests", "MonortTest");
+		auto field = type.get_field("someFieldNONPODStatic");
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 
 		auto someField = field.get_value<vec2f_ptr>();
@@ -963,8 +966,8 @@ TEST_CASE("test static NON-POD property", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		auto cls = assembly.get_class("Tests", "MonortTest");
-		auto prop = cls.get_property("somePropertyNONPODStatic");
+		auto type = assembly.get_type("Tests", "MonortTest");
+		auto prop = type.get_property("somePropertyNONPODStatic");
 
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 

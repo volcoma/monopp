@@ -17,14 +17,15 @@ class mono_field;
 class mono_property;
 class mono_object;
 
-class mono_class
+class mono_type
 {
 public:
-	mono_class();
+	mono_type();
 
-	explicit mono_class(MonoImage* image, const std::string& name);
-	explicit mono_class(MonoImage* image, const std::string& name_space, const std::string& name);
-	explicit mono_class(MonoClass* cls);
+	explicit mono_type(MonoImage* image, const std::string& name);
+	explicit mono_type(MonoImage* image, const std::string& name_space, const std::string& name);
+	explicit mono_type(MonoClass* cls);
+	explicit mono_type(MonoType* type);
 
 	auto valid() const -> bool;
 
@@ -47,13 +48,13 @@ public:
 
 	auto get_methods() const -> std::vector<mono_method>;
 
-	auto has_base_class() const -> bool;
+	auto has_base_type() const -> bool;
 
-	auto get_base_class() const -> mono_class;
+	auto get_base_type() const -> mono_type;
 
-	auto get_nested_classes() const -> std::vector<mono_class>;
+	auto get_nested_types() const -> std::vector<mono_type>;
 
-	auto is_subclass_of(const mono_class& cls) const -> bool;
+	auto is_derived_from(const mono_type& type) const -> bool;
 
 	auto get_namespace() const -> const std::string&;
 
@@ -76,6 +77,8 @@ private:
 
 	non_owning_ptr<MonoClass> class_ = nullptr;
 
+	non_owning_ptr<MonoType> type_ = nullptr;
+
 	std::string namespace_;
 
 	std::string name_;
@@ -92,7 +95,7 @@ private:
 };
 
 template <typename function_signature_t>
-auto mono_class::get_method(const std::string& name)
+auto mono_type::get_method(const std::string& name)
 {
 	using arg_types = typename function_traits<function_signature_t>::arg_types;
 	arg_types tup;
