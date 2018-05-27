@@ -13,22 +13,22 @@ namespace mono
 
 class mono_assembly;
 class mono_method;
-class mono_class_field;
-class mono_class_property;
-class mono_class_instance;
+class mono_field;
+class mono_property;
+class mono_object;
 
 class mono_class
 {
 public:
-	mono_class() = default;
+	mono_class();
+
 	explicit mono_class(MonoImage* image, const std::string& name);
 	explicit mono_class(MonoImage* image, const std::string& name_space, const std::string& name);
 	explicit mono_class(MonoClass* cls);
-	auto operator=(MonoClass* cls) -> mono_class&;
 
 	auto valid() const -> bool;
 
-	auto new_instance() const -> mono_class_instance;
+	auto new_instance() const -> mono_object;
 
 	template <typename function_signature_t>
 	auto get_method(const std::string& name);
@@ -37,17 +37,18 @@ public:
 
 	auto get_method(const std::string& name, int argc) const -> mono_method;
 
-	auto get_field(const std::string& name) const -> mono_class_field;
+	auto get_field(const std::string& name) const -> mono_field;
 
-	auto get_property(const std::string& name) const -> mono_class_property;
+	auto get_property(const std::string& name) const -> mono_property;
 
-	auto get_fields() const -> std::vector<mono_class_field>;
+	auto get_fields() const -> std::vector<mono_field>;
 
-	auto get_properties() const -> std::vector<mono_class_property>;
+	auto get_properties() const -> std::vector<mono_property>;
 
 	auto get_methods() const -> std::vector<mono_method>;
 
 	auto has_base_class() const -> bool;
+
 	auto get_base_class() const -> mono_class;
 
 	auto get_nested_classes() const -> std::vector<mono_class>;
@@ -72,14 +73,21 @@ public:
 
 private:
 	void __generate_meta();
+
 	non_owning_ptr<MonoClass> class_ = nullptr;
 
 	std::string namespace_;
+
 	std::string name_;
+
 	std::string fullname_;
+
 	int rank_ = 0;
+
 	bool valuetype_ = true;
+
 	std::uint32_t sizeof_ = 0;
+
 	std::uint32_t alignof_ = 0;
 };
 

@@ -2,10 +2,10 @@
 
 #include "monopp/mono_assembly.h"
 #include "monopp/mono_class.h"
-#include "monopp/mono_class_field.h"
-#include "monopp/mono_class_instance.h"
+#include "monopp/mono_field.h"
 #include "monopp/mono_gc_handle.h"
 #include "monopp/mono_noncopyable.h"
+#include "monopp/mono_object.h"
 #include <memory>
 
 namespace mono
@@ -23,7 +23,7 @@ public:
 	virtual ~object();
 
 	static std::unique_ptr<mono_class> object_class;
-	static std::unique_ptr<mono_class_field> native_object_field;
+	static std::unique_ptr<mono_field> native_object_field;
 
 	template <typename T>
 	static auto& get_managed_object_as(MonoObject* this_ptr);

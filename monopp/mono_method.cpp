@@ -11,6 +11,10 @@ namespace mono
 mono_method::mono_method(MonoMethod* method)
 {
 	method_ = method;
+	if(!method_)
+	{
+		throw mono_exception("NATIVE::Could not create method");
+	}
 	__generate_meta();
 }
 
@@ -23,7 +27,8 @@ mono_method::mono_method(const mono_class& cls, const std::string& name_with_arg
 	if(!method_)
 	{
 		const auto& cls_name = cls.get_name();
-		throw mono_exception("NATIVE::Could not get method : " + name_with_args + " for class " + cls_name);
+		throw mono_exception("NATIVE::Could not create method : " + name_with_args + " for class " +
+							 cls_name);
 	}
 	__generate_meta();
 }
@@ -35,14 +40,9 @@ mono_method::mono_method(const mono_class& cls, const std::string& name, int arg
 	if(!method_)
 	{
 		const auto& cls_name = cls.get_name();
-		throw mono_exception("NATIVE::Could not get method : " + name + " for class " + cls_name);
+		throw mono_exception("NATIVE::Could not create method : " + name + " for class " + cls_name);
 	}
 	__generate_meta();
-}
-
-auto mono_method::get_internal_ptr() const -> MonoMethod*
-{
-	return method_;
 }
 
 void mono_method::__generate_meta()

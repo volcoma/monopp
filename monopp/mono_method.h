@@ -26,9 +26,7 @@ public:
 	auto get_visibility() const -> visibility;
 	auto is_static() const -> bool;
 
-	auto get_internal_ptr() const -> MonoMethod*;
-
-private:
+protected:
 	void __generate_meta();
 
 	non_owning_ptr<MonoMethod> method_ = nullptr;

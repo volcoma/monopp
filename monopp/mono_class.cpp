@@ -2,14 +2,16 @@
 #include "mono_assembly.h"
 #include "mono_exception.h"
 
-#include "mono_class_field.h"
-#include "mono_class_instance.h"
-#include "mono_class_property.h"
+#include "mono_field.h"
 #include "mono_method.h"
+#include "mono_object.h"
+#include "mono_property.h"
 
 #include <mono/metadata/debug-helpers.h>
 namespace mono
 {
+
+mono_class::mono_class() = default;
 
 mono_class::mono_class(MonoImage* image, const std::string& name)
 	: mono_class(image, "", name)
@@ -35,26 +37,15 @@ mono_class::mono_class(MonoClass* cls)
 	__generate_meta();
 }
 
-auto mono_class::operator=(MonoClass* cls) -> mono_class&
-{
-	class_ = cls;
-	if(!class_)
-		throw mono_exception("NATIVE::Could not get class");
-
-	__generate_meta();
-
-	return *this;
-}
-
 auto mono_class::valid() const -> bool
 {
 	return class_ != nullptr;
 }
 
-auto mono_class::new_instance() const -> mono_class_instance
+auto mono_class::new_instance() const -> mono_object
 {
 	const auto& domain = mono_domain::get_current_domain();
-	return mono_class_instance(domain, *this);
+	return mono_object(domain, *this);
 }
 
 auto mono_class::get_method(const std::string& name_with_args) const -> mono_method
@@ -67,21 +58,21 @@ auto mono_class::get_method(const std::string& name, int argc) const -> mono_met
 	return mono_method(*this, name, argc);
 }
 
-auto mono_class::get_field(const std::string& name) const -> mono_class_field
+auto mono_class::get_field(const std::string& name) const -> mono_field
 {
-	return mono_class_field(*this, name);
+	return mono_field(*this, name);
 }
 
-auto mono_class::get_property(const std::string& name) const -> mono_class_property
+auto mono_class::get_property(const std::string& name) const -> mono_property
 {
-	return mono_class_property(*this, name);
+	return mono_property(*this, name);
 }
 
-auto mono_class::get_fields() const -> std::vector<mono_class_field>
+auto mono_class::get_fields() const -> std::vector<mono_field>
 {
 	void* iter = nullptr;
 	auto field = mono_class_get_fields(class_, &iter);
-	std::vector<mono_class_field> fields;
+	std::vector<mono_field> fields;
 	while(field)
 	{
 		std::string name = mono_field_get_name(field);
@@ -93,11 +84,11 @@ auto mono_class::get_fields() const -> std::vector<mono_class_field>
 	return fields;
 }
 
-auto mono_class::get_properties() const -> std::vector<mono_class_property>
+auto mono_class::get_properties() const -> std::vector<mono_property>
 {
 	void* iter = nullptr;
 	auto prop = mono_class_get_properties(class_, &iter);
-	std::vector<mono_class_property> props;
+	std::vector<mono_property> props;
 	while(prop)
 	{
 		std::string name = mono_property_get_name(prop);

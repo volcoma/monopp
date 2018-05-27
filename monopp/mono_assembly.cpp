@@ -3,7 +3,6 @@
 #include "mono_exception.h"
 
 #include "mono_class.h"
-#include "mono_class_instance.h"
 #include "mono_string.h"
 #include <sstream>
 
@@ -30,11 +29,6 @@ auto mono_assembly::get_class(const std::string& name) const -> mono_class
 auto mono_assembly::get_class(const std::string& name_space, const std::string& name) const -> mono_class
 {
 	return mono_class(image_, name_space, name);
-}
-
-auto mono_assembly::valid() const -> bool
-{
-	return assembly_ != nullptr && image_ != nullptr;
 }
 
 auto mono_assembly::dump_references() const -> std::vector<std::string>

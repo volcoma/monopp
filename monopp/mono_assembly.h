@@ -16,9 +16,8 @@ public:
 	explicit mono_assembly(const mono_domain& domain, const std::string& path);
 
 	auto get_class(const std::string& name) const -> mono_class;
-	auto get_class(const std::string& name_space, const std::string& name) const -> mono_class;
 
-	auto valid() const -> bool;
+	auto get_class(const std::string& name_space, const std::string& name) const -> mono_class;
 
 	auto dump_references() const -> std::vector<std::string>;
 

@@ -9,7 +9,7 @@ namespace managed_interface
 {
 
 std::unique_ptr<mono_class> object::object_class;
-std::unique_ptr<mono_class_field> object::native_object_field;
+std::unique_ptr<mono_field> object::native_object_field;
 
 void object::register_internal_calls()
 {
@@ -21,7 +21,7 @@ void object::initialize_class_field(const mono_assembly& assembly)
 	auto cls = assembly.get_class("Monopp.Core", "NativeObject");
 	object_class = std::make_unique<mono_class>(std::move(cls));
 	auto field = object_class->get_field("native_this_");
-	native_object_field = std::make_unique<mono_class_field>(std::move(field));
+	native_object_field = std::make_unique<mono_field>(std::move(field));
 }
 
 object::~object() = default;
@@ -31,15 +31,14 @@ object::object(MonoObject* obj)
 	, gc_handle_(obj)
 	, gc_scoped_handle_(gc_handle_)
 {
-	mono_class_instance instance(managed_object_);
-	const auto& obj_class = instance.get_class();
+	const auto& obj_class = managed_object_.get_class();
 	assert(obj_class.is_subclass_of(*object_class) &&
 		   "Mono wrapper classes must inherit from Monopp.Core.NativeObject.");
 
 	// Give mono the ownership of the this pointer.
 	// When the c# finalize is called then our finalize will
 	// delete the pointer
-	native_object_field->set_value<object*>(instance, this);
+	native_object_field->set_value<object*>(managed_object_, this);
 }
 
 void object::finalize(MonoObject* this_ptr)

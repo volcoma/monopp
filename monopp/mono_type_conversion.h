@@ -3,10 +3,8 @@
 #include "mono_config.h"
 
 #include "mono_domain.h"
-#include "mono_exception.h"
 #include "mono_string.h"
 #include "mono_type_traits.h"
-#include <cstring>
 
 namespace mono
 {

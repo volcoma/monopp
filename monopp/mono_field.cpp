@@ -1,4 +1,4 @@
-#include "mono_class_field.h"
+#include "mono_field.h"
 #include "mono_class.h"
 #include "mono_exception.h"
 
@@ -7,7 +7,7 @@
 namespace mono
 {
 
-mono_class_field::mono_class_field(const mono_class& cls, const std::string& name)
+mono_field::mono_field(const mono_class& cls, const std::string& name)
 	: field_(mono_class_get_field_from_name(cls.get_internal_ptr(), name.c_str()))
 	, name_(name)
 {
@@ -22,38 +22,38 @@ mono_class_field::mono_class_field(const mono_class& cls, const std::string& nam
 	__generate_meta();
 }
 
-auto mono_class_field::get_internal_ptr() const -> MonoClassField*
-{
-	return field_;
-}
-
-void mono_class_field::__generate_meta()
+void mono_field::__generate_meta()
 {
 	auto type = mono_field_get_type(field_);
-	class_ = mono_class_from_mono_type(type);
+	class_ = std::make_shared<mono_class>(mono_class_from_mono_type(type));
 	fullname_ = mono_field_full_name(field_);
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;
 }
 
-auto mono_class_field::get_name() const -> const std::string&
+auto mono_field::__is_valuetype() const -> bool
+{
+	return get_class().is_valuetype();
+}
+
+auto mono_field::get_name() const -> const std::string&
 {
 	return name_;
 }
-auto mono_class_field::get_fullname() const -> const std::string&
+auto mono_field::get_fullname() const -> const std::string&
 {
 	return fullname_;
 }
-auto mono_class_field::get_full_declname() const -> const std::string&
+auto mono_field::get_full_declname() const -> const std::string&
 {
 	return full_declname_;
 }
-auto mono_class_field::get_class() const -> const mono_class&
+auto mono_field::get_class() const -> const mono_class&
 {
-	return class_;
+	return *class_;
 }
 
-auto mono_class_field::get_visibility() const -> visibility
+auto mono_field::get_visibility() const -> visibility
 {
 	uint32_t flags = mono_field_get_flags(field_) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 
@@ -73,7 +73,7 @@ auto mono_class_field::get_visibility() const -> visibility
 	return visibility::private_;
 }
 
-auto mono_class_field::is_static() const -> bool
+auto mono_field::is_static() const -> bool
 {
 	uint32_t flags = mono_field_get_flags(field_);
 

@@ -2,6 +2,8 @@
 
 #include <cassert>
 #include <cstdint>
+#include <cstring>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>

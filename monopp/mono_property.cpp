@@ -1,4 +1,4 @@
-#include "mono_class_property.h"
+#include "mono_property.h"
 #include "mono_assembly.h"
 #include "mono_class.h"
 #include "mono_exception.h"
@@ -9,7 +9,7 @@
 namespace mono
 {
 
-mono_class_property::mono_class_property(const mono_class& cls, const std::string& name)
+mono_property::mono_property(const mono_class& cls, const std::string& name)
 	: property_(mono_class_get_property_from_name(cls.get_internal_ptr(), name.c_str()))
 	, name_(name)
 {
@@ -19,42 +19,42 @@ mono_class_property::mono_class_property(const mono_class& cls, const std::strin
 	__generate_meta();
 }
 
-auto mono_class_property::get_internal_ptr() const -> MonoProperty*
+auto mono_property::get_internal_ptr() const -> MonoProperty*
 {
 	return property_;
 }
 
-auto mono_class_property::get_name() const -> const std::string&
+auto mono_property::get_name() const -> const std::string&
 {
 	return name_;
 }
 
-auto mono_class_property::get_fullname() const -> const std::string&
+auto mono_property::get_fullname() const -> const std::string&
 {
 	return fullname_;
 }
-auto mono_class_property::get_full_declname() const -> const std::string&
+auto mono_property::get_full_declname() const -> const std::string&
 {
 	return full_declname_;
 }
 
-auto mono_class_property::get_class() const -> const mono_class&
+auto mono_property::get_class() const -> const mono_class&
 {
-	return class_;
+	return *class_;
 }
 
-auto mono_class_property::get_get_method() const -> mono_method
+auto mono_property::get_get_method() const -> mono_method
 {
 	auto method = mono_property_get_get_method(property_);
 	return mono_method(method);
 }
-auto mono_class_property::get_set_method() const -> mono_method
+auto mono_property::get_set_method() const -> mono_method
 {
 	auto method = mono_property_get_set_method(property_);
 	return mono_method(method);
 }
 
-auto mono_class_property::get_visibility() const -> visibility
+auto mono_property::get_visibility() const -> visibility
 {
 	auto getter_vis = visibility::public_;
 	try
@@ -82,16 +82,16 @@ auto mono_class_property::get_visibility() const -> visibility
 	return setter_vis;
 }
 
-auto mono_class_property::is_static() const -> bool
+auto mono_property::is_static() const -> bool
 {
 	auto getter = get_get_method();
 	return getter.is_static();
 }
 
-void mono_class_property::__generate_meta()
+void mono_property::__generate_meta()
 {
 	auto get_method = get_get_method();
-	class_ = get_method.get_return_type();
+	class_ = std::make_shared<mono_class>(get_method.get_return_type());
 	fullname_ = name_;
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;

@@ -39,7 +39,7 @@ public:
 private:
 	void invoke(const mono_object* obj, args_t... args)
 	{
-		auto method = this->get_internal_ptr();
+		auto method = this->method_;
 		MonoObject* object = nullptr;
 		if(obj)
 		{
@@ -85,7 +85,7 @@ public:
 private:
 	auto invoke(const mono_object* obj, args_t... args)
 	{
-		auto method = this->get_internal_ptr();
+		auto method = this->method_;
 		MonoObject* object = nullptr;
 		if(obj)
 		{

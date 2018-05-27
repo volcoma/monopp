@@ -3,11 +3,11 @@
 
 #include "monopp/mono_assembly.h"
 #include "monopp/mono_class.h"
-#include "monopp/mono_class_field.h"
-#include "monopp/mono_class_instance.h"
-#include "monopp/mono_class_property.h"
 #include "monopp/mono_domain.h"
+#include "monopp/mono_field.h"
 #include "monopp/mono_method.h"
+#include "monopp/mono_object.h"
+#include "monopp/mono_property.h"
 #include "monopp/mono_string.h"
 #include <iostream>
 #include <memory>
@@ -92,7 +92,6 @@ TEST_CASE("load valid assembly", "[domain]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
 		auto refs = assembly.dump_references();
 		for(const auto& ref : refs)
 		{
@@ -111,9 +110,6 @@ TEST_CASE("load valid assembly and bind", "[domain]")
 	auto expression = []()
 	{
 		// clang-format on
-		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		mono::add_internal_call("Tests.MyObject::CreateInternal", internal_call(MyObject_CreateInternal));
 		mono::add_internal_call("Tests.MyObject::DestroyInternal", internal_call(MyObject_DestroyInternal));
 		mono::add_internal_call("Tests.MyObject::DoStuff", internal_call(MyObject_DoStuff));
@@ -132,7 +128,6 @@ TEST_CASE("get invalid class", "[assembly]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
 
 		REQUIRE_THROWS([&]() { assembly.get_class("SomeClassThatDoesntExist12345"); }());
 		// clang-format off
@@ -149,11 +144,7 @@ TEST_CASE("get monopp valid class", "[assembly]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonoppTest");
-
-		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		std::cout << cls.get_fullname() << std::endl;
 		auto fields = cls.get_fields();
@@ -185,17 +176,11 @@ TEST_CASE("get valid method", "[class]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonoppTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto method1 = cls.get_method<void()>("Method");
-		REQUIRE(method1.get_internal_ptr() != nullptr);
 		auto method2 = cls.get_method<void(int)>("MethodWithParameter");
-		REQUIRE(method2.get_internal_ptr() != nullptr);
 		auto method3 = cls.get_method<std::string(std::string, int)>("MethodWithParameterAndReturnValue");
-		REQUIRE(method3.get_internal_ptr() != nullptr);
 		// clang-format off
 	};
 	// clang-format on
@@ -210,16 +195,12 @@ TEST_CASE("get/set field", "[class]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
 
 		auto cls = assembly.get_class("Tests", "MonoppTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		auto field = cls.get_field("someField");
-		REQUIRE(field.get_internal_ptr() != nullptr);
 
 		auto obj = cls.new_instance();
-		REQUIRE(obj.get_internal_ptr() != nullptr);
 
 		auto someField = field.get_value<int>(obj);
 		REQUIRE(someField == 12);
@@ -243,10 +224,7 @@ TEST_CASE("get invalid field", "[class]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonoppTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		REQUIRE_THROWS([&]() { cls.get_field("someInvalidField"); }());
 		// clang-format off
@@ -263,16 +241,10 @@ TEST_CASE("get/set property", "[class]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonoppTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		auto prop = cls.get_property("someProperty");
-		REQUIRE(prop.get_internal_ptr() != nullptr);
-
 		auto obj = cls.new_instance();
-		REQUIRE(obj.get_internal_ptr() != nullptr);
+		REQUIRE(obj.valid());
 
 		auto someProp = prop.get_value<int>(obj);
 		REQUIRE(someProp == 12);
@@ -296,11 +268,7 @@ TEST_CASE("get invalid property", "[class]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonoppTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		REQUIRE_THROWS([&]() { cls.get_property("someInvalidProperty"); }());
 		// clang-format off
 	};
@@ -578,11 +546,7 @@ TEST_CASE("get monort valid class", "[assembly]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonortTest");
-
-		REQUIRE(cls.get_internal_ptr() != nullptr);
 
 		std::cout << cls.get_fullname() << std::endl;
 		auto fields = cls.get_fields();
@@ -667,16 +631,10 @@ TEST_CASE("test member POD field", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonortTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		auto field = cls.get_field("someFieldPOD");
-		REQUIRE(field.get_internal_ptr() != nullptr);
-
 		auto obj = cls.new_instance();
-		REQUIRE(obj.get_internal_ptr() != nullptr);
+		REQUIRE(obj.valid());
 
 		auto someField = field.get_value<vec2f>(obj);
 		REQUIRE(someField.x == 12.0f);
@@ -701,16 +659,10 @@ TEST_CASE("test member POD property", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonortTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		auto prop = cls.get_property("somePropertyPOD");
-		REQUIRE(prop.get_internal_ptr() != nullptr);
-
 		auto obj = cls.new_instance();
-		REQUIRE(obj.get_internal_ptr() != nullptr);
+		REQUIRE(obj.valid());
 
 		auto someProp = prop.get_value<vec2f>(obj);
 		REQUIRE(someProp.x == 12.0f);
@@ -736,14 +688,8 @@ TEST_CASE("test static POD field", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonortTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		auto field = cls.get_field("someFieldPODStatic");
-		REQUIRE(field.get_internal_ptr() != nullptr);
-
 		auto someField = field.get_value<vec2f>();
 		REQUIRE(someField.x == 12.0f);
 		REQUIRE(someField.y == 13.0f);
@@ -767,14 +713,8 @@ TEST_CASE("test static POD property", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonortTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		auto prop = cls.get_property("somePropertyPODStatic");
-		REQUIRE(prop.get_internal_ptr() != nullptr);
-
 		auto someProp = prop.get_value<vec2f>();
 		REQUIRE(someProp.x == 6.0f);
 		REQUIRE(someProp.y == 7.0f);
@@ -799,14 +739,8 @@ TEST_CASE("test static NON-POD field", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonortTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		auto field = cls.get_field("someFieldNONPODStatic");
-		REQUIRE(field.get_internal_ptr() != nullptr);
-
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 
 		auto someField = field.get_value<vec2f_ptr>();
@@ -832,13 +766,8 @@ TEST_CASE("test static NON-POD property", "[method]")
 	{
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
-		REQUIRE(assembly.valid() == true);
-
 		auto cls = assembly.get_class("Tests", "MonortTest");
-		REQUIRE(cls.get_internal_ptr() != nullptr);
-
 		auto prop = cls.get_property("somePropertyNONPODStatic");
-		REQUIRE(prop.get_internal_ptr() != nullptr);
 
 		using vec2f_ptr = std::shared_ptr<vec2f>;
 

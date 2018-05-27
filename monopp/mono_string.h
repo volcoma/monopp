@@ -1,7 +1,6 @@
 #pragma once
 
 #include "mono_config.h"
-
 #include "mono_object.h"
 
 namespace mono
