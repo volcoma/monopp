@@ -7,7 +7,10 @@
 #include "mono_object.h"
 #include "mono_property.h"
 
+BEGIN_MONO_INCLUDE
 #include <mono/metadata/debug-helpers.h>
+END_MONO_INCLUDE
+
 namespace mono
 {
 

@@ -3,10 +3,12 @@
 
 #include "mono_string.h"
 
+BEGIN_MONO_INCLUDE
 #include <mono/metadata/appdomain.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/mono-gc.h>
 #include <mono/metadata/threads.h>
+END_MONO_INCLUDE
 
 namespace mono
 {

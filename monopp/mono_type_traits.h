@@ -102,9 +102,15 @@ struct function_traits<const volatile T&&> : public function_traits<T>
 
 /////////////////////////////////////////////////////////////////////
 
+template <typename... Args>
+inline void ignore(Args&&...)
+{
+}
+
 template <typename F, typename Tuple, std::size_t... I>
 decltype(auto) apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
 {
+	ignore(t);
 	return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
 }
 template <typename F, typename Tuple>
@@ -180,7 +186,7 @@ inline std::pair<std::string, bool> get_args_signature(const std::tuple<Args...>
 	bool all_types_known = false;
 	auto inv = [&all_types_known](auto... args) {
 		std::vector<std::string> argsv = {types::get_name<decltype(args)>(all_types_known)...};
-
+		ignore(args...);
 		std::string result;
 		size_t i = 0;
 		for(const auto& tp : argsv)

@@ -2,8 +2,10 @@
 #include "mono_exception.h"
 #include "mono_type.h"
 
+BEGIN_MONO_INCLUDE
 #include <mono/metadata/attrdefs.h>
 #include <mono/metadata/debug-helpers.h>
+END_MONO_INCLUDE
 namespace mono
 {
 

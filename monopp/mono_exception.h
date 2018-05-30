@@ -2,7 +2,9 @@
 
 #include "mono_config.h"
 
+BEGIN_MONO_INCLUDE
 #include <mono/metadata/reflection.h>
+END_MONO_INCLUDE
 
 namespace mono
 {

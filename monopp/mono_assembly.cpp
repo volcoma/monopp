@@ -6,8 +6,11 @@
 #include "mono_type.h"
 #include <sstream>
 
+BEGIN_MONO_INCLUDE
 #include <mono/metadata/appdomain.h>
 #include <mono/metadata/assembly.h>
+END_MONO_INCLUDE
+
 namespace mono
 {
 

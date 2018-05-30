@@ -3,7 +3,10 @@
 #include "mono_config.h"
 
 #include "mono_assembly.h"
+
+BEGIN_MONO_INCLUDE
 #include <mono/metadata/metadata.h>
+END_MONO_INCLUDE
 
 #include <unordered_map>
 

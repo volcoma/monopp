@@ -2,7 +2,6 @@
 
 #include "mono_config.h"
 
-#include "mono_noncopyable.h"
 #include "mono_object.h"
 
 namespace mono
@@ -20,9 +19,12 @@ private:
 	std::uint32_t handle_ = 0;
 };
 
-class mono_scoped_gc_handle : public common::noncopyable
+class mono_scoped_gc_handle
 {
 public:
+	mono_scoped_gc_handle(const mono_scoped_gc_handle&) noexcept = delete;
+	mono_scoped_gc_handle& operator=(const mono_scoped_gc_handle&) noexcept = delete;
+
 	explicit mono_scoped_gc_handle(mono_gc_handle& handle)
 		: handle_(handle)
 	{

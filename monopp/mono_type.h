@@ -5,8 +5,10 @@
 #include "mono_method_thunk.h"
 #include "mono_visibility.h"
 
+BEGIN_MONO_INCLUDE
 #include <mono/metadata/class.h>
 #include <mono/metadata/image.h>
+END_MONO_INCLUDE
 
 namespace mono
 {

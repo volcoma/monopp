@@ -4,7 +4,6 @@
 #include "monopp/mono_type.h"
 #include "monopp/mono_field.h"
 #include "monopp/mono_gc_handle.h"
-#include "monopp/mono_noncopyable.h"
 #include "monopp/mono_object.h"
 #include <memory>
 
@@ -13,7 +12,7 @@ namespace mono
 namespace managed_interface
 {
 
-class object : public common::noncopyable
+class object
 {
 public:
 	static void register_internal_calls();
@@ -21,7 +20,10 @@ public:
 
 	explicit object(MonoObject* object);
 	virtual ~object();
-
+    
+    object(const object&) noexcept = delete;
+	object& operator=(const object&) noexcept = delete;
+    
 	static std::unique_ptr<mono_type> object_type;
 	static std::unique_ptr<mono_field> native_object_field;
 

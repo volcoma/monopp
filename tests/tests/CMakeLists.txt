@@ -17,4 +17,4 @@ if(MINGW)
 endif()
 
 include(target_warning_support)
-set_warning_level(tests high)
+set_warning_level(tests ultra)

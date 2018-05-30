@@ -5,7 +5,9 @@
 #include "mono_assembly.h"
 #include "mono_type_conversion.h"
 
+BEGIN_MONO_INCLUDE
 #include <mono/metadata/loader.h>
+END_MONO_INCLUDE
 
 namespace mono
 {

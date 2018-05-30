@@ -613,17 +613,17 @@ TEST_CASE("full example", "[monopp]")
 	/// Get all the fields of the type
 	auto fields = type.get_fields();
 
-	for(const auto& field : fields)
+	for(const auto& f : fields)
 	{
-		std::cout << field.get_full_declname() << std::endl;
+		std::cout << f.get_full_declname() << std::endl;
 	}
 
 	/// Get all the properties of the type
 	auto props = type.get_properties();
 
-	for(const auto& prop : props)
+	for(const auto& p : props)
 	{
-		std::cout << prop.get_full_declname() << std::endl;
+		std::cout << p.get_full_declname() << std::endl;
 	}
 
 	/// Get All the methods of the type
