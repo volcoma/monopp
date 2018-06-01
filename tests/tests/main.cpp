@@ -5,6 +5,7 @@
 #include "monopp/mono_domain.h"
 #include "monopp/mono_field.h"
 #include "monopp/mono_method.h"
+#include "monopp/mono_method_thunk.h"
 #include "monopp/mono_object.h"
 #include "monopp/mono_property.h"
 #include "monopp/mono_string.h"
@@ -25,31 +26,27 @@ static std::unique_ptr<mono::mono_domain> domain;
 /// \brief MONORT TESTS
 ///////////////////////////////////////////////////////////////
 
-void MyObject_CreateInternal(MonoObject* this_ptr, float x, std::string v)
+void MyObject_CreateInternal(const mono::mono_object& this_ptr, float x, std::string v)
 {
-	(void)this_ptr;
-	(void)x;
-	(void)v;
+	mono::ignore(this_ptr, x, v);
 	std::cout << "FROM C++ : MyObject created." << std::endl;
 }
 
-void MyObject_DestroyInternal(MonoObject* this_ptr)
+void MyObject_DestroyInternal(const mono::mono_object& this_ptr)
 {
-	(void)this_ptr;
+	mono::ignore(this_ptr);
 	std::cout << "FROM C++ : MyObject deleted." << std::endl;
 }
 
-void MyObject_DoStuff(MonoObject* this_ptr, std::string value)
+void MyObject_DoStuff(const mono::mono_object& this_ptr, std::string value)
 {
-	(void)this_ptr;
-	(void)value;
+	mono::ignore(this_ptr, value);
 	std::cout << "FROM C++ : DoStuff was called with: " << value << std::endl;
 }
 
-std::string MyObject_ReturnAString(MonoObject* this_ptr, std::string value)
+std::string MyObject_ReturnAString(const mono::mono_object& this_ptr, std::string value)
 {
-	(void)this_ptr;
-	(void)value;
+	mono::ignore(this_ptr, value);
 	std::cout << "FROM C++ : ReturnAString was called with: " << value << std::endl;
 	return "The value: " + value;
 }
@@ -161,11 +158,11 @@ TEST_CASE("get valid method", "[type]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
 
-		auto method1 = type.get_method<void()>("Method1");
-		auto method2 = type.get_method<void(std::string)>("Method2");
-		auto method3 = type.get_method<void(int)>("Method3");
-		auto method4 = type.get_method<void(int, int)>("Method4");
-		auto method5 = type.get_method<std::string(std::string, int)>("Method5");
+		auto method1 = mono::make_thunk<void()>(type, "Method1");
+		auto method2 = mono::make_thunk<void(std::string)>(type, "Method2");
+		auto method3 = mono::make_thunk<void(int)>(type, "Method3");
+		auto method4 = mono::make_thunk<void(int, int)>(type, "Method4");
+		auto method5 = mono::make_thunk<std::string(std::string, int)>(type, "Method5");
 		// clang-format off
 	};
 	// clang-format on
@@ -322,7 +319,7 @@ TEST_CASE("call static method 1", "[method]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
-		auto method_thunk = type.get_method<int(int)>("Function1");
+		auto method_thunk = mono::make_thunk<int(int)>(type, "Function1");
 		const auto number = 1000;
 		auto result = method_thunk(number);
 		REQUIRE(number + 1337 == result);
@@ -341,7 +338,7 @@ TEST_CASE("call static method 2", "[method]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
-		auto method_thunk = type.get_method<void(float, int, float)>("Function2");
+		auto method_thunk = mono::make_thunk<void(float, int, float)>(type, "Function2");
 		method_thunk(13.37f, 42, 9000.0f);
 		// clang-format off
 	};
@@ -358,7 +355,7 @@ TEST_CASE("call static method 3", "[method]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
-		auto method_thunk = type.get_method<void(std::string)>("Function3");
+		auto method_thunk = mono::make_thunk<void(std::string)>(type, "Function3");
 		method_thunk("Hello!");
 		// clang-format off
 	};
@@ -374,7 +371,7 @@ TEST_CASE("call static method 4", "[method]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
-		auto method_thunk = type.get_method<std::string(std::string)>("Function4");
+		auto method_thunk = mono::make_thunk<std::string(std::string)>(type, "Function4");
 		auto expected_string = std::string("Hello!");
 		auto result = method_thunk(expected_string);
 		REQUIRE(result == std::string("The string value was: " + expected_string));
@@ -393,7 +390,7 @@ TEST_CASE("call static method 5", "[method]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
-		auto method_thunk = type.get_method<void()>("Function5");
+		auto method_thunk = mono::make_thunk<void()>(type, "Function5");
 		method_thunk();
 		// clang-format off
 	};
@@ -410,7 +407,7 @@ TEST_CASE("call static method 6", "[method]")
 		// clang-format on
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
-		auto method_thunk = type.get_method<void()>("Function6");
+		auto method_thunk = mono::make_thunk<void()>(type, "Function6");
 		method_thunk();
 		// clang-format off
 	};
@@ -428,7 +425,7 @@ TEST_CASE("call member method 1", "[method]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
 		auto obj = type.new_instance();
-		auto method_thunk = type.get_method<void()>("Method1");
+		auto method_thunk = mono::make_thunk<void()>(type, "Method1");
 		method_thunk(obj);
 		// clang-format off
 	};
@@ -446,7 +443,7 @@ TEST_CASE("call member method 2", "[method]")
 		auto assembly = domain->get_assembly("tests_managed.dll");
 		auto type = assembly.get_type("Tests", "MonoppTest");
 		auto obj = type.new_instance();
-		auto method_thunk = type.get_method<std::string(std::string, int)>("Method5");
+		auto method_thunk = mono::make_thunk<std::string(std::string, int)>(type, "Method5");
 		auto result = method_thunk(obj, "test", 5);
 		REQUIRE("Return Value: test" == result);
 		// clang-format off
@@ -510,21 +507,21 @@ TEST_CASE("full example", "[monopp]")
 	/// You can invoke it by creating a thunk and calling it passing
 	/// the object it belongs to as the first parameter. Not passing
 	/// an object as the first parameter will treat it as a static method
-	auto thunk1 = mono::mono_method_thunk<void()>(std::move(method1));
+	auto thunk1 = mono::make_thunk<void()>(std::move(method1));
 	thunk1(obj);
 
 	/// Way 2, name + args
 	auto method2 = type.get_method("Method2(string)");
-	auto thunk2 = mono::mono_method_thunk<void(std::string)>(std::move(method1));
+	auto thunk2 = mono::make_thunk<void(std::string)>(std::move(method1));
 	thunk2(obj, "str_param");
 
 	/// Way 3, use the template method
-	auto method3 = type.get_method<std::string(std::string, int)>("Method5");
+	auto method3 = mono::make_thunk<std::string(std::string, int)>(type, "Method5");
 	auto result3 = method3(obj, "test", 5);
 
 	/// You can also get and invoke static methods without passing
 	/// an object as the first parameter
-	auto method4 = type.get_method<int(int)>("Function1");
+	auto method4 = mono::make_thunk<int(int)>(type, "Function1");
 	auto result4 = method4(55);
 	std::cout << result4 << std::endl;
 	/// You can query various information about a method
@@ -540,7 +537,7 @@ TEST_CASE("full example", "[monopp]")
 	/// You can catch exceptions like so
 	try
 	{
-		type.get_method<int(int, float)>("NonExistingFunction");
+		mono::make_thunk<int(int, float)>(type, "NonExistingFunction");
 	}
 	catch(const mono::mono_exception& e)
 	{
@@ -670,7 +667,13 @@ register_basic_mono_converter_for_pod(vec2f, managed_interface::vector2f);
 register_basic_mono_converter_for_wrapper(std::shared_ptr<vec2f>);
 } // namespace mono
 
-void MyVec_CreateInternalCtor(MonoObject* this_ptr, float x, float y)
+void MyVec_TestInternalPODCall(const mono::mono_object& this_ptr, const vec2f& value)
+{
+	mono::ignore(this_ptr, value);
+	std::cout << "FROM C++ : Test Vector2f." << std::endl;
+}
+
+void MyVec_CreateInternalCtor(const mono::mono_object& this_ptr, float x, float y)
 {
 	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
 	using vec2f_ptr = std::shared_ptr<vec2f>;
@@ -681,7 +684,7 @@ void MyVec_CreateInternalCtor(MonoObject* this_ptr, float x, float y)
 	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
 }
 
-void MyVec_CreateInternalCopyCtor(MonoObject* this_ptr, std::shared_ptr<vec2f> rhs)
+void MyVec_CreateInternalCopyCtor(const mono::mono_object& this_ptr, std::shared_ptr<vec2f> rhs)
 {
 	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
 	using vec2f_ptr = std::shared_ptr<vec2f>;
@@ -728,6 +731,8 @@ TEST_CASE("bind monort", "[monort]")
 	auto expression = []()
 	{
 		// clang-format on
+		mono::add_internal_call("Tests.MonortTest::TestInternalPODCall(Tests.Vector2f)",
+								internal_call(MyVec_TestInternalPODCall));
 		mono::add_internal_call("Tests.WrapperVector2f::.ctor(single,single)",
 								internal_call(MyVec_CreateInternalCtor));
 		mono::add_internal_call("Tests.WrapperVector2f::.ctor(Tests.WrapperVector2f)",
@@ -781,7 +786,7 @@ TEST_CASE("call member method 3", "[method]")
 		auto type = assembly.get_type("Tests", "MonortTest");
 		auto obj = type.new_instance();
 
-		auto method_thunk = type.get_method<vec2f(vec2f)>("MethodPodAR");
+		auto method_thunk = mono::make_thunk<vec2f(vec2f)>(type, "MethodPodAR");
 		vec2f p;
 		p.x = 12;
 		p.y = 15;
@@ -811,7 +816,7 @@ TEST_CASE("call member method 4", "[method]")
 		ptr->x = 12;
 		ptr->y = 15;
 
-		auto method_thunk = type.get_method<vec2f_ptr(vec2f_ptr)>("MethodPodARW");
+		auto method_thunk = mono::make_thunk<vec2f_ptr(vec2f_ptr)>(type, "MethodPodARW");
 		auto result = method_thunk(obj, ptr);
 
 		REQUIRE(result != nullptr);

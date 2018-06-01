@@ -11,17 +11,21 @@ namespace managed_interface
 	template <>                                                                                              \
 	struct convert_mono_type<cpp_type>                                                                       \
 	{                                                                                                        \
-		using mono_type_name = MonoObject*;                                                                  \
+		using mono_type_name = mono_type;                                                                    \
 		static_assert(std::is_pod<mono_type>::value, "basic_mono_converter is only for pod types");          \
-		static auto to_mono(cpp_type val) -> mono_type                                                       \
+		static auto to_mono(cpp_type val) -> mono_type_name                                                  \
 		{                                                                                                    \
-			return managed_interface::converter::convert<cpp_type, mono_type>(val);                          \
+			return managed_interface::converter::convert<cpp_type, mono_type_name>(val);                     \
 		}                                                                                                    \
-                                                                                                             \
-		static auto from_mono(mono_type_name val) -> cpp_type                                                \
+		static auto from_mono_unboxed(mono_type_name val) -> cpp_type                                        \
 		{                                                                                                    \
-			return managed_interface::converter::convert<mono_type, cpp_type>(                               \
-				*reinterpret_cast<mono_type*>(mono_object_unbox(val)));                                      \
+			return managed_interface::converter::convert<mono_type_name, cpp_type>(val);                     \
+		}                                                                                                    \
+		static auto from_mono_boxed(MonoObject* obj) -> cpp_type                                             \
+		{                                                                                                    \
+			void* ptr = mono_object_unbox(obj);                                                              \
+			return managed_interface::converter::convert<mono_type_name, cpp_type>(                          \
+				*reinterpret_cast<mono_type_name*>(ptr));                                                    \
 		}                                                                                                    \
 	}
 

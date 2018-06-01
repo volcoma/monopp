@@ -5,6 +5,7 @@
 #include "mono_exception.h"
 #include "mono_method.h"
 #include "mono_object.h"
+#include "mono_type.h"
 #include "mono_type_conversion.h"
 
 #include <tuple>
@@ -117,7 +118,7 @@ private:
 		};
 
 		auto result = apply(inv, tup);
-		return convert_mono_type<std::decay_t<return_type_t>>::from_mono(std::move(result));
+		return convert_mono_type<std::decay_t<return_type_t>>::from_mono_boxed(std::move(result));
 	}
 };
 
@@ -125,6 +126,28 @@ template <typename signature_t>
 mono_method_thunk<signature_t> make_thunk(mono_method&& method)
 {
 	return mono_method_thunk<signature_t>(std::move(method));
+}
+
+template <typename signature_t>
+mono_method_thunk<signature_t> make_thunk(const mono_type& type, const std::string& name)
+{
+	using arg_types = typename function_traits<signature_t>::arg_types;
+	arg_types tup;
+	auto args_result = types::get_args_signature(tup);
+	auto args = args_result.first;
+	auto all_types_known = args_result.second;
+
+	if(all_types_known)
+	{
+		auto func = type.get_method(name + "(" + args + ")");
+		return mono_method_thunk<signature_t>(std::move(func));
+	}
+	else
+	{
+		constexpr auto arg_count = function_traits<signature_t>::arity;
+		auto func = type.get_method(name, arg_count);
+		return mono_method_thunk<signature_t>(std::move(func));
+	}
 }
 
 } // namespace mono

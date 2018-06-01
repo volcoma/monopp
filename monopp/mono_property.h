@@ -62,28 +62,28 @@ private:
 template <typename T>
 void mono_property::set_value(const T& val) const
 {
-	auto thunk = mono_method_thunk<void(const T&)>(get_set_method());
+	auto thunk = make_thunk<void(const T&)>(get_set_method());
 	thunk(val);
 }
 
 template <typename T>
 void mono_property::set_value(const mono_object& object, const T& val) const
 {
-	auto thunk = mono_method_thunk<void(const T&)>(get_set_method());
+	auto thunk = make_thunk<void(const T&)>(get_set_method());
 	thunk(object, val);
 }
 
 template <typename T>
 auto mono_property::get_value() const -> T
 {
-	auto thunk = mono_method_thunk<T()>(get_get_method());
+	auto thunk = make_thunk<T()>(get_get_method());
 	return thunk();
 }
 
 template <typename T>
 auto mono_property::get_value(const mono_object& object) const -> T
 {
-	auto thunk = mono_method_thunk<T()>(get_get_method());
+	auto thunk = make_thunk<T()>(get_get_method());
 	return thunk(object);
 }
 

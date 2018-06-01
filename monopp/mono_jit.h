@@ -3,7 +3,6 @@
 #include "mono_config.h"
 
 #include "mono_assembly.h"
-#include "mono_type_conversion.h"
 
 namespace mono
 {

@@ -132,7 +132,7 @@ auto mono_field::__get_value(const mono_object* object) const -> T
 
 	if(!__is_valuetype())
 	{
-		val = convert_mono_type<T>::from_mono(refvalue);
+		val = convert_mono_type<T>::from_mono_boxed(refvalue);
 	}
 	return val;
 }

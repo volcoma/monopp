@@ -162,6 +162,9 @@ public class WrapperVector2f : Monopp.Core.NativeObject
 
 class MonortTest
 {
+    [MethodImpl(MethodImplOptions.InternalCall)] 
+	public extern void TestInternalPODCall(Vector2f rhs);
+    
     public Vector2f someFieldPOD = new Vector2f(12, 13);
 
     public Vector2f somePropertyPOD
@@ -243,6 +246,7 @@ public
 
 		s.Foo();
 		s1.Foo();
+        TestInternalPODCall(new Vector2f(5, 12));
 		return s;
 	}
 }

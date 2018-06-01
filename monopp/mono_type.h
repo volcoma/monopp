@@ -2,7 +2,6 @@
 
 #include "mono_config.h"
 
-#include "mono_method_thunk.h"
 #include "mono_visibility.h"
 
 BEGIN_MONO_INCLUDE
@@ -32,9 +31,6 @@ public:
 	auto valid() const -> bool;
 
 	auto new_instance() const -> mono_object;
-
-	template <typename function_signature_t>
-	auto get_method(const std::string& name);
 
 	auto get_method(const std::string& name_with_args) const -> mono_method;
 
@@ -95,27 +91,5 @@ private:
 
 	std::uint32_t alignof_ = 0;
 };
-
-template <typename function_signature_t>
-auto mono_type::get_method(const std::string& name)
-{
-	using arg_types = typename function_traits<function_signature_t>::arg_types;
-	arg_types tup;
-	auto args_result = types::get_args_signature(tup);
-	auto args = args_result.first;
-	auto all_types_known = args_result.second;
-
-	if(all_types_known)
-	{
-		auto func = get_method(name + "(" + args + ")");
-		return mono_method_thunk<function_signature_t>(std::move(func));
-	}
-	else
-	{
-		constexpr auto arg_count = function_traits<function_signature_t>::arity;
-		auto func = get_method(name, arg_count);
-		return mono_method_thunk<function_signature_t>(std::move(func));
-	}
-}
 
 } // namespace mono

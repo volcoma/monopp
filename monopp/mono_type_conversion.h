@@ -4,6 +4,7 @@
 
 #include "mono_domain.h"
 #include "mono_string.h"
+#include "mono_type.h"
 #include "mono_type_traits.h"
 
 namespace mono
@@ -26,33 +27,29 @@ struct convert_mono_type
 	using cpp_type_name = T;
 	using mono_type_name = T;
 
-	static_assert(is_mono_valuetype<T>::value, "Specialize for non-pod types");
+	static_assert(std::is_scalar<cpp_type_name>::value, "Specialize for non-scalar types");
 
 	static auto to_mono(const cpp_type_name& t) -> mono_type_name
 	{
 		return t;
 	}
 
-	static auto from_mono(const mono_type_name& t) -> cpp_type_name
+	static auto from_mono_unboxed(const mono_type_name& t) -> cpp_type_name
 	{
 		return t;
 	}
 
-	static auto from_mono(MonoObject* obj) -> cpp_type_name
+	static auto from_mono_boxed(MonoObject* t) -> cpp_type_name
 	{
-		auto mono_cls = mono_object_get_class(obj);
-		bool valuetype = !!mono_class_is_valuetype(mono_cls);
-		(void)valuetype;
-		assert(valuetype && "Mono type should be a valuetype in this specialization");
-		std::uint32_t mono_align = 0;
-		const auto mono_sz = std::uint32_t(mono_class_value_size(mono_cls, &mono_align));
+		mono_object obj(t);
+		const auto& type = obj.get_type();
+		const auto mono_sz = type.get_sizeof();
+		const auto mono_align = type.get_alignof();
 		constexpr auto cpp_sz = sizeof(cpp_type_name);
 		constexpr auto cpp_align = alignof(cpp_type_name);
-		(void)mono_sz;
-		(void)cpp_sz;
-		(void)cpp_align;
+		ignore(mono_align, mono_sz, cpp_sz, cpp_align);
 		assert(mono_sz <= cpp_sz && mono_align <= cpp_align && "Different type layouts");
-		void* ptr = mono_object_unbox(obj);
+		void* ptr = mono_object_unbox(obj.get_internal_ptr());
 		return *reinterpret_cast<cpp_type_name*>(ptr);
 	}
 };
@@ -67,8 +64,12 @@ struct convert_mono_type<MonoObject*>
 	{
 		return t;
 	}
+	static auto from_mono_unboxed(mono_type_name obj) -> cpp_type_name
+	{
+		return obj;
+	}
 
-	static auto from_mono(mono_type_name obj) -> cpp_type_name
+	static auto from_mono_boxed(MonoObject* obj) -> cpp_type_name
 	{
 		return obj;
 	}
@@ -86,7 +87,12 @@ struct convert_mono_type<std::string>
 		return mono_string(domain, str).get_internal_ptr();
 	}
 
-	static auto from_mono(mono_type_name mono_str) -> cpp_type_name
+	static auto from_mono_unboxed(mono_type_name mono_str) -> cpp_type_name
+	{
+		return mono_string(mono_str).str();
+	}
+
+	static auto from_mono_boxed(MonoObject* mono_str) -> cpp_type_name
 	{
 		return mono_string(mono_str).str();
 	}
