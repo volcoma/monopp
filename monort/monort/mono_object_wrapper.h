@@ -16,20 +16,19 @@ namespace managed_interface
 		using mono_unboxed_type = MonoObject*;                                                               \
 		using mono_boxed_type = MonoObject*;                                                                 \
                                                                                                              \
-		static auto to_mono(const cpp_type& wrapper) -> mono_unboxed_type                                    \
+		static auto to_mono(const cpp_type& obj) -> mono_unboxed_type                                        \
 		{                                                                                                    \
-			return managed_interface::mono_object_wrapper<cpp_type>::create(std::move(wrapper))              \
-				.get_internal_ptr();                                                                         \
+			return managed_interface::mono_object_wrapper<cpp_type>::create(obj).get_internal_ptr();         \
 		}                                                                                                    \
                                                                                                              \
-		static auto from_mono_unboxed(const mono_unboxed_type& object) -> cpp_type                           \
+		static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type                              \
 		{                                                                                                    \
-			return managed_interface::mono_object_wrapper<cpp_type>::get_native_object(mono_object(object)); \
+			return managed_interface::mono_object_wrapper<cpp_type>::get_native_object(mono_object(obj));    \
 		}                                                                                                    \
                                                                                                              \
-		static auto from_mono_boxed(const mono_boxed_type& object) -> cpp_type                               \
+		static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type                                  \
 		{                                                                                                    \
-			return managed_interface::mono_object_wrapper<cpp_type>::get_native_object(mono_object(object)); \
+			return managed_interface::mono_object_wrapper<cpp_type>::get_native_object(mono_object(obj));    \
 		}                                                                                                    \
 	}
 
