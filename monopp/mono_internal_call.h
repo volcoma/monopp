@@ -25,7 +25,7 @@ template <typename... args_t, void (&func)(const mono_object&, args_t...)>
 struct mono_jit_internal_call_wrapper<void(const mono_object&, args_t...), func>
 {
 	static void wrapper(MonoObject* obj,
-						typename convert_mono_type<std::decay_t<args_t>>::mono_type_name... args)
+						typename convert_mono_type<std::decay_t<args_t>>::mono_unboxed_type... args)
 	{
 		func(mono_object(obj),
 			 convert_mono_type<std::decay_t<args_t>>::from_mono_unboxed(std::move(args))...);
@@ -35,8 +35,8 @@ struct mono_jit_internal_call_wrapper<void(const mono_object&, args_t...), func>
 template <typename return_t, typename... args_t, return_t (&func)(const mono_object&, args_t...)>
 struct mono_jit_internal_call_wrapper<return_t(const mono_object&, args_t...), func>
 {
-	static typename convert_mono_type<std::decay_t<return_t>>::mono_type_name
-	wrapper(MonoObject* obj, typename convert_mono_type<std::decay_t<args_t>>::mono_type_name... args)
+	static typename convert_mono_type<std::decay_t<return_t>>::mono_unboxed_type
+	wrapper(MonoObject* obj, typename convert_mono_type<std::decay_t<args_t>>::mono_unboxed_type... args)
 	{
 		return convert_mono_type<std::decay_t<return_t>>::to_mono(
 			func(mono_object(obj),
