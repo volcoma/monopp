@@ -13,7 +13,6 @@
 template <typename T>
 using non_owning_ptr = T*;
 
-#define DIAG_EXPAND(x) x
 #define DIAG_STR(s) #s
 #define DIAG_JOINSTR(x, y) DIAG_STR(x##y)
 #ifdef _MSC_VER
