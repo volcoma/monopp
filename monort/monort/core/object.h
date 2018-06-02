@@ -18,7 +18,7 @@ public:
 	static void register_internal_calls();
 	static void initialize_type_field(const mono_assembly& assembly);
 
-	explicit object(const mono_object& obj);
+	explicit object(mono_object obj);
 	virtual ~object();
 
 	object(const object&) noexcept = delete;
