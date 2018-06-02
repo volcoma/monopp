@@ -23,18 +23,23 @@ using non_owning_ptr = T*;
 #define DIAG_PRAGMA(compiler, x) DIAG_DO_PRAGMA(compiler diagnostic x)
 #endif
 #if defined(__clang__)
-#define PUSH_DISABLE_WARNING(gcc_unused, clang_option, msvc_unused)                                          \
-	DIAG_PRAGMA(clang, push) DIAG_PRAGMA(clang, ignored DIAG_JOINSTR(-W, clang_option))
-#define POP_DISABLE_WARNING() DIAG_PRAGMA(clang, pop)
+#define DIAG_PUSH_PRAGMA DIAG_PRAGMA(clang, push)
+#define DIAG_DISABLE_WARNING(gcc_unused, clang_option, msvc_unused)                                          \
+	DIAG_PRAGMA(clang, ignored DIAG_JOINSTR(-W, clang_option))
+#define DIAG_POP_PRAGMA DIAG_PRAGMA(clang, pop)
 #elif defined(_MSC_VER)
-#define PUSH_DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)                                       \
-	DIAG_PRAGMA(msvc, push) DIAG_PRAGMA(msvc, disable:##msvc_errorcode)
-#define POP_DISABLE_WARNING() DIAG_PRAGMA(msvc, pop)
+#define DIAG_PUSH_PRAGMA DIAG_PRAGMA(msvc, push)
+#define DIAG_DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)                                       \
+	DIAG_PRAGMA(msvc, push) DIAG_PRAGMA(msvc, disable :##msvc_errorcode)
+#define DIAG_POP_PRAGMA DIAG_PRAGMA(msvc, pop)
 #elif defined(__GNUC__)
-#define PUSH_DISABLE_WARNING(gcc_option, clang_unused, msvc_unused)                                          \
-	DIAG_PRAGMA(GCC, push) DIAG_PRAGMA(GCC, ignored DIAG_JOINSTR(-W, gcc_option))
-#define POP_DISABLE_WARNING() DIAG_PRAGMA(GCC, pop)
+#define DIAG_PUSH_PRAGMA DIAG_PRAGMA(GCC, push)
+#define DIAG_DISABLE_WARNING(gcc_option, clang_unused, msvc_unused)                                          \
+	DIAG_PRAGMA(GCC, ignored DIAG_JOINSTR(-W, gcc_option))
+#define DIAG_POP_PRAGMA DIAG_PRAGMA(GCC, pop)
 #endif
 
-#define BEGIN_MONO_INCLUDE PUSH_DISABLE_WARNING(pedantic, pedantic, 4201)
-#define END_MONO_INCLUDE POP_DISABLE_WARNING()
+#define BEGIN_MONO_INCLUDE                                                                                   \
+	DIAG_PUSH_PRAGMA                                                                                         \
+	DIAG_DISABLE_WARNING(pedantic, pedantic, 4201)
+#define END_MONO_INCLUDE DIAG_POP_PRAGMA
