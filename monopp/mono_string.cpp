@@ -4,6 +4,11 @@
 namespace mono
 {
 
+mono_string::mono_string(const mono_object& obj)
+	: mono_object(obj)
+{
+}
+
 mono_string::mono_string(const mono_domain& domain, const std::string& str)
 	: mono_object(reinterpret_cast<MonoObject*>(mono_string_new(domain.get_internal_ptr(), str.c_str())))
 {

@@ -57,7 +57,7 @@ bool has_compatible_signature(const mono_method& method)
 	arg_types tuple;
 	size_t idx = 0;
 	for_each(tuple, [&compatible, &idx, &expected_arg_types](const auto& arg) {
-        ignore(arg);
+		ignore(arg);
 		auto expected_arg_type = expected_arg_types[idx];
 		using arg_type = decltype(arg);
 		compatible &= is_compatible_type<arg_type>(expected_arg_type);
@@ -93,7 +93,10 @@ private:
 		if(obj)
 		{
 			object = obj->get_internal_ptr();
-			method = mono_object_get_virtual_method(object, method);
+			//if(is_virtual())
+			{
+				method = mono_object_get_virtual_method(object, method);
+			}
 		}
 		auto tup =
 			std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
@@ -143,7 +146,10 @@ private:
 		if(obj)
 		{
 			object = obj->get_internal_ptr();
-			method = mono_object_get_virtual_method(object, method);
+			//if(is_virtual())
+			{
+				method = mono_object_get_virtual_method(object, method);
+			}
 		}
 		auto tup =
 			std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);

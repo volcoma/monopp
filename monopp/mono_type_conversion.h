@@ -56,25 +56,25 @@ struct convert_mono_type
 };
 
 template <>
-struct convert_mono_type<MonoObject*>
+struct convert_mono_type<mono_object>
 {
-	using cpp_type = MonoObject*;
+	using cpp_type = mono_object;
 	using mono_unboxed_type = MonoObject*;
 	using mono_boxed_type = MonoObject*;
 
 	static auto to_mono(const cpp_type& obj) -> mono_unboxed_type
 	{
-		return obj;
+		return obj.get_internal_ptr();
 	}
 
 	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
 	{
-		return obj;
+		return cpp_type(obj);
 	}
 
 	static auto from_mono_boxed(const mono_unboxed_type& obj) -> cpp_type
 	{
-		return obj;
+		return cpp_type(obj);
 	}
 };
 
@@ -93,12 +93,12 @@ struct convert_mono_type<std::string>
 
 	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
 	{
-		return mono_string(obj).str();
+		return mono_string(mono_object(obj)).str();
 	}
 
 	static auto from_mono_boxed(const mono_unboxed_type& obj) -> cpp_type
 	{
-		return mono_string(obj).str();
+		return mono_string(mono_object(obj)).str();
 	}
 };
 

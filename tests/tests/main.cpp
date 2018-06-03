@@ -26,7 +26,7 @@ static std::unique_ptr<mono::mono_domain> domain;
 /// \brief MONORT TESTS
 ///////////////////////////////////////////////////////////////
 
-void MyObject_CreateInternal(const mono::mono_object& this_ptr, float x, std::string v)
+void MyObject_CreateInternal(const mono::mono_object& this_ptr, float x, const std::string& v)
 {
 	mono::ignore(this_ptr, x, v);
 	std::cout << "FROM C++ : MyObject created." << std::endl;
@@ -38,13 +38,13 @@ void MyObject_DestroyInternal(const mono::mono_object& this_ptr)
 	std::cout << "FROM C++ : MyObject deleted." << std::endl;
 }
 
-void MyObject_DoStuff(const mono::mono_object& this_ptr, std::string value)
+void MyObject_DoStuff(const mono::mono_object& this_ptr, const std::string& value)
 {
 	mono::ignore(this_ptr, value);
 	std::cout << "FROM C++ : DoStuff was called with: " << value << std::endl;
 }
 
-std::string MyObject_ReturnAString(const mono::mono_object& this_ptr, std::string value)
+std::string MyObject_ReturnAString(const mono::mono_object& this_ptr, const std::string& value)
 {
 	mono::ignore(this_ptr, value);
 	std::cout << "FROM C++ : ReturnAString was called with: " << value << std::endl;
@@ -685,7 +685,7 @@ void MyVec_CreateInternalCtor(const mono::mono_object& this_ptr, float x, float 
 	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
 }
 
-void MyVec_CreateInternalCopyCtor(const mono::mono_object& this_ptr, std::shared_ptr<vec2f> rhs)
+void MyVec_CreateInternalCopyCtor(const mono::mono_object& this_ptr, const std::shared_ptr<vec2f>& rhs)
 {
 	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
 	using vec2f_ptr = std::shared_ptr<vec2f>;
