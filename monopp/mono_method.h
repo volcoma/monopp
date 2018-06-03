@@ -25,6 +25,7 @@ public:
 	auto get_full_declname() const -> const std::string&;
 	auto get_visibility() const -> visibility;
 	auto is_static() const -> bool;
+	auto is_virtual() const -> bool;
 
 protected:
 	void __generate_meta();

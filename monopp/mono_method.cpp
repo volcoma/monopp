@@ -113,7 +113,12 @@ auto mono_method::get_visibility() const -> visibility
 
 auto mono_method::is_static() const -> bool
 {
-	return !mono_signature_is_instance(signature_);
+	uint32_t flags = mono_method_get_flags(method_, nullptr);
+	return (flags & MONO_METHOD_ATTR_STATIC) != 0;
 }
-
+auto mono_method::is_virtual() const -> bool
+{
+	uint32_t flags = mono_method_get_flags(method_, nullptr);
+	return (flags & MONO_METHOD_ATTR_VIRTUAL) != 0;
+}
 } // namespace mono
