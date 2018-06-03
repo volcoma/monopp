@@ -93,12 +93,12 @@ struct convert_mono_type<std::string>
 
 	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
 	{
-		return mono_string(mono_object(obj)).str();
+		return mono_string(mono_object(obj)).as_utf8();
 	}
 
 	static auto from_mono_boxed(const mono_unboxed_type& obj) -> cpp_type
 	{
-		return mono_string(mono_object(obj)).str();
+		return mono_string(mono_object(obj)).as_utf8();
 	}
 };
 
