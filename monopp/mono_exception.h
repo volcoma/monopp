@@ -11,15 +11,13 @@ namespace mono
 
 class mono_exception : public std::runtime_error
 {
-public:
-	mono_exception();
-	explicit mono_exception(const std::string& what);
+    using runtime_error::runtime_error;
 };
 
 class mono_thunk_exception : public mono_exception
 {
 public:
-	explicit mono_thunk_exception(MonoException* ex);
+	explicit mono_thunk_exception(MonoObject* ex);
 
 	auto exception_typename() const -> const std::string&;
 

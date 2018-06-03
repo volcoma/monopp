@@ -105,7 +105,7 @@ private:
 			mono_runtime_invoke(method, object, argsv.data(), &ex);
 			if(ex)
 			{
-				throw mono_thunk_exception(reinterpret_cast<MonoException*>(ex));
+				throw mono_thunk_exception(ex);
 			}
 		};
 
@@ -154,7 +154,7 @@ private:
 			auto result = mono_runtime_invoke(method, object, argsv.data(), &ex);
 			if(ex)
 			{
-				throw mono_thunk_exception(reinterpret_cast<MonoException*>(ex));
+				throw mono_thunk_exception(ex);
 			}
 
 			return result;

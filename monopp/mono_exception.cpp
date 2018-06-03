@@ -6,9 +6,9 @@
 namespace mono
 {
 
-auto __get_exception_info(MonoException* ex) -> mono_thunk_exception::mono_exception_info
+auto __get_exception_info(MonoObject* ex) -> mono_thunk_exception::mono_exception_info
 {
-	auto obj = mono_object(reinterpret_cast<MonoObject*>(ex));
+	auto obj = mono_object(ex);
 	const auto& type = obj.get_type();
 	const auto& exception_typename = type.get_fullname();
 	auto message_prop = type.get_property("Message");
@@ -18,17 +18,7 @@ auto __get_exception_info(MonoException* ex) -> mono_thunk_exception::mono_excep
 	return {exception_typename, message, stacktrace};
 }
 
-mono_exception::mono_exception()
-	: mono_exception("Mono Exception.")
-{
-}
-
-mono_exception::mono_exception(const std::string& what)
-	: std::runtime_error(what.c_str())
-{
-}
-
-mono_thunk_exception::mono_thunk_exception(MonoException* ex)
+mono_thunk_exception::mono_thunk_exception(MonoObject* ex)
 	: mono_thunk_exception(__get_exception_info(ex))
 {
 }
