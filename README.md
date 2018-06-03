@@ -62,21 +62,21 @@ C++
 	/// You can invoke it by creating a thunk and calling it passing
 	/// the object it belongs to as the first parameter. Not passing
 	/// an object as the first parameter will treat it as a static method
-	auto thunk1 = mono::mono_method_thunk<void()>(std::move(method1));
+	auto thunk1 = mono::make_thunk<void()>(std::move(method1));
 	thunk1(obj);
 
 	/// Way 2, name + args
 	auto method2 = type.get_method("Method2(string)");
-	auto thunk2 = mono::mono_method_thunk<void(std::string)>(std::move(method1));
+	auto thunk2 = mono::make_thunk<void(std::string)>(std::move(method2));
 	thunk2(obj, "str_param");
 
 	/// Way 3, use the template method
-	auto method3 = type.get_method<std::string(std::string, int)>("Method5");
+	auto method3 = mono::make_thunk<std::string(std::string, int)>(type, "Method5");
 	auto result3 = method3(obj, "test", 5);
 
 	/// You can also get and invoke static methods without passing
 	/// an object as the first parameter
-	auto method4 = type.get_method<int(int)>("Function1");
+	auto method4 = mono::make_thunk<int(int)>(type, "Function1");
 	auto result4 = method4(55);
 	std::cout << result4 << std::endl;
 	/// You can query various information about a method
@@ -92,7 +92,7 @@ C++
 	/// You can catch exceptions like so
 	try
 	{
-		type.get_method<int(int, float)>("NonExistingFunction");
+		mono::make_thunk<int(int, float)>(type, "NonExistingFunction");
 	}
 	catch(const mono::mono_exception& e)
 	{
@@ -147,10 +147,11 @@ C++
 	auto getter = prop.get_get_method();
 	auto setter = prop.get_set_method();
 	/// You can treat these methods as you would any other method
-	auto getter_thunk = mono::mono_method_thunk<int()>(std::move(getter));
+	auto getter_thunk = mono::make_thunk<int()>(std::move(getter));
 	prop_value = getter_thunk(obj);
+	std::cout << prop_value << std::endl;
 
-	auto setter_thunk = mono::mono_method_thunk<void(int)>(std::move(setter));
+	auto setter_thunk = mono::make_thunk<void(int)>(std::move(setter));
 	setter_thunk(obj, 12);
 
 	/// You can query various information for a field.
@@ -165,17 +166,17 @@ C++
 	/// Get all the fields of the type
 	auto fields = type.get_fields();
 
-	for(const auto& field : fields)
+	for(const auto& f : fields)
 	{
-		std::cout << field.get_full_declname() << std::endl;
+		std::cout << f.get_full_declname() << std::endl;
 	}
 
 	/// Get all the properties of the type
 	auto props = type.get_properties();
 
-	for(const auto& prop : props)
+	for(const auto& p : props)
 	{
-		std::cout << prop.get_full_declname() << std::endl;
+		std::cout << p.get_full_declname() << std::endl;
 	}
 
 	/// Get All the methods of the type

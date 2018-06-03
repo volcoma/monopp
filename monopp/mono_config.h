@@ -30,7 +30,7 @@ using non_owning_ptr = T*;
 #elif defined(_MSC_VER)
 #define DIAG_PUSH_PRAGMA DIAG_PRAGMA(msvc, push)
 #define DIAG_DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)                                       \
-	DIAG_PRAGMA(msvc, push) DIAG_PRAGMA(msvc, disable :##msvc_errorcode)
+	DIAG_PRAGMA(msvc, disable : msvc_errorcode)
 #define DIAG_POP_PRAGMA DIAG_PRAGMA(msvc, pop)
 #elif defined(__GNUC__)
 #define DIAG_PUSH_PRAGMA DIAG_PRAGMA(GCC, push)

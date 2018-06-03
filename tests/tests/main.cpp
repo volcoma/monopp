@@ -512,7 +512,7 @@ TEST_CASE("full example", "[monopp]")
 
 	/// Way 2, name + args
 	auto method2 = type.get_method("Method2(string)");
-	auto thunk2 = mono::make_thunk<void(std::string)>(std::move(method1));
+	auto thunk2 = mono::make_thunk<void(std::string)>(std::move(method2));
 	thunk2(obj, "str_param");
 
 	/// Way 3, use the template method
@@ -592,10 +592,11 @@ TEST_CASE("full example", "[monopp]")
 	auto getter = prop.get_get_method();
 	auto setter = prop.get_set_method();
 	/// You can treat these methods as you would any other method
-	auto getter_thunk = mono::mono_method_thunk<int()>(std::move(getter));
+	auto getter_thunk = mono::make_thunk<int()>(std::move(getter));
 	prop_value = getter_thunk(obj);
+	std::cout << prop_value << std::endl;
 
-	auto setter_thunk = mono::mono_method_thunk<void(int)>(std::move(setter));
+	auto setter_thunk = mono::make_thunk<void(int)>(std::move(setter));
 	setter_thunk(obj, 12);
 
 	/// You can query various information for a field.
