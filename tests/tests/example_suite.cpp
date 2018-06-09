@@ -107,7 +107,6 @@ void test_suite(test::suite& suite)
 		/// it as being static.
 
 		auto field_value = mutable_field.get_value(obj);
-		// auto field_value = field.get_value<int>();
 		std::cout << field_value << std::endl;
 
 		/// You can set their values. Not passing an
@@ -115,7 +114,6 @@ void test_suite(test::suite& suite)
 		/// it as being static.
 		int field_arg = 55;
 		mutable_field.set_value(obj, field_arg);
-		// field.set_value(field_arg);
 
 		/// You can query various information for a field.
 		field.get_name();
@@ -136,7 +134,6 @@ void test_suite(test::suite& suite)
 		/// object as the parameter would treat
 		/// it as being static.
 		auto prop_value = mutable_prop.get_value(obj);
-		// auto prop_value = prop.get_value<int>();
 		std::cout << prop_value << std::endl;
 
 		/// You can set their values. Not passing an
@@ -144,7 +141,6 @@ void test_suite(test::suite& suite)
 		/// it as being static.
 		int prop_arg = 55;
 		mutable_prop.set_value(obj, prop_arg);
-		// prop.set_value(prop_arg);
 
 		/// You can get access to the get and set
 		/// methods of a property
