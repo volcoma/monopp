@@ -1,7 +1,7 @@
 #pragma once
 
 #include "monopp/mono_assembly.h"
-#include "monopp/mono_field.h"
+#include "monopp/mono_field_invoker.h"
 #include "monopp/mono_gc_handle.h"
 #include "monopp/mono_object.h"
 #include "monopp/mono_type.h"
@@ -39,7 +39,9 @@ private:
 template <typename T>
 auto& object::get_managed_object_as(const mono_object& mono_obj)
 {
-	return *native_object_field->get_value<T*>(mono_obj);
+    const auto& field = *native_object_field;
+    auto mutable_field = make_field_invoker<T*>(field);
+	return *mutable_field.get_value(mono_obj);
 }
 
 } // namespace managed_interface

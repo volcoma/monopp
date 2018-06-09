@@ -17,8 +17,9 @@ void finalize(const mono::mono_object& obj)
 	auto this_cpp_ptr = &object::get_managed_object_as<object>(obj);
 
 	// invalidate the mono object's handle to the cpp pointer
-	object::native_object_field->set_value(obj, nullptr);
-
+    const auto& field = *object::native_object_field;
+    auto mutable_field = make_field_invoker<object*>(field);
+    mutable_field.set_value(obj, nullptr);
 	// delete the cpp pointer
 	delete this_cpp_ptr;
 }
@@ -48,7 +49,9 @@ object::object(mono_object obj)
 	// Give mono the ownership of the this pointer.
 	// When the c# finalize is called then our finalize will
 	// delete the pointer
-	native_object_field->set_value<object*>(managed_object_, this);
+    const auto& field = *object::native_object_field;
+    auto mutable_field = make_field_invoker<object*>(field);
+    mutable_field.set_value(managed_object_, this);
 }
 
 } // namespace managed_interface

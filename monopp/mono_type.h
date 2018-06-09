@@ -83,13 +83,13 @@ private:
 
 	std::string fullname_;
 
-	int rank_ = 0;
-
-	bool valuetype_ = true;
-
 	std::uint32_t sizeof_ = 0;
 
 	std::uint32_t alignof_ = 0;
+
+	int rank_ = 0;
+
+	bool valuetype_ = true;
 };
 
 } // namespace mono

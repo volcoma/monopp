@@ -229,5 +229,19 @@ inline std::pair<std::string, bool> get_args_signature(const std::tuple<Args...>
 	return std::make_pair(args, all_types_known);
 }
 
+template <typename T>
+bool is_compatible_type(const std::string& expected_name)
+{
+	bool found = false;
+
+	auto name = types::get_name<T>(found).fullname;
+
+	if(found)
+	{
+		return name == expected_name;
+	}
+
+	return true;
+}
 } // namespace types
 } // namespace mono

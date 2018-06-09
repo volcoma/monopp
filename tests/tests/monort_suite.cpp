@@ -2,13 +2,11 @@
 
 #include "monopp/mono_assembly.h"
 #include "monopp/mono_domain.h"
-#include "monopp/mono_field.h"
+#include "monopp/mono_field_invoker.h"
 #include "monopp/mono_internal_call.h"
-#include "monopp/mono_jit.h"
-#include "monopp/mono_method.h"
-#include "monopp/mono_method_thunk.h"
+#include "monopp/mono_method_invoker.h"
 #include "monopp/mono_object.h"
-#include "monopp/mono_property.h"
+#include "monopp/mono_property_invoker.h"
 #include "monopp/mono_string.h"
 #include "monopp/mono_type.h"
 
@@ -146,7 +144,7 @@ void test_suite(test::suite& suite)
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto obj = type.new_instance();
 
-			auto method_thunk = mono::make_thunk<vec2f(vec2f)>(type, "MethodPodAR");
+			auto method_thunk = mono::make_method_invoker<vec2f(vec2f)>(type, "MethodPodAR");
 			vec2f p;
 			p.x = 12;
 			p.y = 15;
@@ -173,7 +171,7 @@ void test_suite(test::suite& suite)
 			ptr->x = 12;
 			ptr->y = 15;
 
-			auto method_thunk = mono::make_thunk<vec2f_ptr(vec2f_ptr)>(type, "MethodPodARW");
+			auto method_thunk = mono::make_method_invoker<vec2f_ptr(vec2f_ptr)>(type, "MethodPodARW");
 			auto result = method_thunk(obj, ptr);
 
 			spec.expect_not_null(result.get());
@@ -194,14 +192,15 @@ void test_suite(test::suite& suite)
 			auto obj = type.new_instance();
 			spec.expect_true(obj.valid());
 
-			auto someField = field.get_value<vec2f>(obj);
+            auto mutable_field = mono::make_field_invoker<vec2f>(field);
+			auto someField = mutable_field.get_value(obj);
 			spec.expect_equals(someField.x, 12.0f);
 			spec.expect_equals(someField.y, 13.0f);
 
 			vec2f arg = {6.0f, 7.0f};
-			field.set_value(obj, arg);
+			mutable_field.set_value(obj, arg);
 
-			someField = field.get_value<vec2f>(obj);
+			someField = mutable_field.get_value(obj);
 			spec.expect_equals(someField.x, 6.0f);
 			spec.expect_equals(someField.y, 7.0f);
 		};
@@ -216,17 +215,19 @@ void test_suite(test::suite& suite)
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto prop = type.get_property("somePropertyPOD");
+            auto mutable_prop = mono::make_property_invoker<vec2f>(prop);
+            
 			auto obj = type.new_instance();
 			spec.expect_true(obj.valid());
 
-			auto someProp = prop.get_value<vec2f>(obj);
+			auto someProp = mutable_prop.get_value(obj);
 			spec.expect_equals(someProp.x, 12.0f);
 			spec.expect_equals(someProp.y, 13.0f);
 
 			vec2f arg = {55.0f, 56.0f};
-			prop.set_value(obj, arg);
+			mutable_prop.set_value(obj, arg);
 
-			someProp = prop.get_value<vec2f>(obj);
+			someProp = mutable_prop.get_value(obj);
 			spec.expect_equals(someProp.x, 55.0f);
 			spec.expect_equals(someProp.y, 56.0f);
 		};
@@ -241,14 +242,15 @@ void test_suite(test::suite& suite)
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto field = type.get_field("someFieldPODStatic");
-			auto someField = field.get_value<vec2f>();
+            auto mutable_field = mono::make_field_invoker<vec2f>(field);            
+			auto someField = mutable_field.get_value();
 			spec.expect_equals(someField.x, 12.0f);
 			spec.expect_equals(someField.y, 13.0f);
 
 			vec2f arg = {6.0f, 7.0f};
-			field.set_value(arg);
+			mutable_field.set_value(arg);
 
-			someField = field.get_value<vec2f>();
+			someField = mutable_field.get_value();
 			spec.expect_equals(someField.x, 6.0f);
 			spec.expect_equals(someField.y, 7.0f);
 		};
@@ -263,14 +265,16 @@ void test_suite(test::suite& suite)
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto prop = type.get_property("somePropertyPODStatic");
-			auto someProp = prop.get_value<vec2f>();
+            auto mutable_prop = mono::make_property_invoker<vec2f>(prop);            
+            
+			auto someProp = mutable_prop.get_value();
 			spec.expect_equals(someProp.x, 6.0f);
 			spec.expect_equals(someProp.y, 7.0f);
 
 			vec2f arg = {55.0f, 56.0f};
-			prop.set_value(arg);
+			mutable_prop.set_value(arg);
 
-			someProp = prop.get_value<vec2f>();
+			someProp = mutable_prop.get_value();
 			spec.expect_equals(someProp.x, 55.0f);
 			spec.expect_equals(someProp.y, 56.0f);
 		};
@@ -286,15 +290,15 @@ void test_suite(test::suite& suite)
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto field = type.get_field("someFieldNONPODStatic");
 			using vec2f_ptr = std::shared_ptr<vec2f>;
-
-			auto someField = field.get_value<vec2f_ptr>();
+            auto mutable_field = mono::make_field_invoker<vec2f_ptr>(field);
+			auto someField = mutable_field.get_value();
 			spec.expect_equals(someField->x, 12.0f);
 			spec.expect_equals(someField->y, 13.0f);
 
 			vec2f_ptr arg = std::make_shared<vec2f>(vec2f{6.0f, 7.0f});
-			field.set_value(arg);
+			mutable_field.set_value(arg);
 
-			someField = field.get_value<vec2f_ptr>();
+			someField = mutable_field.get_value();
 			spec.expect_equals(someField->x, 6.0f);
 			spec.expect_equals(someField->y, 7.0f);
 		};
@@ -311,15 +315,16 @@ void test_suite(test::suite& suite)
 			auto prop = type.get_property("somePropertyNONPODStatic");
 
 			using vec2f_ptr = std::shared_ptr<vec2f>;
-
-			auto someProp = prop.get_value<vec2f_ptr>();
+            auto mutable_prop = mono::make_property_invoker<vec2f_ptr>(prop);
+            
+			auto someProp = mutable_prop.get_value();
 			spec.expect_equals(someProp->x, 6.0f);
 			spec.expect_equals(someProp->y, 7.0f);
 
 			vec2f_ptr arg = std::make_shared<vec2f>(vec2f{55.0f, 56.0f});
-			prop.set_value(arg);
+			mutable_prop.set_value(arg);
 
-			someProp = prop.get_value<vec2f_ptr>();
+			someProp = mutable_prop.get_value();
 			spec.expect_equals(someProp->x, 55.0f);
 			spec.expect_equals(someProp->y, 56.0f);
 		};

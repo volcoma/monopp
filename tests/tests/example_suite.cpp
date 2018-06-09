@@ -2,13 +2,11 @@
 
 #include "monopp/mono_assembly.h"
 #include "monopp/mono_domain.h"
-#include "monopp/mono_field.h"
+#include "monopp/mono_field_invoker.h"
 #include "monopp/mono_internal_call.h"
-#include "monopp/mono_jit.h"
-#include "monopp/mono_method.h"
-#include "monopp/mono_method_thunk.h"
+#include "monopp/mono_method_invoker.h"
 #include "monopp/mono_object.h"
-#include "monopp/mono_property.h"
+#include "monopp/mono_property_invoker.h"
 #include "monopp/mono_string.h"
 #include "monopp/mono_type.h"
 #include <iostream>
@@ -60,21 +58,21 @@ void test_suite(test::suite& suite)
 		/// You can invoke it by creating a thunk and calling it passing
 		/// the object it belongs to as the first parameter. Not passing
 		/// an object as the first parameter will treat it as a static method
-		auto thunk1 = mono::make_thunk<void()>(std::move(method1));
+		auto thunk1 = mono::make_method_invoker<void()>(method1);
 		thunk1(obj);
 
 		/// Way 2, name + args
 		auto method2 = type.get_method("Method2(string)");
-		auto thunk2 = mono::make_thunk<void(std::string)>(std::move(method2));
+		auto thunk2 = mono::make_method_invoker<void(std::string)>(method2);
 		thunk2(obj, "str_param");
 
 		/// Way 3, use the template method
-		auto method3 = mono::make_thunk<std::string(std::string, int)>(type, "Method5");
+		auto method3 = mono::make_method_invoker<std::string(std::string, int)>(type, "Method5");
 		auto result3 = method3(obj, "test", 5);
 
 		/// You can also get and invoke static methods without passing
 		/// an object as the first parameter
-		auto method4 = mono::make_thunk<int(int)>(type, "Function1");
+		auto method4 = mono::make_method_invoker<int(int)>(type, "Function1");
 		auto result4 = method4(55);
 		std::cout << result4 << std::endl;
 		/// You can query various information about a method
@@ -90,7 +88,7 @@ void test_suite(test::suite& suite)
 		/// You can catch exceptions like so
 		try
 		{
-			mono::make_thunk<int(int, float)>(type, "NonExistingFunction");
+			mono::make_method_invoker<int(int, float)>(type, "NonExistingFunction");
 		}
 		catch(const mono::mono_exception& e)
 		{
@@ -100,11 +98,15 @@ void test_suite(test::suite& suite)
 		/// You can access type fields by name
 		auto field = type.get_field("someField");
 
+		/// In order to get or set values to a field you need
+		/// to create an invoker.
+		auto mutable_field = mono::make_field_invoker<int>(field);
+
 		/// You can get their values. Not passing an
 		/// object as the parameter would treat
 		/// it as being static.
 
-		auto field_value = field.get_value<int>(obj);
+		auto field_value = mutable_field.get_value(obj);
 		// auto field_value = field.get_value<int>();
 		std::cout << field_value << std::endl;
 
@@ -112,7 +114,7 @@ void test_suite(test::suite& suite)
 		/// object as the parameter would treat
 		/// it as being static.
 		int field_arg = 55;
-		field.set_value(obj, field_arg);
+		mutable_field.set_value(obj, field_arg);
 		// field.set_value(field_arg);
 
 		/// You can query various information for a field.
@@ -126,10 +128,14 @@ void test_suite(test::suite& suite)
 
 		auto prop = type.get_property("someProperty");
 
+		/// In order to get or set values to a field you need
+		/// to create an invoker.
+		auto mutable_prop = mono::make_property_invoker<int>(prop);
+
 		/// You can get their values. Not passing an
 		/// object as the parameter would treat
 		/// it as being static.
-		auto prop_value = prop.get_value<int>(obj);
+		auto prop_value = mutable_prop.get_value(obj);
 		// auto prop_value = prop.get_value<int>();
 		std::cout << prop_value << std::endl;
 
@@ -137,7 +143,7 @@ void test_suite(test::suite& suite)
 		/// object as the parameter would treat
 		/// it as being static.
 		int prop_arg = 55;
-		prop.set_value(obj, prop_arg);
+		mutable_prop.set_value(obj, prop_arg);
 		// prop.set_value(prop_arg);
 
 		/// You can get access to the get and set
@@ -145,11 +151,11 @@ void test_suite(test::suite& suite)
 		auto getter = prop.get_get_method();
 		auto setter = prop.get_set_method();
 		/// You can treat these methods as you would any other method
-		auto getter_thunk = mono::make_thunk<int()>(std::move(getter));
+		auto getter_thunk = mono::make_method_invoker<int()>(getter);
 		prop_value = getter_thunk(obj);
 		std::cout << prop_value << std::endl;
 
-		auto setter_thunk = mono::make_thunk<void(int)>(std::move(setter));
+		auto setter_thunk = mono::make_method_invoker<void(int)>(setter);
 		setter_thunk(obj, 12);
 
 		/// You can query various information for a field.

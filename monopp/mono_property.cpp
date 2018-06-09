@@ -1,7 +1,7 @@
 #include "mono_property.h"
 #include "mono_assembly.h"
 #include "mono_exception.h"
-#include "mono_type.h"
+#include "mono_method.h"
 
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/attrdefs.h>
@@ -42,7 +42,7 @@ auto mono_property::get_full_declname() const -> const std::string&
 
 auto mono_property::get_type() const -> const mono_type&
 {
-	return *type_;
+	return type_;
 }
 
 auto mono_property::get_get_method() const -> mono_method
@@ -93,7 +93,7 @@ auto mono_property::is_static() const -> bool
 void mono_property::__generate_meta()
 {
 	auto get_method = get_get_method();
-	type_ = std::make_shared<mono_type>(get_method.get_return_type());
+	type_ = mono_type(get_method.get_return_type());
 	fullname_ = name_;
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;

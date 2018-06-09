@@ -1,6 +1,6 @@
 #include "mono_field.h"
+#include "mono_domain.h"
 #include "mono_exception.h"
-#include "mono_type.h"
 
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/attrdefs.h>
@@ -27,7 +27,7 @@ mono_field::mono_field(const mono_type& type, const std::string& name)
 void mono_field::__generate_meta()
 {
 	auto type = mono_field_get_type(field_);
-	type_ = std::make_shared<mono_type>(mono_class_from_mono_type(type));
+	type_ = mono_type(mono_class_from_mono_type(type));
 	fullname_ = mono_field_full_name(field_);
 	std::string storage = (is_static() ? " static " : " ");
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;
@@ -52,7 +52,7 @@ auto mono_field::get_full_declname() const -> const std::string&
 }
 auto mono_field::get_type() const -> const mono_type&
 {
-	return *type_;
+	return type_;
 }
 
 auto mono_field::get_visibility() const -> visibility

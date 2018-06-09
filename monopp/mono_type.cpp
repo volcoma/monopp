@@ -2,6 +2,7 @@
 #include "mono_assembly.h"
 #include "mono_exception.h"
 
+#include "mono_domain.h"
 #include "mono_field.h"
 #include "mono_method.h"
 #include "mono_object.h"

@@ -27,7 +27,7 @@ public:
 
 	static void set_current_domain(const mono_domain& domain);
 
-	static const mono_domain& get_current_domain();
+	static auto get_current_domain() -> const mono_domain&;
 
 	auto get_internal_ptr() const -> MonoDomain*;
 
