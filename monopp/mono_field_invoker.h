@@ -81,7 +81,6 @@ template <typename T>
 auto mono_field_invoker<T>::__get_value(const mono_object* object) const -> T
 {
 	T val{};
-
 	assert(field_);
 	MonoObject* refvalue = nullptr;
 	auto arg = reinterpret_cast<void*>(&val);

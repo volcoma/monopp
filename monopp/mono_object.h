@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mono_config.h"
+#include "mono_type.h"
 
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/object.h>
@@ -9,7 +10,6 @@ END_MONO_INCLUDE
 namespace mono
 {
 class mono_domain;
-class mono_type;
 
 class mono_object
 {
@@ -24,7 +24,7 @@ public:
 	auto get_internal_ptr() const -> MonoObject*;
 
 protected:
-	std::shared_ptr<mono_type> type_;
+	mono_type type_;
 
 	non_owning_ptr<MonoObject> object_ = nullptr;
 };
