@@ -182,7 +182,7 @@ void test_suite(test::suite& suite)
 		spec.expect_nothrow(expression);
 	});
 
-	suite.it("test member POD field", [&](test::spec& spec)
+	suite.it("member POD field", [&](test::spec& spec)
     {
 		auto expression = [&]()
         {
@@ -208,7 +208,7 @@ void test_suite(test::suite& suite)
 		spec.expect_nothrow(expression);
 	});
 
-	suite.it("test member POD property", [&](test::spec& spec)
+	suite.it("member POD property", [&](test::spec& spec)
     {
 		auto expression = [&]()
         {
@@ -235,7 +235,7 @@ void test_suite(test::suite& suite)
 		spec.expect_nothrow(expression);
 	});
 
-	suite.it("test static POD field", [&](test::spec& spec)
+	suite.it("static POD field", [&](test::spec& spec)
     {
 		auto expression = [&]()
         {
@@ -258,7 +258,7 @@ void test_suite(test::suite& suite)
 		spec.expect_nothrow(expression);
 	});
 
-	suite.it("test static POD property", [&](test::spec& spec)
+	suite.it("static POD property", [&](test::spec& spec)
     {
 		auto expression = [&]()
         {
@@ -282,7 +282,7 @@ void test_suite(test::suite& suite)
 		spec.expect_nothrow(expression);
 	});
 
-	suite.it("test static NON-POD field", [&](test::spec& spec)
+	suite.it("static NON-POD field", [&](test::spec& spec)
     {
 		auto expression = [&]()
         {
@@ -306,7 +306,7 @@ void test_suite(test::suite& suite)
 		spec.expect_nothrow(expression);
 	});
 
-	suite.it("test static NON-POD property", [&](test::spec& spec)
+	suite.it("static NON-POD property", [&](test::spec& spec)
     {
 		auto expression = [&]()
         {

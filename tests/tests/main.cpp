@@ -11,11 +11,14 @@ int main()
 		return 1;
 	}
 
-	test::describe("MONOPP TEST SUITE", monopp::test_suite);
-	test::describe("MONORT TEST SUITE", example::test_suite);
-
-	test::describe("EXAMPLE TEST SUITE", example::test_suite);
-
+    test::test_suite("MONO TEST SUITE", [](auto& s)
+    {
+        monopp::test_suite(s);
+        monort::test_suite(s);
+        example::test_suite(s);
+        
+    });
+    
 	mono::shutdown();
 
 	return 0;

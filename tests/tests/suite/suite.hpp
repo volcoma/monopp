@@ -1,6 +1,7 @@
 #ifndef TESTS_HPP
 #define TESTS_HPP
 
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <sstream>
@@ -32,6 +33,13 @@ struct result
 class spec
 {
 public:
+	using clock_t = std::chrono::high_resolution_clock;
+	struct record
+	{
+		std::string name;
+		clock_t::time_point start;
+		clock_t::time_point end;
+	};
 	spec(std::string name)
 		: name_(std::move(name))
 	{
@@ -129,6 +137,20 @@ public:
 		results_.emplace_back(std::move(res));
 	}
 
+	spec::record start_record(const std::string& name)
+	{
+		record r;
+		r.name = name;
+		r.start = clock_t::now();
+		return r;
+	}
+
+	void end_record(record& r)
+	{
+		r.end = clock_t::now();
+		records_.emplace_back(std::move(r));
+	}
+
 	auto& name() const
 	{
 		return name_;
@@ -150,10 +172,16 @@ public:
 	{
 		return results_;
 	}
+	auto& records() const
+	{
+		return records_;
+	}
 
 private:
 	std::string name_;
 	std::vector<result> results_;
+
+	std::vector<record> records_;
 };
 
 using spec_function = std::function<void(spec&)>;
@@ -181,7 +209,9 @@ public:
 		specs_.emplace_back(spec_name);
 		auto& s = specs_.back();
 		before_func_();
+		auto rec = s.start_record("total");
 		test_spec(s);
+		s.end_record(rec);
 		after_func_();
 	}
 
@@ -193,12 +223,17 @@ public:
 		size_t failure_counter = 0u;
 
 		const std::string SPACE = "\t";
-		const std::string SEPARATOR = "====================================================";
+		const std::string SEPARATOR = "===================================================================";
+        const std::string SEPARATOR2 = "-------------------------------------";
 
 		for(const auto& spec : specs_)
 		{
 			std::cout << SEPARATOR << std::endl;
-			std::cout << "it: " << spec.name() << ": " << (spec.passed() ? "PASS" : "FAIL") << std::endl;
+			std::cout << "test       : " << spec.name() << std::endl;
+            std::cout << SEPARATOR2 << std::endl;
+            
+			std::cout << "status     : " << (spec.passed() ? "PASSED" : "FAILED") << std::endl;
+            std::cout << SEPARATOR2 << std::endl;
 
 			auto& results = spec.results();
 			spec_counter += results.size();
@@ -220,7 +255,17 @@ public:
 
 				std::cout << std::endl;
 			}
-			std::cout << SEPARATOR << std::endl;
+            
+            if(!spec.records().empty())
+			{
+				std::cout << "benchmarks : " << std::endl;
+			}
+			for(const auto& record : spec.records())
+			{
+				auto dur = record.end - record.start;
+				auto ms = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(dur);
+				std::cout << "\t" << record.name << " : duration(ms): " << ms.count() << std::endl;
+			}
 		}
 
 		std::cout << spec_counter << " specs, " << failure_counter << " failures" << std::endl;
@@ -235,13 +280,17 @@ private:
 	reset_func after_func_ = []() {};
 };
 
-inline void describe(const std::string& name, const std::function<void(suite&)>& test_suite)
+inline void test_suite(const std::string& name, const std::function<void(suite&)>& test_suite,
+					   size_t iterations = 1)
 {
-	suite s(name);
+	for(size_t i = 0; i < iterations; ++i)
+	{
+		suite s(name);
 
-	test_suite(s);
+		test_suite(s);
 
-	s.print();
+		s.print();
+	}
 }
 }
 
