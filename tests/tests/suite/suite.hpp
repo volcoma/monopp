@@ -157,6 +157,14 @@ struct result
 template <typename L>
 struct expression_lhs
 {
+    static result make_result(bool passed, const std::string& decomp)
+    {
+        result r;
+        r.passed = passed;
+        r.decomposition = decomp;
+        return r;
+    }
+
     const L lhs;
 
     expression_lhs(L lhs_)
@@ -166,17 +174,14 @@ struct expression_lhs
 
     operator result() const
     {
-        result r;
-        r.passed = !!lhs;
-        r.decomposition = to_string(lhs);
-        return r;
+        return make_result(!!lhs, to_string(lhs));
     }
 
 #define DECOMPOSE_OP(OP)                                                                                     \
     template <typename R>                                                                                    \
     result operator OP(R const& rhs)                                                                         \
     {                                                                                                        \
-        return result{lhs OP rhs, to_string(lhs, #OP, rhs)};                                                 \
+        return make_result(lhs OP rhs, to_string(lhs, #OP, rhs));                                                 \
     }
 
     DECOMPOSE_OP(<)
