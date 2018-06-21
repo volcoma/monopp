@@ -4,6 +4,8 @@
 
 #include "monopp/mono_jit.h"
 
+#include "suite/suite.hpp"
+
 int main()
 {
 	if(!mono::init("mono", true))
@@ -11,14 +13,12 @@ int main()
 		return 1;
 	}
 
-    test::test_suite("MONO TEST SUITE", [](auto& s)
-    {
-        monopp::test_suite(s);
-        monort::test_suite(s);
-        example::test_suite(s);
-        
-    });
-    
+	monopp::test_suite();
+	monort::test_suite();
+	example::test_suite();
+
+	suite::summary();
+
 	mono::shutdown();
 
 	return 0;

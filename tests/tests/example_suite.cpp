@@ -9,14 +9,15 @@
 #include "monopp/mono_property_invoker.h"
 #include "monopp/mono_string.h"
 #include "monopp/mono_type.h"
+#include "suite/suite.hpp"
 #include <iostream>
 
 namespace example
 {
-void test_suite(test::suite& suite)
+void test_suite()
 {
 	// clang-format off
-	suite.it("full example", [&](test::spec&) 
+	suite::test("full example", [&]()
     {
 		// clang-format on
 		/// Create an app domain. When destructed it will

@@ -11,6 +11,7 @@
 #include "monopp/mono_type.h"
 
 #include "monort/monort.h"
+#include "suite/suite.hpp"
 #include <iostream>
 
 struct vec2f
@@ -76,13 +77,13 @@ void MyVec_CreateInternalCopyCtor(const mono::mono_object& this_ptr, const std::
 namespace monort
 {
 
-void test_suite(test::suite& suite)
+void test_suite()
 {
 	mono::mono_domain domain("domain");
 	mono::mono_domain::set_current_domain(domain);
 
 	// clang-format off
-	suite.it("init monort", [&](test::spec& spec)
+	suite::test("init monort", [&]()
     {
 		auto expression = [&]()
         {
@@ -90,10 +91,10 @@ void test_suite(test::suite& suite)
 			mono::managed_interface::init(core_assembly);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("bind monort", [&](test::spec& spec)
+	suite::test("bind monort", [&]()
     {
 		auto expression = [&]()
         {
@@ -105,10 +106,10 @@ void test_suite(test::suite& suite)
 									internal_call(MyVec_CreateInternalCopyCtor));
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("get monort valid type", [&](test::spec& spec)
+	suite::test("get monort valid type", [&]()
     {
 		auto expression = [&]()
         {
@@ -133,10 +134,10 @@ void test_suite(test::suite& suite)
 			}
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("call member method 3", [&](test::spec& spec)
+	suite::test("call member method 3", [&]()
     {
 		auto expression = [&]()
         {
@@ -149,14 +150,14 @@ void test_suite(test::suite& suite)
 			p.x = 12;
 			p.y = 15;
 			auto result = method_thunk(obj, p);
-			spec.expect_equals(result.x, 165.0f);
-			spec.expect_equals(result.y, 7.0f);
+			CHECK(result.x == 165.0f);
+			CHECK(result.y == 7.0f);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("call member method 4", [&](test::spec& spec)
+	suite::test("call member method 4", [&]()
     {
 		auto expression = [&]()
         {
@@ -174,15 +175,15 @@ void test_suite(test::suite& suite)
 			auto method_thunk = mono::make_method_invoker<vec2f_ptr(vec2f_ptr)>(type, "MethodPodARW");
 			auto result = method_thunk(obj, ptr);
 
-			spec.expect_not_null(result.get());
-			spec.expect_equals(result->x, 55.0f);
-			spec.expect_equals(result->y, 66.0f);
+			CHECK(nullptr != result.get());
+			CHECK(result->x == 55.0f);
+			CHECK(result->y == 66.0f);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("member POD field", [&](test::spec& spec)
+	suite::test("member POD field", [&]()
     {
 		auto expression = [&]()
         {
@@ -190,25 +191,25 @@ void test_suite(test::suite& suite)
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto field = type.get_field("someFieldPOD");
 			auto obj = type.new_instance();
-			spec.expect_true(obj.valid());
+			CHECK(obj.valid());
 
             auto mutable_field = mono::make_field_invoker<vec2f>(field);
 			auto someField = mutable_field.get_value(obj);
-			spec.expect_equals(someField.x, 12.0f);
-			spec.expect_equals(someField.y, 13.0f);
+			CHECK(someField.x == 12.0f);
+			CHECK(someField.y == 13.0f);
 
 			vec2f arg = {6.0f, 7.0f};
 			mutable_field.set_value(obj, arg);
 
 			someField = mutable_field.get_value(obj);
-			spec.expect_equals(someField.x, 6.0f);
-			spec.expect_equals(someField.y, 7.0f);
+			CHECK(someField.x == 6.0f);
+			CHECK(someField.y == 7.0f);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("member POD property", [&](test::spec& spec)
+	suite::test("member POD property", [&]()
     {
 		auto expression = [&]()
         {
@@ -218,24 +219,24 @@ void test_suite(test::suite& suite)
             auto mutable_prop = mono::make_property_invoker<vec2f>(prop);
             
 			auto obj = type.new_instance();
-			spec.expect_true(obj.valid());
+			CHECK(obj.valid());
 
 			auto someProp = mutable_prop.get_value(obj);
-			spec.expect_equals(someProp.x, 12.0f);
-			spec.expect_equals(someProp.y, 13.0f);
+			CHECK(someProp.x == 12.0f);
+			CHECK(someProp.y == 13.0f);
 
 			vec2f arg = {55.0f, 56.0f};
 			mutable_prop.set_value(obj, arg);
 
 			someProp = mutable_prop.get_value(obj);
-			spec.expect_equals(someProp.x, 55.0f);
-			spec.expect_equals(someProp.y, 56.0f);
+			CHECK(someProp.x == 55.0f);
+			CHECK(someProp.y == 56.0f);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("static POD field", [&](test::spec& spec)
+	suite::test("static POD field", [&]()
     {
 		auto expression = [&]()
         {
@@ -244,21 +245,21 @@ void test_suite(test::suite& suite)
 			auto field = type.get_field("someFieldPODStatic");
             auto mutable_field = mono::make_field_invoker<vec2f>(field);            
 			auto someField = mutable_field.get_value();
-			spec.expect_equals(someField.x, 12.0f);
-			spec.expect_equals(someField.y, 13.0f);
+			CHECK(someField.x == 12.0f);
+			CHECK(someField.y == 13.0f);
 
 			vec2f arg = {6.0f, 7.0f};
 			mutable_field.set_value(arg);
 
 			someField = mutable_field.get_value();
-			spec.expect_equals(someField.x, 6.0f);
-			spec.expect_equals(someField.y, 7.0f);
+			CHECK(someField.x == 6.0f);
+			CHECK(someField.y == 7.0f);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("static POD property", [&](test::spec& spec)
+	suite::test("static POD property", [&]()
     {
 		auto expression = [&]()
         {
@@ -268,21 +269,21 @@ void test_suite(test::suite& suite)
             auto mutable_prop = mono::make_property_invoker<vec2f>(prop);            
             
 			auto someProp = mutable_prop.get_value();
-			spec.expect_equals(someProp.x, 6.0f);
-			spec.expect_equals(someProp.y, 7.0f);
+			CHECK(someProp.x == 6.0f);
+			CHECK(someProp.y == 7.0f);
 
 			vec2f arg = {55.0f, 56.0f};
 			mutable_prop.set_value(arg);
 
 			someProp = mutable_prop.get_value();
-			spec.expect_equals(someProp.x, 55.0f);
-			spec.expect_equals(someProp.y, 56.0f);
+			CHECK(someProp.x == 55.0f);
+			CHECK(someProp.y == 56.0f);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("static NON-POD field", [&](test::spec& spec)
+	suite::test("static NON-POD field", [&]()
     {
 		auto expression = [&]()
         {
@@ -292,21 +293,21 @@ void test_suite(test::suite& suite)
 			using vec2f_ptr = std::shared_ptr<vec2f>;
             auto mutable_field = mono::make_field_invoker<vec2f_ptr>(field);
 			auto someField = mutable_field.get_value();
-			spec.expect_equals(someField->x, 12.0f);
-			spec.expect_equals(someField->y, 13.0f);
+			CHECK(someField->x == 12.0f);
+			CHECK(someField->y == 13.0f);
 
 			vec2f_ptr arg = std::make_shared<vec2f>(vec2f{6.0f, 7.0f});
 			mutable_field.set_value(arg);
 
 			someField = mutable_field.get_value();
-			spec.expect_equals(someField->x, 6.0f);
-			spec.expect_equals(someField->y, 7.0f);
+			CHECK(someField->x == 6.0f);
+			CHECK(someField->y == 7.0f);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
-	suite.it("static NON-POD property", [&](test::spec& spec)
+	suite::test("static NON-POD property", [&]()
     {
 		auto expression = [&]()
         {
@@ -318,18 +319,18 @@ void test_suite(test::suite& suite)
             auto mutable_prop = mono::make_property_invoker<vec2f_ptr>(prop);
             
 			auto someProp = mutable_prop.get_value();
-			spec.expect_equals(someProp->x, 6.0f);
-			spec.expect_equals(someProp->y, 7.0f);
+			CHECK(someProp->x == 6.0f);
+			CHECK(someProp->y == 7.0f);
 
 			vec2f_ptr arg = std::make_shared<vec2f>(vec2f{55.0f, 56.0f});
 			mutable_prop.set_value(arg);
 
 			someProp = mutable_prop.get_value();
-			spec.expect_equals(someProp->x, 55.0f);
-			spec.expect_equals(someProp->y, 56.0f);
+			CHECK(someProp->x == 55.0f);
+			CHECK(someProp->y == 56.0f);
 		};
 
-		spec.expect_nothrow(expression);
+		CHECK(NOTHROWS(expression()));
 	});
 
 	// clang-format on

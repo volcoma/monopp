@@ -1,6 +1,5 @@
-#include "suite/suite.hpp"
 #include "monort/monort.h"
 namespace example
 {
-void test_suite(test::suite& suite);
+void test_suite();
 }

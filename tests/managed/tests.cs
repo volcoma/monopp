@@ -43,7 +43,7 @@ class MonoppTest
 		}
 		set
 		{
-			Console.WriteLine("FROM C# : Setting property value to {0}", value);
+			//Console.WriteLine("FROM C# : Setting property value to {0}", value);
 			someField = value;
 		}
 	}
@@ -58,62 +58,62 @@ class MonoppTest
 		}
 		set
 		{
-			Console.WriteLine("FROM C# : Setting static property value to {0}", value);
+			//Console.WriteLine("FROM C# : Setting static property value to {0}", value);
 			someFieldStatic = value;
 		}
 	}
 	
     static MonoppTest()
 	{
-		Console.WriteLine("FROM C# : STATIC CONSTRUCTOR.");
+		//Console.WriteLine("FROM C# : STATIC CONSTRUCTOR.");
 	}
     public MonoppTest()
 	{
-		Console.WriteLine("FROM C# : MonoppTest created.");
+		//Console.WriteLine("FROM C# : MonoppTest created.");
 	}
     ~MonoppTest()
 	{
-		Console.WriteLine("FROM C# : MonoppTest destroyed.");
+		//Console.WriteLine("FROM C# : MonoppTest destroyed.");
 	}
 	
     void Method1()
 	{
-		Console.WriteLine("FROM C# : Hello Mono World from instance.");
+		//Console.WriteLine("FROM C# : Hello Mono World from instance.");
 	}
 	
 	void Method2(string s)
 	{
-		Console.WriteLine("FROM C# : WithParam string: " + s);
+		//Console.WriteLine("FROM C# : WithParam string: " + s);
 	}
 	void Method3(int s)
 	{
-		Console.WriteLine("FROM C# : WithParam int: " + s);
+		//Console.WriteLine("FROM C# : WithParam int: " + s);
 	}
 	void Method4(int s, int s1)
 	{
-		Console.WriteLine("FROM C# : WithParam int, int: {0}, {1}", s, s1);
+		//Console.WriteLine("FROM C# : WithParam int, int: {0}, {1}", s, s1);
 	}
 	
     public string Method5(string s, int b)
 	{
-		Console.WriteLine("FROM C# : WithParam: {0}, {1}", s, b);
+		//Console.WriteLine("FROM C# : WithParam: {0}, {1}", s, b);
 		return "Return Value: " + s;
 	}
 
     public static int Function1(int a)
 	{
-		Console.WriteLine("FROM C# : Int value: " + a);
+		//Console.WriteLine("FROM C# : Int value: " + a);
 		return a + 1337;
 	}
 
     public static void Function2(float a, int b, float c)
 	{
-		Console.WriteLine("FROM C# : VoidMethod: {0}, {1}, {2}", a, b, c);
+		//Console.WriteLine("FROM C# : VoidMethod: {0}, {1}, {2}", a, b, c);
 	}
 
     public static void Function3(string a)
 	{
-		Console.WriteLine("FROM C# : String value: {0}", a);
+		//Console.WriteLine("FROM C# : String value: {0}", a);
 	}
 
     public static string Function4(string str)
@@ -131,7 +131,8 @@ class MonoppTest
 		Tests.MyObject obj = new Tests.MyObject();
 		obj.DoStuff("blalba");
 		string str = obj.ReturnAString("fafafa");
-		Console.WriteLine("FROM C# : ReturnAString : {0}", str);
+        str += "";
+		//Console.WriteLine("FROM C# : ReturnAString : {0}", str);
 	}
 }
 
@@ -175,7 +176,7 @@ class MonortTest
 		}
 		set
 		{
-			Console.WriteLine("FROM C# : Setting POD property value to {0}, {1}", value.x, value.y);
+			//Console.WriteLine("FROM C# : Setting POD property value to {0}, {1}", value.x, value.y);
 			someFieldPOD = value;
 		}
 	}
@@ -190,7 +191,7 @@ class MonortTest
 		}
 		set
 		{
-			Console.WriteLine("FROM C# : Setting static POD property value to {0}, {1}", value.x, value.y);
+			//Console.WriteLine("FROM C# : Setting static POD property value to {0}, {1}", value.x, value.y);
 			someFieldPODStatic = value;
 		}
 	}
@@ -205,7 +206,7 @@ class MonortTest
 		}
 		set
 		{
-			Console.WriteLine("FROM C# : Setting NON POD property value");
+			//Console.WriteLine("FROM C# : Setting NON POD property value");
 			someFieldNONPOD = value;
 		}
 	}
@@ -222,15 +223,15 @@ public
 		}
 		set
 		{
-			Console.WriteLine("FROM C# : Setting static NON POD property value");
+			//Console.WriteLine("FROM C# : Setting static NON POD property value");
 			someFieldNONPODStatic = value;
 		}
 	}
 	
 	public Vector2f MethodPodAR(Vector2f bb)
 	{
-		Console.WriteLine(bb.x);
-		Console.WriteLine(bb.y);
+		//Console.WriteLine(bb.x);
+		//Console.WriteLine(bb.y);
 		var s = new Vector2f();
 		s.x = 165.0f;
 		s.y = 7.0f;
@@ -240,7 +241,7 @@ public
 
 	public WrapperVector2f MethodPodARW(WrapperVector2f bb)
 	{
-		Console.WriteLine("FROM C# :");
+		//Console.WriteLine("FROM C# :");
 		var s = new WrapperVector2f(55.0f, 66.0f);
 		var s1 = new WrapperVector2f(s);
 
