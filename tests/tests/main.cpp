@@ -17,8 +17,6 @@ int main()
 	monort::test_suite();
 	example::test_suite();
 
-	suite::summary();
-
 	mono::shutdown();
 
 	return 0;
