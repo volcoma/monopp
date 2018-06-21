@@ -124,7 +124,7 @@ struct expression_lhs
 
 	result get_result() const
 	{
-		return {!!lhs, to_string(lhs)};
+		return result{!!lhs, to_string(lhs)};
 	}
 
 #define DECOMPOSE_OP(OP)                                                                                     \
