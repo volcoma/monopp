@@ -18,10 +18,10 @@
 
 #define SUITE_DECOMPOSE(...) (suite::expression_decomposer() << (__VA_ARGS__)).get_result()
 
-#define SUITE_CHECK(...)                                                                                     \
+#define SUITE_EXPECT(...)                                                                                     \
 	suite::check(#__VA_ARGS__, __FILE__, __LINE__, [&]() { return SUITE_DECOMPOSE(__VA_ARGS__); })
 
-#define CHECK(...) SUITE_CHECK(__VA_ARGS__)
+#define EXPECT(...) SUITE_EXPECT(__VA_ARGS__)
 #define THROWS(...)                                                                                          \
 	[&]() {                                                                                                  \
 		try                                                                                                  \
@@ -94,18 +94,6 @@ inline unsigned& get(int i)
 	return var[i];
 }
 
-inline void summary()
-{
-	std::string ss, run = to_string(get(TESTNO)), res = get(FAILED) ? "[FAIL]  " : "[ OK ]  ";
-	if(get(FAILED))
-		ss += res + "Failure! " + to_string(get(FAILED)) + '/' + run + " checks failed :(\n";
-	else
-		ss += res + "Success: " + run + " checks passed :)\n";
-	fprintf(stdout, "\n%s", ss.c_str());
-	if(get(FAILED))
-		std::exit(int(get(FAILED)));
-}
-
 struct result
 {
 	bool passed = false;
@@ -145,6 +133,8 @@ struct expression_lhs
 	DECOMPOSE_OP(==)
 	DECOMPOSE_OP(&&)
 	DECOMPOSE_OP(||)
+
+#undef DECOMPOSE_OP
 };
 
 struct expression_decomposer
@@ -158,35 +148,50 @@ struct expression_decomposer
 
 class check
 {
+    struct summary_reporter
+    {
+        ~summary_reporter()
+        {
+            std::string run = to_string(get(TESTNO));
+            std::string res = get(FAILED) ? "[FAIL]  " : "[ OK ]  ";
+            std::string ss;
+            if(get(FAILED))
+                ss += res + "Failure! " + to_string(get(FAILED)) + '/' + run + " checks failed :(\n";
+            else
+                ss += res + "Success: " + run + " checks passed :)\n";
+            fprintf(stdout, "\n%s", ss.c_str());
+            if(get(FAILED))
+                std::exit(int(get(FAILED)));
+        }
+    };
+
+    using duration_t = std::chrono::duration<double, std::milli>;
 public:
 	check(const char* const text, const char* const file, int line, const std::function<result()>& f)
 		: text_(text)
 		, file_(file)
 		, line_(line)
 	{
+        static summary_reporter reporter;
+        (void)reporter;
+
+        auto start = timer::now();
 		result_ = f();
+        auto end = timer::now();
+        duration_ = std::chrono::duration_cast<duration_t>(end - start);
+
 		set_label(to_string(get(TESTNO)++));
-	}
 
-	check(check&&) = default;
-	check& operator=(check&&) = default;
-	check(const check&) = delete;
-	check& operator=(const check&) = delete;
-
-	~check()
-	{
-		if(text_.empty())
+        if(text_.empty())
 			return;
 
-		using namespace std::chrono;
-		auto dur = duration_cast<duration<double, std::milli>>(timer::now() - start_);
 
 		bool ok = result_.passed;
 
 		get(ok ? PASSED : FAILED)++;
 		std::string res[] = {"[FAIL]", "[ OK ]"};
 
-		std::string desc = res[ok] + " check (" + label_ + ")" + " (" + to_string(dur.count()) + " ms)";
+		std::string desc = res[ok] + " check (" + label_ + ")" + " (" + to_string(duration_.count()) + " ms)";
 
 		fprintf(stdout, "%s", desc.c_str());
 		if(!ok)
@@ -206,7 +211,7 @@ public:
 
 private:
 	result result_;
-	timer::time_point start_ = timer::now();
+	duration_t duration_;
 	std::string text_;
 	std::string label_;
 	std::string file_;
@@ -225,7 +230,7 @@ inline decltype(auto) test(const std::string& text, const std::function<void()>&
 		fn();
 		return get(FAILED) == fails;
 	};
-	auto c = CHECK(whole_case());
+	auto c = EXPECT(whole_case());
 	c.set_label("total");
 	return c;
 }
