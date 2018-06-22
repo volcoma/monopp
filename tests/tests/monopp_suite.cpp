@@ -49,7 +49,7 @@ void test_suite()
 	// clang-format off
     suite::test("load invalid assembly", [&]()
     {
-        EXPECT(THROWS_TYPE(mono::mono_exception, domain.get_assembly("doesnt_exist_12345.dll")));
+        EXPECT(THROWS_AS(domain.get_assembly("doesnt_exist_12345.dll"), mono::mono_exception));
     });
 
     suite::test("load valid assembly", [&]()
