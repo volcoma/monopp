@@ -124,15 +124,24 @@ inline std::string make_string(T const* ptr)
 	   << reinterpret_cast<std::ptrdiff_t>(ptr);
 	return os.str();
 }
-
-inline auto to_string(const std::nullptr_t&) -> std::string
+inline std::string to_string(std::nullptr_t const&)
 {
 	return "nullptr";
 }
 
-inline auto to_string(const std::string& t) -> std::string
+inline std::string to_string(std::string const& txt)
 {
-	return t;
+	return "\"" + txt + "\"";
+}
+
+inline std::string to_string(char const* const& txt)
+{
+	return "\"" + std::string(txt) + "\"";
+}
+
+inline std::string to_string(char const& txt)
+{
+	return "\'" + std::string(1, txt) + "\'";
 }
 
 template <typename T>
