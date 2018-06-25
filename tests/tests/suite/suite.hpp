@@ -1,3 +1,5 @@
+#include <utility>
+
 #ifndef SUITE_HPP
 #define SUITE_HPP
 
@@ -46,7 +48,7 @@
 	suite::check(#expr, __FILE__, __LINE__, [&]() {                                                          \
 		SUITE_PUSH_PRAGMA                                                                                    \
 		SUITE_DISABLE_WARNING("-Wparentheses", "-Wparentheses", 4554)                                        \
-		suite::result res(SUITE_DECOMPOSE(expr));                                                            \
+		auto res = (SUITE_DECOMPOSE(expr));                                                                  \
 		SUITE_POP_PRAGMA                                                                                     \
 		return res;                                                                                          \
 	})
@@ -89,12 +91,29 @@ namespace suite
 
 using timer = std::chrono::high_resolution_clock;
 
+template <typename T>
+struct is_container
+{
+	template <typename U>
+	static auto test(int)
+		-> decltype(std::begin(std::declval<U>()) == std::end(std::declval<U>()), std::true_type());
+
+	template <typename>
+	static auto test(...) -> std::false_type;
+
+	static constexpr bool value =
+		std::is_same<decltype(test<T>(0)), std::true_type>::value || std::is_array<T>::value;
+};
+
 template <typename T, typename R>
-using ForNonPointer =
-	typename std::enable_if<!(std::is_pointer<T>::value || std::is_null_pointer<T>::value), R>::type;
+using ForNonContainerNonPointer = typename std::enable_if<
+	!(is_container<T>::value || std::is_pointer<T>::value || std::is_null_pointer<T>::value), R>::type;
 
 template <typename T, typename R>
 using ForPointer = typename std::enable_if<std::is_pointer<T>::value, R>::type;
+
+template <typename T, typename R>
+using ForContainer = typename std::enable_if<is_container<T>::value, R>::type;
 
 template <typename T>
 inline std::string make_string(T const* ptr)
@@ -111,8 +130,13 @@ inline auto to_string(const std::nullptr_t&) -> std::string
 	return "nullptr";
 }
 
+inline auto to_string(const std::string& t) -> std::string
+{
+	return t;
+}
+
 template <typename T>
-auto to_string(const T& t) -> ForNonPointer<T, std::string>
+auto to_string(const T& t) -> ForNonContainerNonPointer<T, std::string>
 {
 	std::stringstream ss;
 	return (ss << std::boolalpha << t) ? ss.str() : std::string("??");
@@ -122,6 +146,32 @@ template <typename T>
 auto to_string(const T& ptr) -> ForPointer<T, std::string>
 {
 	return !ptr ? to_string(nullptr) : make_string(ptr);
+}
+
+template <typename T1, typename T2>
+auto to_string(std::pair<T1, T2> const& pair) -> std::string
+{
+	std::ostringstream oss;
+	oss << "{ " << to_string(pair.first) << ", " << to_string(pair.second) << " }";
+	return oss.str();
+}
+
+template <typename C>
+auto to_string(C const& cont) -> ForContainer<C, std::string>
+{
+	std::ostringstream os;
+	os << "{ ";
+	int i = 0;
+	for(auto& x : cont)
+	{
+		if(i++ != 0)
+		{
+			os << ", ";
+		}
+		os << to_string(x);
+	}
+	os << " }";
+	return os.str();
 }
 
 template <typename L, typename R>
@@ -146,11 +196,6 @@ inline unsigned& get(int i)
 
 struct result
 {
-	operator bool() const
-	{
-		return passed;
-	}
-
 	bool passed = false;
 	std::string decomposition;
 };
@@ -228,8 +273,8 @@ class check
 	using duration_t = std::chrono::duration<double, std::milli>;
 
 public:
-	check(const char* const text, const char* const file, int line, const std::function<result()>& f)
-		: result_getter_(f)
+	check(const char* const text, const char* const file, int line, std::function<result()> f)
+		: result_getter_(std::move(f))
 		, text_(text)
 		, file_(file)
 		, line_(line)
@@ -253,16 +298,16 @@ public:
 		bool ok = result.passed;
 
 		get(ok ? PASSED : FAILED)++;
-		std::string res[] = {"[FAIL]", "[ OK ]"};
 
-		std::string desc = res[ok] + " check (" + label_ + ")" + " (" + to_string(duration_.count()) + " ms)";
+		fprintf(stdout, "%s", ok ? "[ OK ] " : "[FAIL] ");
+		fprintf(stdout, "check (%s) ", label_.c_str());
+		fprintf(stdout, "(%sms) ", to_string(duration_.count()).c_str());
 
-		fprintf(stdout, "%s", desc.c_str());
 		if(!ok)
 		{
-			fprintf(stdout, " at %s:%d\n", file_.c_str(), line_);
-			fprintf(stdout, "\t%s\n", text_.c_str());
-			fprintf(stdout, "\t%s\n", result.decomposition.c_str());
+			fprintf(stdout, "at %s:%d\n", file_.c_str(), line_);
+			fprintf(stdout, "       %s\n", text_.c_str());
+			fprintf(stdout, "       %s\n", result.decomposition.c_str());
 		}
 		fprintf(stdout, "%s", "\n");
 	}
@@ -283,12 +328,12 @@ private:
 	int line_ = 0;
 };
 
-inline decltype(auto) test(const std::string& text, const std::function<void()>& fn)
+inline auto test(const std::string& text, const std::function<void()>& fn)
 {
 	auto title = text;
 	if(title.empty())
 		title = "Test";
-	fprintf(stdout, "--------  %s  --------\n", title.c_str());
+	fprintf(stdout, "-------------- %s --------------\n", title.c_str());
 
 	auto whole_case = [&]() {
 		auto fails = get(FAILED);
