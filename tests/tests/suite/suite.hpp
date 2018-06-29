@@ -42,13 +42,13 @@
 
 #define SUITE_GLOBAL static auto SUITE_LINE(sstsuite) =
 
-#define SUITE_DECOMPOSE(expr) (suite::expression_decomposer() << expr)
+#define SUITE_DECOMPOSE(expr) suite::result(suite::expression_decomposer() << expr)
 
 #define SUITE_EXPECT(expr)                                                                                   \
 	suite::check(#expr, __FILE__, __LINE__, [&]() {                                                          \
 		SUITE_PUSH_PRAGMA                                                                                    \
 		SUITE_DISABLE_WARNING("-Wparentheses", "-Wparentheses", 4554)                                        \
-		auto res = (SUITE_DECOMPOSE(expr));                                                                  \
+		auto res = SUITE_DECOMPOSE(expr);                                                                    \
 		SUITE_POP_PRAGMA                                                                                     \
 		return res;                                                                                          \
 	})
@@ -199,7 +199,7 @@ enum test_status
 };
 inline unsigned& get(int i)
 {
-	static unsigned var[TESTNO + 1] = {};
+	static unsigned var[TESTNO + 1] = {0, 0, 0};
 	return var[i];
 }
 
@@ -345,9 +345,10 @@ inline auto test(const std::string& text, const std::function<void()>& fn)
 	fprintf(stdout, "-------------- %s --------------\n", title.c_str());
 
 	auto whole_case = [&]() {
-		auto fails = get(FAILED);
+		auto fails_before = get(FAILED);
 		fn();
-		return get(FAILED) == fails;
+		auto fails_after = get(FAILED);
+		return fails_before == fails_after;
 	};
 	EXPECT(whole_case()).set_label("total");
 	return true;
