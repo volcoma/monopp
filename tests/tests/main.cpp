@@ -4,8 +4,6 @@
 
 #include "monopp/mono_jit.h"
 
-#include "suite/suite.hpp"
-
 int main()
 {
 	if(!mono::init("mono", true))

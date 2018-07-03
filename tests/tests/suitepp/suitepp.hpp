@@ -1,7 +1,7 @@
 #include <utility>
 
-#ifndef SUITE_HPP
-#define SUITE_HPP
+#ifndef SUITEPP_HPP
+#define SUITEPP_HPP
 
 #include <cassert>
 #include <chrono>
@@ -13,47 +13,47 @@
 #include <string>
 #include <vector>
 
-#define SUITE_STR(s) #s
-#define SUITE_JOIN(str, num) str##num
-#define SUITE_GLUE(str, num) SUITE_JOIN(str, num)
-#define SUITE_LINE(str) SUITE_GLUE(str, __LINE__)
+#define SUITEPP_STR(s) #s
+#define SUITEPP_JOIN(str, num) str##num
+#define SUITEPP_GLUE(str, num) SUITEPP_JOIN(str, num)
+#define SUITEPP_LINE(str) SUITEPP_GLUE(str, __LINE__)
 
 #ifdef _MSC_VER
-#define SUITE_DO_PRAGMA(x) __pragma(x)
-#define SUITE_PRAGMA(compiler, x) SUITE_DO_PRAGMA(warning(x))
+#define SUITEPP_DO_PRAGMA(x) __pragma(x)
+#define SUITEPP_PRAGMA(compiler, x) SUITEPP_DO_PRAGMA(warning(x))
 #else
-#define SUITE_DO_PRAGMA(x) _Pragma(#x)
-#define SUITE_PRAGMA(compiler, x) SUITE_DO_PRAGMA(compiler diagnostic x)
+#define SUITEPP_DO_PRAGMA(x) _Pragma(#x)
+#define SUITEPP_PRAGMA(compiler, x) SUITEPP_DO_PRAGMA(compiler diagnostic x)
 #endif
 #if defined(__clang__)
-#define SUITE_PUSH_PRAGMA SUITE_PRAGMA(clang, push)
-#define SUITE_DISABLE_WARNING(gcc_unused, clang_option, msvc_unused) SUITE_PRAGMA(clang, ignored clang_option)
-#define SUITE_POP_PRAGMA SUITE_PRAGMA(clang, pop)
+#define SUITEPP_PUSH_PRAGMA SUITEPP_PRAGMA(clang, push)
+#define SUITEPP_DISABLE_WARNING(gcc_unused, clang_option, msvc_unused) SUITEPP_PRAGMA(clang, ignored clang_option)
+#define SUITEPP_POP_PRAGMA SUITEPP_PRAGMA(clang, pop)
 #elif defined(_MSC_VER)
-#define SUITE_PUSH_PRAGMA SUITE_PRAGMA(msvc, push)
-#define SUITE_DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)                                      \
-	SUITE_PRAGMA(msvc, disable : msvc_errorcode)
-#define SUITE_POP_PRAGMA SUITE_PRAGMA(msvc, pop)
+#define SUITEPP_PUSH_PRAGMA SUITEPP_PRAGMA(msvc, push)
+#define SUITEPP_DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)                                      \
+	SUITEPP_PRAGMA(msvc, disable : msvc_errorcode)
+#define SUITEPP_POP_PRAGMA SUITEPP_PRAGMA(msvc, pop)
 #elif defined(__GNUC__)
-#define SUITE_PUSH_PRAGMA SUITE_PRAGMA(GCC, push)
-#define SUITE_DISABLE_WARNING(gcc_option, clang_unused, msvc_unused) SUITE_PRAGMA(GCC, ignored gcc_option)
-#define SUITE_POP_PRAGMA SUITE_PRAGMA(GCC, pop)
+#define SUITEPP_PUSH_PRAGMA SUITEPP_PRAGMA(GCC, push)
+#define SUITEPP_DISABLE_WARNING(gcc_option, clang_unused, msvc_unused) SUITEPP_PRAGMA(GCC, ignored gcc_option)
+#define SUITEPP_POP_PRAGMA SUITEPP_PRAGMA(GCC, pop)
 #endif
 
-#define SUITE_GLOBAL static auto SUITE_LINE(sstsuite) =
+#define SUITEPP_GLOBAL static auto SUITEPP_LINE(sstsuite) =
 
-#define SUITE_DECOMPOSE(expr) suite::result(suite::expression_decomposer() << expr)
+#define SUITEPP_DECOMPOSE(expr) suitepp::result(suitepp::expression_decomposer() << expr)
 
-#define SUITE_EXPECT(expr)                                                                                   \
-	suite::check(#expr, __FILE__, __LINE__, [&]() {                                                          \
-		SUITE_PUSH_PRAGMA                                                                                    \
-		SUITE_DISABLE_WARNING("-Wparentheses", "-Wparentheses", 4554)                                        \
-		auto res = SUITE_DECOMPOSE(expr);                                                                    \
-		SUITE_POP_PRAGMA                                                                                     \
+#define SUITEPP_EXPECT(expr)                                                                                   \
+	suitepp::check(#expr, __FILE__, __LINE__, [&]() {                                                          \
+		SUITEPP_PUSH_PRAGMA                                                                                    \
+		SUITEPP_DISABLE_WARNING("-Wparentheses", "-Wparentheses", 4554)                                        \
+		auto res = SUITEPP_DECOMPOSE(expr);                                                                    \
+		SUITEPP_POP_PRAGMA                                                                                     \
 		return res;                                                                                          \
 	})
 
-#define EXPECT(expr) SUITE_EXPECT(expr)
+#define EXPECT(expr) SUITEPP_EXPECT(expr)
 
 #define THROWS(expr)                                                                                         \
 	[&]() {                                                                                                  \
@@ -86,7 +86,7 @@
 
 #define NOTHROWS(expr) !THROWS(expr)
 
-namespace suite
+namespace suitepp
 {
 
 using timer = std::chrono::high_resolution_clock;

@@ -45,7 +45,6 @@ function(add_mono_assembly)
 
     #Dotnet package config disabled, since it only works properly on 32-bit.
     #get_mono_pkg_config("dotnet" MONO_DOTNET_PKG_CONFIG)
-
     add_custom_target(
         ${MONO_ASSEMBLY_PARSED_ARGS_TARGET} ALL
         ${MONO_MCS_EXECUTABLE} "-t:${MONO_ASSEMBLY_PARSED_ARGS_TYPE}" ${MONO_ASSEMBLY_PARSED_ARGS_ADDITIONAL_ARGS} ${FULL_PATH_SOURCES} "-out:${MONO_ASSEMBLY_PARSED_ARGS_TARGET}${_FILE_EXTENSION}"

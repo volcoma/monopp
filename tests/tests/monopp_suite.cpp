@@ -9,7 +9,7 @@
 #include "monopp/mono_property_invoker.h"
 #include "monopp/mono_string.h"
 #include "monopp/mono_type.h"
-#include "suite/suite.hpp"
+#include "suitepp/suitepp.hpp"
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -47,12 +47,12 @@ void test_suite()
 	mono::mono_domain::set_current_domain(domain);
 
 	// clang-format off
-    suite::test("load invalid assembly", [&]()
+    suitepp::test("load invalid assembly", [&]()
     {
         EXPECT(THROWS_AS(domain.get_assembly("doesnt_exist_12345.dll"), mono::mono_exception));
     });
 
-    suite::test("load valid assembly", [&]()
+    suitepp::test("load valid assembly", [&]()
     {
         auto expression = [&]()
         {
@@ -68,7 +68,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
     
-    suite::test("load valid assembly and bind", [&]()
+    suitepp::test("load valid assembly and bind", [&]()
     {
         auto expression = [&]()
         {
@@ -83,7 +83,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get invalid type", [&]()
+    suitepp::test("get invalid type", [&]()
     {
         auto expression = [&]()
         {
@@ -94,7 +94,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get monopp valid type", [&]()
+    suitepp::test("get monopp valid type", [&]()
     {
         auto expression = [&]()
         {
@@ -106,7 +106,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get valid method", [&]()
+    suitepp::test("get valid method", [&]()
     {
         auto expression = [&]()
         {
@@ -129,7 +129,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get/set field", [&]()
+    suitepp::test("get/set field", [&]()
     {
         auto expression = [&]()
         {
@@ -158,7 +158,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get/set static field", [&]()
+    suitepp::test("get/set static field", [&]()
     {
         auto expression = [&]()
         {
@@ -184,7 +184,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get invalid field", [&]()
+    suitepp::test("get invalid field", [&]()
     {
         auto expression = [&]()
         {
@@ -195,7 +195,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get/set property", [&]()
+    suitepp::test("get/set property", [&]()
     {
         auto expression = [&]()
         {
@@ -225,7 +225,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get/set static property", [&]()
+    suitepp::test("get/set static property", [&]()
     {
         auto expression = [&]()
         {
@@ -247,7 +247,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("get invalid property", [&]()
+    suitepp::test("get invalid property", [&]()
     {
         auto expression = [&]()
         {
@@ -258,7 +258,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("call static method 1", [&]()
+    suitepp::test("call static method 1", [&]()
     {
         auto expression = [&]()
         {
@@ -274,7 +274,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("call static method 2", [&]()
+    suitepp::test("call static method 2", [&]()
     {
         auto expression = [&]()
         {
@@ -288,7 +288,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("call static method 3", [&]()
+    suitepp::test("call static method 3", [&]()
     {
         auto expression = [&]()
         {
@@ -302,7 +302,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
     
-    suite::test("call static method 4", [&]()
+    suitepp::test("call static method 4", [&]()
     {
         auto expression = [&]()
         {
@@ -318,7 +318,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("call static method 5", [&]()
+    suitepp::test("call static method 5", [&]()
     {
         auto expression = [&]()
         {
@@ -332,7 +332,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("call static method 6", [&]()
+    suitepp::test("call static method 6", [&]()
     {
         auto expression = [&]()
         {
@@ -346,7 +346,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("call member method 1", [&]()
+    suitepp::test("call member method 1", [&]()
     {
         auto expression = [&]()
         {
@@ -361,7 +361,7 @@ void test_suite()
         EXPECT(NOTHROWS(expression()));
     });
 
-    suite::test("call member method 2", [&]()
+    suitepp::test("call member method 2", [&]()
     {
         auto expression = [&]()
         {

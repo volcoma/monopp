@@ -11,7 +11,7 @@
 #include "monopp/mono_type.h"
 
 #include "monort/monort.h"
-#include "suite/suite.hpp"
+#include "suitepp/suitepp.hpp"
 #include <iostream>
 
 struct vec2f
@@ -83,7 +83,7 @@ void test_suite()
 	mono::mono_domain::set_current_domain(domain);
 
 	// clang-format off
-	suite::test("init monort", [&]()
+	suitepp::test("init monort", [&]()
     {
 		auto expression = [&]()
         {
@@ -94,7 +94,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("bind monort", [&]()
+	suitepp::test("bind monort", [&]()
     {
 		auto expression = [&]()
         {
@@ -109,7 +109,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("get monort valid type", [&]()
+	suitepp::test("get monort valid type", [&]()
     {
 		auto expression = [&]()
         {
@@ -137,7 +137,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("call member method 3", [&]()
+	suitepp::test("call member method 3", [&]()
     {
 		auto expression = [&]()
         {
@@ -157,7 +157,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("call member method 4", [&]()
+	suitepp::test("call member method 4", [&]()
     {
 		auto expression = [&]()
         {
@@ -183,7 +183,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("member POD field", [&]()
+	suitepp::test("member POD field", [&]()
     {
 		auto expression = [&]()
         {
@@ -209,7 +209,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("member POD property", [&]()
+	suitepp::test("member POD property", [&]()
     {
 		auto expression = [&]()
         {
@@ -236,7 +236,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("static POD field", [&]()
+	suitepp::test("static POD field", [&]()
     {
 		auto expression = [&]()
         {
@@ -259,7 +259,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("static POD property", [&]()
+	suitepp::test("static POD property", [&]()
     {
 		auto expression = [&]()
         {
@@ -283,7 +283,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("static NON-POD field", [&]()
+	suitepp::test("static NON-POD field", [&]()
     {
 		auto expression = [&]()
         {
@@ -307,7 +307,7 @@ void test_suite()
 		EXPECT(NOTHROWS(expression()));
 	});
 
-	suite::test("static NON-POD property", [&]()
+	suitepp::test("static NON-POD property", [&]()
     {
 		auto expression = [&]()
         {
