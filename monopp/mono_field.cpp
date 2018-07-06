@@ -19,7 +19,7 @@ mono_field::mono_field(const mono_type& type, const std::string& name)
 	}
 	const auto& domain = mono_domain::get_current_domain();
 
-    __generate_meta();
+    generate_meta();
     if(is_static())
     {
         owning_type_vtable_ = mono_class_vtable(domain.get_internal_ptr(), type.get_internal_ptr());
@@ -27,7 +27,7 @@ mono_field::mono_field(const mono_type& type, const std::string& name)
     }
 }
 
-void mono_field::__generate_meta()
+void mono_field::generate_meta()
 {
 	auto type = mono_field_get_type(field_);
 	type_ = mono_type(mono_class_from_mono_type(type));
@@ -36,7 +36,7 @@ void mono_field::__generate_meta()
 	full_declname_ = to_string(get_visibility()) + storage + fullname_;
 }
 
-auto mono_field::__is_valuetype() const -> bool
+auto mono_field::is_valuetype() const -> bool
 {
 	return get_type().is_valuetype();
 }

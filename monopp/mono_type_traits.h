@@ -167,7 +167,7 @@ inline const std::map<index_t, type_names_t>& get_types()
 	// intptr, single, double, string and object.
 
 	// clang-format off
-	static const std::map<index_t, type_names_t> types_ =
+	static const std::map<index_t, type_names_t> types =
     {
         {id<std::int8_t>(), {"sbyte", "System.SByte"}},
         {id<std::uint8_t>(), {"byte", "System.Byte"}}, 
@@ -186,7 +186,7 @@ inline const std::map<index_t, type_names_t>& get_types()
     };
 	// clang-format on
 
-	return types_;
+	return types;
 }
 
 template <typename T>

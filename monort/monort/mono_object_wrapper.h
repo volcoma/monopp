@@ -58,7 +58,7 @@ private:
 template <typename T>
 auto mono_object_wrapper<T>::create(T obj) -> mono_object
 {
-	auto instance = object::object_type->new_instance();
+	auto instance = object::get_object_type()->new_instance();
 	create(instance, std::move(obj));
 	return instance;
 }

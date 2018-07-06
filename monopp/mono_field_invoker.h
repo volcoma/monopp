@@ -28,25 +28,25 @@ private:
 	{
 	}
 
-	void __set_value(const mono_object* obj, const T& val) const;
+	void set_value_impl(const mono_object* obj, const T& val) const;
 
-	auto __get_value(const mono_object* obj) const -> T;
+	auto get_value_impl(const mono_object* obj) const -> T;
 };
 
 template <typename T>
 void mono_field_invoker<T>::set_value(const T& val) const
 {
-	__set_value(nullptr, val);
+	set_value_impl(nullptr, val);
 }
 
 template <typename T>
 void mono_field_invoker<T>::set_value(const mono_object& object, const T& val) const
 {
-	__set_value(&object, val);
+	set_value_impl(&object, val);
 }
 
 template <typename T>
-void mono_field_invoker<T>::__set_value(const mono_object* object, const T& val) const
+void mono_field_invoker<T>::set_value_impl(const mono_object* object, const T& val) const
 {
 	assert(field_);
 
@@ -68,23 +68,23 @@ void mono_field_invoker<T>::__set_value(const mono_object* object, const T& val)
 template <typename T>
 auto mono_field_invoker<T>::get_value() const -> T
 {
-	return __get_value(nullptr);
+	return get_value_impl(nullptr);
 }
 
 template <typename T>
 auto mono_field_invoker<T>::get_value(const mono_object& object) const -> T
 {
-	return __get_value(&object);
+	return get_value_impl(&object);
 }
 
 template <typename T>
-auto mono_field_invoker<T>::__get_value(const mono_object* object) const -> T
+auto mono_field_invoker<T>::get_value_impl(const mono_object* object) const -> T
 {
 	T val{};
 	assert(field_);
 	MonoObject* refvalue = nullptr;
 	auto arg = reinterpret_cast<void*>(&val);
-	if(!__is_valuetype())
+	if(!is_valuetype())
 	{
 		arg = &refvalue;
 	}
@@ -99,7 +99,7 @@ auto mono_field_invoker<T>::__get_value(const mono_object* object) const -> T
 		mono_field_static_get_value(owning_type_vtable_, field_, arg);
 	}
 
-	if(!__is_valuetype())
+	if(!is_valuetype())
 	{
 		val = convert_mono_type<T>::from_mono_boxed(refvalue);
 	}

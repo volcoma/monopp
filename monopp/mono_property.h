@@ -38,7 +38,7 @@ public:
 	auto get_internal_ptr() const -> MonoProperty*;
 
 private:
-	void __generate_meta();
+	void generate_meta();
 
 	mono_type type_;
 

@@ -18,7 +18,7 @@ mono_property::mono_property(const mono_type& type, const std::string& name)
 	if(!property_)
 		throw mono_exception("NATIVE::Could not get property : " + name + " for class " + type.get_name());
 
-	__generate_meta();
+	generate_meta();
 }
 
 auto mono_property::get_internal_ptr() const -> MonoProperty*
@@ -90,7 +90,7 @@ auto mono_property::is_static() const -> bool
 	return getter.is_static();
 }
 
-void mono_property::__generate_meta()
+void mono_property::generate_meta()
 {
 	auto get_method = get_get_method();
 	type_ = mono_type(get_method.get_return_type());

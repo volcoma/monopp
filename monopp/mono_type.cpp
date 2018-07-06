@@ -29,7 +29,7 @@ mono_type::mono_type(MonoImage* image, const std::string& name_space, const std:
 	if(!class_)
 		throw mono_exception("NATIVE::Could not get class : " + name_space + "." + name);
 
-	__generate_meta();
+	generate_meta();
 }
 
 mono_type::mono_type(MonoClass* cls)
@@ -38,7 +38,7 @@ mono_type::mono_type(MonoClass* cls)
 	if(!class_)
 		throw mono_exception("NATIVE::Could not get class");
 
-	__generate_meta();
+	generate_meta();
 }
 mono_type::mono_type(MonoType* type)
 {
@@ -46,7 +46,7 @@ mono_type::mono_type(MonoType* type)
 	if(!class_)
 		throw mono_exception("NATIVE::Could not get class");
 
-	__generate_meta();
+	generate_meta();
 }
 auto mono_type::valid() const -> bool
 {
@@ -158,7 +158,7 @@ auto mono_type::get_internal_ptr() const -> MonoClass*
 	return class_;
 }
 
-void mono_type::__generate_meta()
+void mono_type::generate_meta()
 {
 	type_ = mono_class_get_type(class_);
 	namespace_ = mono_class_get_namespace(class_);

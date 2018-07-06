@@ -17,7 +17,7 @@ mono_method::mono_method(MonoMethod* method)
 	{
 		throw mono_exception("NATIVE::Could not create method");
 	}
-	__generate_meta();
+	generate_meta();
 }
 
 mono_method::mono_method(const mono_type& type, const std::string& name_with_args)
@@ -32,7 +32,7 @@ mono_method::mono_method(const mono_type& type, const std::string& name_with_arg
 		throw mono_exception("NATIVE::Could not create method : " + name_with_args + " for class " +
 							 type_name);
 	}
-	__generate_meta();
+	generate_meta();
 }
 
 mono_method::mono_method(const mono_type& type, const std::string& name, int argc)
@@ -44,10 +44,10 @@ mono_method::mono_method(const mono_type& type, const std::string& name, int arg
 		const auto& type_name = type.get_name();
 		throw mono_exception("NATIVE::Could not create method : " + name + " for class " + type_name);
 	}
-	__generate_meta();
+	generate_meta();
 }
 
-void mono_method::__generate_meta()
+void mono_method::generate_meta()
 {
 	signature_ = mono_method_signature(method_);
 	name_ = mono_method_get_name(method_);

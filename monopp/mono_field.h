@@ -31,8 +31,8 @@ public:
 	auto is_static() const -> bool;
 
 protected:
-	void __generate_meta();
-	auto __is_valuetype() const -> bool;
+	void generate_meta();
+	auto is_valuetype() const -> bool;
 
 	mono_type type_;
 

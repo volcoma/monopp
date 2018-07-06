@@ -21,13 +21,17 @@ target_include_directories(monopp
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(monopp PRIVATE ${MONO_LIBRARIES})
+target_link_libraries(monopp PUBLIC ${MONO_LIBRARIES})
 
 set_target_properties(monopp PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
+	WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
 include(target_warning_support)
 set_warning_level(monopp ultra)
+
+include(target_code_style_support)
+set_code_style(monopp snake_case)

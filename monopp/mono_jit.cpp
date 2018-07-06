@@ -53,7 +53,7 @@ static void on_log_callback(const char* log_domain, const char* log_level, const
 	}
 }
 
-static MonoDomain* jit_domain_ = nullptr;
+static MonoDomain* jit_domain = nullptr;
 
 bool init(const std::string& domain, bool enable_debugging)
 {
@@ -91,19 +91,19 @@ bool init(const std::string& domain, bool enable_debugging)
 
 	set_log_handler("default", [](const std::string& msg) { std::cout << msg << std::endl; });
 
-	jit_domain_ = mono_jit_init(domain.c_str());
+	jit_domain = mono_jit_init(domain.c_str());
 	mono_thread_set_main(mono_thread_current());
 
-	return jit_domain_ != nullptr;
+	return jit_domain != nullptr;
 }
 
 void shutdown()
 {
-	if(jit_domain_)
+	if(jit_domain)
 	{
-		mono_jit_cleanup(jit_domain_);
+		mono_jit_cleanup(jit_domain);
 	}
-	jit_domain_ = nullptr;
+	jit_domain = nullptr;
 }
 
 } // namespace mono

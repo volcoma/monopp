@@ -28,7 +28,7 @@ public:
 	auto is_virtual() const -> bool;
 
 protected:
-	void __generate_meta();
+	void generate_meta();
 
 	non_owning_ptr<MonoMethod> method_ = nullptr;
 	non_owning_ptr<MonoMethodSignature> signature_ = nullptr;

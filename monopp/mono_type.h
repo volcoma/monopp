@@ -71,7 +71,7 @@ public:
 	auto get_internal_ptr() const -> MonoClass*;
 
 private:
-	void __generate_meta();
+	void generate_meta();
 
 	non_owning_ptr<MonoClass> class_ = nullptr;
 

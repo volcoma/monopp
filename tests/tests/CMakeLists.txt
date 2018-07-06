@@ -8,6 +8,7 @@ set_target_properties(tests PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
+
 )
 if(MINGW)
 	set_target_properties(tests PROPERTIES 

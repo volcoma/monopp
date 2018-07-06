@@ -6,7 +6,7 @@
 namespace mono
 {
 
-auto __get_exception_info(MonoObject* ex) -> mono_thunk_exception::mono_exception_info
+auto get_exception_info(MonoObject* ex) -> mono_thunk_exception::mono_exception_info
 {
 	auto obj = mono_object(ex);
 	const auto& type = obj.get_type();
@@ -24,7 +24,7 @@ auto __get_exception_info(MonoObject* ex) -> mono_thunk_exception::mono_exceptio
 }
 
 mono_thunk_exception::mono_thunk_exception(MonoObject* ex)
-	: mono_thunk_exception(__get_exception_info(ex))
+	: mono_thunk_exception(get_exception_info(ex))
 {
 }
 
