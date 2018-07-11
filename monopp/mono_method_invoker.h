@@ -22,12 +22,12 @@ bool is_compatible_type(const mono_type& type)
 	return types::is_compatible_type<T>(expected_name);
 }
 
-template <typename signature_t>
+template <typename Signature>
 bool has_compatible_signature(const mono_method& method)
 {
-	constexpr auto arity = function_traits<signature_t>::arity;
-	using return_type = typename function_traits<signature_t>::return_type;
-	using arg_types = typename function_traits<signature_t>::arg_types_decayed;
+	constexpr auto arity = function_traits<Signature>::arity;
+	using return_type = typename function_traits<Signature>::return_type;
+	using arg_types = typename function_traits<Signature>::arg_types_decayed;
 	auto expected_rtype = method.get_return_type();
 	auto expected_arg_types = method.get_param_types();
 
@@ -59,25 +59,25 @@ bool has_compatible_signature(const mono_method& method)
 	return compatible;
 }
 
-template <typename return_type_t>
+template <typename T>
 class mono_method_invoker;
 
-template <typename... args_t>
-class mono_method_invoker<void(args_t...)> : public mono_method
+template <typename... Args>
+class mono_method_invoker<void(Args...)> : public mono_method
 {
 public:
-	void operator()(args_t... args)
+	void operator()(Args... args)
 	{
-		invoke(nullptr, std::forward<args_t>(args)...);
+		invoke(nullptr, std::forward<Args>(args)...);
 	}
 
-	void operator()(const mono_object& obj, args_t... args)
+	void operator()(const mono_object& obj, Args... args)
 	{
-		invoke(&obj, std::forward<args_t>(args)...);
+		invoke(&obj, std::forward<Args>(args)...);
 	}
 
 private:
-	void invoke(const mono_object* obj, args_t... args)
+	void invoke(const mono_object* obj, Args... args)
 	{
 		auto method = this->method_;
 		MonoObject* object = nullptr;
@@ -88,7 +88,7 @@ private:
 			method = mono_object_get_virtual_method(object, method);
 		}
 		auto tup =
-			std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
+			std::make_tuple(convert_mono_type<std::decay_t<Args>>::to_mono(std::forward<Args>(args))...);
 
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
@@ -104,8 +104,8 @@ private:
 		apply(inv, tup);
 	}
 
-	template <typename signature_t>
-	friend mono_method_invoker<signature_t> make_method_invoker(const mono_method&, bool);
+	template <typename Signature>
+	friend mono_method_invoker<Signature> make_method_invoker(const mono_method&, bool);
 
 	mono_method_invoker(const mono_method& o)
 		: mono_method(o)
@@ -113,22 +113,22 @@ private:
 	}
 };
 
-template <typename return_type_t, typename... args_t>
-class mono_method_invoker<return_type_t(args_t...)> : public mono_method
+template <typename RetType, typename... Args>
+class mono_method_invoker<RetType(Args...)> : public mono_method
 {
 public:
-	auto operator()(args_t... args)
+	auto operator()(Args... args)
 	{
-		return invoke(nullptr, std::forward<args_t>(args)...);
+		return invoke(nullptr, std::forward<Args>(args)...);
 	}
 
-	auto operator()(const mono_object& obj, args_t... args)
+	auto operator()(const mono_object& obj, Args... args)
 	{
-		return invoke(&obj, std::forward<args_t>(args)...);
+		return invoke(&obj, std::forward<Args>(args)...);
 	}
 
 private:
-	auto invoke(const mono_object* obj, args_t... args)
+	auto invoke(const mono_object* obj, Args... args)
 	{
 		auto method = this->method_;
 		MonoObject* object = nullptr;
@@ -139,7 +139,7 @@ private:
 			method = mono_object_get_virtual_method(object, method);
 		}
 		auto tup =
-			std::make_tuple(convert_mono_type<std::decay_t<args_t>>::to_mono(std::forward<args_t>(args))...);
+			std::make_tuple(convert_mono_type<std::decay_t<Args>>::to_mono(std::forward<Args>(args))...);
 		auto inv = [method, object](auto... args) {
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 
@@ -154,11 +154,11 @@ private:
 		};
 
 		auto result = apply(inv, tup);
-		return convert_mono_type<std::decay_t<return_type_t>>::from_mono_boxed(std::move(result));
+		return convert_mono_type<std::decay_t<RetType>>::from_mono_boxed(std::move(result));
 	}
 
-	template <typename signature_t>
-	friend mono_method_invoker<signature_t> make_method_invoker(const mono_method&, bool);
+	template <typename Signature>
+	friend mono_method_invoker<Signature> make_method_invoker(const mono_method&, bool);
 
 	mono_method_invoker(const mono_method& o)
 		: mono_method(o)
@@ -166,20 +166,20 @@ private:
 	}
 };
 
-template <typename signature_t>
-mono_method_invoker<signature_t> make_method_invoker(const mono_method& method, bool check_signature = true)
+template <typename Signature>
+mono_method_invoker<Signature> make_method_invoker(const mono_method& method, bool check_signature = true)
 {
-	if(check_signature && !has_compatible_signature<signature_t>(method))
+	if(check_signature && !has_compatible_signature<Signature>(method))
 	{
 		throw mono_exception("NATIVE::Method thunk requested with incompatible signature");
 	}
-	return mono_method_invoker<signature_t>(method);
+	return mono_method_invoker<Signature>(method);
 }
 
-template <typename signature_t>
-mono_method_invoker<signature_t> make_method_invoker(const mono_type& type, const std::string& name)
+template <typename Signature>
+mono_method_invoker<Signature> make_method_invoker(const mono_type& type, const std::string& name)
 {
-	using arg_types = typename function_traits<signature_t>::arg_types;
+	using arg_types = typename function_traits<Signature>::arg_types;
 	arg_types tup;
 	auto args_result = types::get_args_signature(tup);
 	auto args = args_result.first;
@@ -188,13 +188,13 @@ mono_method_invoker<signature_t> make_method_invoker(const mono_type& type, cons
 	if(all_types_known)
 	{
 		auto func = type.get_method(name + "(" + args + ")");
-		return make_method_invoker<signature_t>(func);
+		return make_method_invoker<Signature>(func);
 	}
 	else
 	{
-		constexpr auto arg_count = function_traits<signature_t>::arity;
+		constexpr auto arg_count = function_traits<Signature>::arity;
 		auto func = type.get_method(name, arg_count);
-		return make_method_invoker<signature_t>(func);
+		return make_method_invoker<Signature>(func);
 	}
 }
 

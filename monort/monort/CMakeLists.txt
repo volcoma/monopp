@@ -20,4 +20,4 @@ include(target_warning_support)
 set_warning_level(monort ultra)
 
 include(target_code_style_support)
-set_code_style(monort snake_case)
+set_code_style(monort lower_case check_headers "${extra_flags}")

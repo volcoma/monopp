@@ -58,7 +58,7 @@ auto mono_property::get_set_method() const -> mono_method
 
 auto mono_property::get_visibility() const -> visibility
 {
-	auto getter_vis = visibility::public_;
+	auto getter_vis = visibility::vis_public;
 	try
 	{
 		auto getter = get_get_method();
@@ -67,7 +67,7 @@ auto mono_property::get_visibility() const -> visibility
 	catch(const mono_exception&)
 	{
 	}
-	auto setter_vis = visibility::public_;
+	auto setter_vis = visibility::vis_public;
 	try
 	{
 		auto setter = get_set_method();

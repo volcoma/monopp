@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/object.h"
+#include "core/managed_object.h"
 #include "mono_object_wrapper.h"
 #include "mono_pod_wrapper.h"
 

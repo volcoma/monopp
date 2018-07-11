@@ -6,26 +6,26 @@ namespace mono
 {
 enum class visibility
 {
-	private_,
-	protected_internal_,
-	internal_,
-	protected_,
-	public_
+	vis_private,
+	vis_protected_internal,
+	vis_internal,
+	vis_protected,
+	vis_public
 };
 
 inline std::string to_string(visibility vis)
 {
 	switch(vis)
 	{
-		case visibility::private_:
+		case visibility::vis_private:
 			return "private";
-		case visibility::protected_internal_:
+		case visibility::vis_protected_internal:
 			return "protected internal";
-		case visibility::internal_:
+		case visibility::vis_internal:
 			return "internal";
-		case visibility::protected_:
+		case visibility::vis_protected:
 			return "protected";
-		case visibility::public_:
+		case visibility::vis_public:
 			return "public";
 	}
 	return "private";

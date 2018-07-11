@@ -34,4 +34,4 @@ include(target_warning_support)
 set_warning_level(monopp ultra)
 
 include(target_code_style_support)
-set_code_style(monopp snake_case)
+set_code_style(monopp lower_case check_headers "${extra_flags}")

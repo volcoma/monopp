@@ -63,19 +63,19 @@ auto mono_field::get_visibility() const -> visibility
 	uint32_t flags = mono_field_get_flags(field_) & MONO_FIELD_ATTR_FIELD_ACCESS_MASK;
 
 	if(flags == MONO_FIELD_ATTR_PRIVATE)
-		return visibility::private_;
+		return visibility::vis_private;
 	else if(flags == MONO_FIELD_ATTR_FAM_AND_ASSEM)
-		return visibility::protected_internal_;
+		return visibility::vis_protected_internal;
 	else if(flags == MONO_FIELD_ATTR_ASSEMBLY)
-		return visibility::internal_;
+		return visibility::vis_internal;
 	else if(flags == MONO_FIELD_ATTR_FAMILY)
-		return visibility::protected_;
+		return visibility::vis_protected;
 	else if(flags == MONO_FIELD_ATTR_PUBLIC)
-		return visibility::public_;
+		return visibility::vis_public;
 
 	assert(false);
 
-	return visibility::private_;
+	return visibility::vis_private;
 }
 
 auto mono_field::is_static() const -> bool

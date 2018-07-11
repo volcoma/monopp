@@ -19,8 +19,8 @@ public:
 	auto get_value(const mono_object& obj) const -> T;
 
 private:
-	template <typename signature_t>
-	friend mono_property_invoker<signature_t> make_property_invoker(const mono_property&);
+	template <typename Signature>
+	friend mono_property_invoker<Signature> make_property_invoker(const mono_property&);
 
 	explicit mono_property_invoker(const mono_property& property)
 		: mono_property(property)
