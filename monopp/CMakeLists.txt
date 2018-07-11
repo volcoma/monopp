@@ -1,11 +1,8 @@
 include(Mono)
 
-set(_MONO_ASSEMBLY_DIR ${MONO_ASSEMBLY_PATH})
-set(_MONO_CONFIG_DIR ${MONO_CONFIG_PATH})
-
-set(INTERNAL_MONO_ASSEMBLY_DIR "${_MONO_ASSEMBLY_DIR}"
+set(INTERNAL_MONO_ASSEMBLY_DIR "${MONO_ASSEMBLY_PATH}"
     CACHE PATH "Path to the Mono assembly dir (mono/lib). May be a relative path.")
-set(INTERNAL_MONO_CONFIG_DIR "${_MONO_CONFIG_DIR}"
+set(INTERNAL_MONO_CONFIG_DIR "${MONO_CONFIG_PATH}"
     CACHE PATH "Path to the Mono config dir (mono/etc). May be a relative path.")
 
 configure_file(mono_build_config.h.in mono_build_config.h @ONLY)
