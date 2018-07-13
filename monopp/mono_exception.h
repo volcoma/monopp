@@ -11,7 +11,7 @@ namespace mono
 
 class mono_exception : public std::runtime_error
 {
-    using runtime_error::runtime_error;
+	using runtime_error::runtime_error;
 };
 
 class mono_thunk_exception : public mono_exception

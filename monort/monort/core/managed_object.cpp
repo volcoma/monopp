@@ -14,9 +14,9 @@ void finalize(const mono::mono_object& obj)
 	auto this_cpp_ptr = &object::get_managed_object_as<object>(obj);
 
 	// invalidate the mono object's handle to the cpp pointer
-    const auto& field = *object::get_native_object_field();
-    auto mutable_field = make_field_invoker<object*>(field);
-    mutable_field.set_value(obj, nullptr);
+	const auto& field = *object::get_native_object_field();
+	auto mutable_field = make_field_invoker<object*>(field);
+	mutable_field.set_value(obj, nullptr);
 	// delete the cpp pointer
 	delete this_cpp_ptr;
 }
@@ -28,11 +28,11 @@ void object::register_internal_calls()
 void object::initialize_type_field(const mono_assembly& assembly)
 {
 	auto type = assembly.get_type("Monopp.Core", "NativeObject");
-    auto& object_type = get_object_type();
-    object_type = std::make_unique<mono_type>(std::move(type));
+	auto& object_type = get_object_type();
+	object_type = std::make_unique<mono_type>(std::move(type));
 	auto field = object_type->get_field("native_this_");
 	auto& native_object_field = get_native_object_field();
-    native_object_field = std::make_unique<mono_field>(std::move(field));
+	native_object_field = std::make_unique<mono_field>(std::move(field));
 }
 
 object::~object() = default;
@@ -48,21 +48,21 @@ object::object(mono_object obj)
 	// Give mono the ownership of the this pointer.
 	// When the c# finalize is called then our finalize will
 	// delete the pointer
-    const auto& field = *object::get_native_object_field();
-    auto mutable_field = make_field_invoker<object*>(field);
-    mutable_field.set_value(managed_object_, this);
+	const auto& field = *object::get_native_object_field();
+	auto mutable_field = make_field_invoker<object*>(field);
+	mutable_field.set_value(managed_object_, this);
 }
 
-std::unique_ptr<mono_type> &object::get_object_type()
+std::unique_ptr<mono_type>& object::get_object_type()
 {
-    static std::unique_ptr<mono_type> object_type;
-    return object_type;
+	static std::unique_ptr<mono_type> object_type;
+	return object_type;
 }
 
-std::unique_ptr<mono_field> &object::get_native_object_field()
+std::unique_ptr<mono_field>& object::get_native_object_field()
 {
-    static std::unique_ptr<mono_field> native_object_field;
-    return native_object_field;
+	static std::unique_ptr<mono_field> native_object_field;
+	return native_object_field;
 }
 
 } // namespace managed_interface

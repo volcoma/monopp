@@ -24,10 +24,10 @@ public:
 	object(const object&) noexcept = delete;
 	object& operator=(const object&) noexcept = delete;
 
-    static std::unique_ptr<mono_type>& get_object_type();
-    static std::unique_ptr<mono_field>& get_native_object_field();
+	static std::unique_ptr<mono_type>& get_object_type();
+	static std::unique_ptr<mono_field>& get_native_object_field();
 
-    template <typename T>
+	template <typename T>
 	static auto& get_managed_object_as(const mono_object& mono_obj);
 
 private:
@@ -39,8 +39,8 @@ private:
 template <typename T>
 auto& object::get_managed_object_as(const mono_object& mono_obj)
 {
-    const auto& field = *get_native_object_field();
-    auto mutable_field = make_field_invoker<T*>(field);
+	const auto& field = *get_native_object_field();
+	auto mutable_field = make_field_invoker<T*>(field);
 	return *mutable_field.get_value(mono_obj);
 }
 

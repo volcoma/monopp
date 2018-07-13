@@ -27,11 +27,12 @@
 #endif
 #if defined(__clang__)
 #define SUITEPP_PUSH_PRAGMA SUITEPP_PRAGMA(clang, push)
-#define SUITEPP_DISABLE_WARNING(gcc_unused, clang_option, msvc_unused) SUITEPP_PRAGMA(clang, ignored clang_option)
+#define SUITEPP_DISABLE_WARNING(gcc_unused, clang_option, msvc_unused)                                       \
+	SUITEPP_PRAGMA(clang, ignored clang_option)
 #define SUITEPP_POP_PRAGMA SUITEPP_PRAGMA(clang, pop)
 #elif defined(_MSC_VER)
 #define SUITEPP_PUSH_PRAGMA SUITEPP_PRAGMA(msvc, push)
-#define SUITEPP_DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)                                      \
+#define SUITEPP_DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)                                    \
 	SUITEPP_PRAGMA(msvc, disable : msvc_errorcode)
 #define SUITEPP_POP_PRAGMA SUITEPP_PRAGMA(msvc, pop)
 #elif defined(__GNUC__)
@@ -44,12 +45,12 @@
 
 #define SUITEPP_DECOMPOSE(expr) suitepp::result(suitepp::expression_decomposer() << expr)
 
-#define SUITEPP_EXPECT(expr)                                                                                   \
-	suitepp::check(#expr, __FILE__, __LINE__, [&]() {                                                          \
-		SUITEPP_PUSH_PRAGMA                                                                                    \
-		SUITEPP_DISABLE_WARNING("-Wparentheses", "-Wparentheses", 4554)                                        \
-		auto res = SUITEPP_DECOMPOSE(expr);                                                                    \
-		SUITEPP_POP_PRAGMA                                                                                     \
+#define SUITEPP_EXPECT(expr)                                                                                 \
+	suitepp::check(#expr, __FILE__, __LINE__, [&]() {                                                        \
+		SUITEPP_PUSH_PRAGMA                                                                                  \
+		SUITEPP_DISABLE_WARNING("-Wparentheses", "-Wparentheses", 4554)                                      \
+		auto res = SUITEPP_DECOMPOSE(expr);                                                                  \
+		SUITEPP_POP_PRAGMA                                                                                   \
 		return res;                                                                                          \
 	})
 
