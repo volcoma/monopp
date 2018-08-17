@@ -10,8 +10,8 @@
 #include "monopp/mono_string.h"
 #include "monopp/mono_type.h"
 
+#include "../suitepp/suitepp/suitepp.hpp"
 #include "monort/monort.h"
-#include "suitepp/suitepp.hpp"
 #include <iostream>
 
 struct vec2f
@@ -335,4 +335,4 @@ void test_suite()
 
 	// clang-format on
 }
-}
+} // namespace monort

@@ -1,5 +1,6 @@
 #include "example_suite.h"
 
+#include "../suitepp/suitepp/suitepp.hpp"
 #include "monopp/mono_assembly.h"
 #include "monopp/mono_domain.h"
 #include "monopp/mono_field_invoker.h"
@@ -9,7 +10,6 @@
 #include "monopp/mono_property_invoker.h"
 #include "monopp/mono_string.h"
 #include "monopp/mono_type.h"
-#include "suitepp/suitepp.hpp"
 #include <iostream>
 
 namespace example
@@ -191,4 +191,4 @@ void test_suite()
 	});
 	// clang-format on
 }
-}
+} // namespace example

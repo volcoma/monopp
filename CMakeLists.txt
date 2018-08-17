@@ -4,11 +4,12 @@ project (monopp)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake/utility")
 
 option(BUILD_MONOPP_SHARED "Build as a shared library." ON)
 option(BUILD_MONOPP_MONORT "Build the monort utility library" ON)
 option(BUILD_MONOPP_TESTS "Build the tests" ON)
-option(BUILD_MONOPP_WITH_CODE_STYLE_CHECKS "Build with code style checks." OFF)
+option(BUILD_MONOPP_WITH_CODE_STYLE_CHECKS "Build with code style checks." ON)
 
 if(BUILD_MONOPP_TESTS)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin) 

@@ -4,7 +4,7 @@ include(copy_to_runtime_path)
 find_package(Mono)
 
 if (NOT MONO_FOUND)
-    message(FATAL_ERROR "Mono is required for this CMake script. Please use find_package(Mono) before including.")
+    message(FATAL_ERROR "Mono is required for this CMake script. Please install it.")
 endif ()
 
 if (WIN32)
@@ -67,4 +67,3 @@ function(get_mono_pkg_config package output)
     string(REPLACE " " ";" _OUTPUT "${_OUTPUT}")
     set(${output} ${_OUTPUT} PARENT_SCOPE)
 endfunction()
-
