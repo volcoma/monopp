@@ -13,7 +13,7 @@ int main()
 
 	monopp::test_suite();
 	monort::test_suite();
-	example::test_suite();
+	//example::test_suite();
 
 	mono::shutdown();
 

@@ -49,12 +49,12 @@ register_basic_mono_converter_for_wrapper(std::shared_ptr<vec2f>);
 void MyVec_TestInternalPODCall(const mono::mono_object& this_ptr, const vec2f& value)
 {
 	mono::ignore(this_ptr, value);
-	std::cout << "FROM C++ : Test Vector2f." << std::endl;
+	//std::cout << "FROM C++ : Test Vector2f." << std::endl;
 }
 
 void MyVec_CreateInternalCtor(const mono::mono_object& this_ptr, float x, float y)
 {
-	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
+	//std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
 	using vec2f_ptr = std::shared_ptr<vec2f>;
 	auto p = std::make_shared<vec2f>();
 	p->x = x;
@@ -65,7 +65,7 @@ void MyVec_CreateInternalCtor(const mono::mono_object& this_ptr, float x, float 
 
 void MyVec_CreateInternalCopyCtor(const mono::mono_object& this_ptr, const std::shared_ptr<vec2f>& rhs)
 {
-	std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
+	//std::cout << "FROM C++ : WrapperVector2f created." << std::endl;
 	using vec2f_ptr = std::shared_ptr<vec2f>;
 	auto p = std::make_shared<vec2f>();
 	p->x = rhs->x;
@@ -116,22 +116,22 @@ void test_suite()
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 
-			std::cout << type.get_fullname() << std::endl;
+			//std::cout << type.get_fullname() << std::endl;
 			auto fields = type.get_fields();
 			auto props = type.get_properties();
 			auto methods = type.get_methods();
-			for(const auto& field : fields)
-			{
-				std::cout << field.get_full_declname() << std::endl;
-			}
-			for(const auto& prop : props)
-			{
-				std::cout << prop.get_full_declname() << std::endl;
-			}
-			for(const auto& method : methods)
-			{
-				std::cout << method.get_full_declname() << std::endl;
-			}
+//			for(const auto& field : fields)
+//			{
+//				//std::cout << field.get_full_declname() << std::endl;
+//			}
+//			for(const auto& prop : props)
+//			{
+//				//std::cout << prop.get_full_declname() << std::endl;
+//			}
+//			for(const auto& method : methods)
+//			{
+//				//std::cout << method.get_full_declname() << std::endl;
+//			}
 		};
 
 		EXPECT(NOTHROWS(expression()));

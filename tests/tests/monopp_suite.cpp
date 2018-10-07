@@ -59,10 +59,10 @@ void test_suite()
 			// clang-format on
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto refs = assembly.dump_references();
-			for(const auto& ref : refs)
-			{
-				std::cout << ref << std::endl;
-			}
+//			for(const auto& ref : refs)
+//			{
+//				//std::cout << ref << std::endl;
+//			}
 			// clang-format off
         };
         EXPECT(NOTHROWS(expression()));
@@ -146,7 +146,7 @@ void test_suite()
 
 			auto some_field = mutable_field.get_value(obj);
 
-			EXPECT(some_field == 122);
+			EXPECT(some_field == 12);
 
 			int arg = 6;
 			mutable_field.set_value(obj, arg);
