@@ -138,7 +138,7 @@ void test_suite()
 
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
-			auto field = type.get_field("some_field");
+			auto field = type.get_field("someField");
 
 			auto mutable_field = mono::make_field_invoker<int>(field);
 
@@ -146,7 +146,7 @@ void test_suite()
 
 			auto some_field = mutable_field.get_value(obj);
 
-			EXPECT(some_field == 12);
+			EXPECT(some_field == 122);
 
 			int arg = 6;
 			mutable_field.set_value(obj, arg);
@@ -166,7 +166,7 @@ void test_suite()
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
-			auto field = type.get_field("some_fieldStatic");
+			auto field = type.get_field("someFieldStatic");
 
 			auto mutable_field = mono::make_field_invoker<int>(field);
 
@@ -203,7 +203,7 @@ void test_suite()
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
-			auto prop = type.get_property("some_property");
+			auto prop = type.get_property("someProperty");
 
 			auto mutable_prop = mono::make_property_invoker<int>(prop);
 
@@ -232,7 +232,7 @@ void test_suite()
 			// clang-format on
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
-			auto prop = type.get_property("some_propertyStatic");
+			auto prop = type.get_property("somePropertyStatic");
 			auto mutable_prop = mono::make_property_invoker<int>(prop);
 			auto some_prop = mutable_prop.get_value();
 			EXPECT(some_prop == 6);
