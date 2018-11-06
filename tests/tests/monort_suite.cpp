@@ -91,7 +91,7 @@ void test_suite()
 			mono::managed_interface::init(core_assembly);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("bind monort", [&]()
@@ -106,7 +106,7 @@ void test_suite()
 									internal_call(MyVec_CreateInternalCopyCtor));
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("get monort valid type", [&]()
@@ -134,7 +134,7 @@ void test_suite()
 //			}
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("call member method 3", [&]()
@@ -154,7 +154,7 @@ void test_suite()
 			EXPECT(result.y == 7.0f);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("call member method 4", [&]()
@@ -180,7 +180,7 @@ void test_suite()
 			EXPECT(result->y == 66.0f);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("member POD field", [&]()
@@ -206,7 +206,7 @@ void test_suite()
 			EXPECT(someField.y == 7.0f);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("member POD property", [&]()
@@ -233,7 +233,7 @@ void test_suite()
 			EXPECT(someProp.y == 56.0f);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("static POD field", [&]()
@@ -256,7 +256,7 @@ void test_suite()
 			EXPECT(someField.y == 7.0f);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("static POD property", [&]()
@@ -280,7 +280,7 @@ void test_suite()
 			EXPECT(someProp.y == 56.0f);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("static NON-POD field", [&]()
@@ -304,7 +304,7 @@ void test_suite()
 			EXPECT(someField->y == 7.0f);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	suitepp::test("static NON-POD property", [&]()
@@ -330,7 +330,7 @@ void test_suite()
 			EXPECT(someProp->y == 56.0f);
 		};
 
-		EXPECT(NOTHROWS(expression()));
+		EXPECT_NOTHROWS(expression());
 	});
 
 	// clang-format on

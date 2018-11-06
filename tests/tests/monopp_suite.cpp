@@ -49,7 +49,7 @@ void test_suite()
 	// clang-format off
     suitepp::test("load invalid assembly", [&]()
     {
-        EXPECT(THROWS_AS(domain.get_assembly("doesnt_exist_12345.dll"), mono::mono_exception));
+        EXPECT_THROWS_AS(domain.get_assembly("doesnt_exist_12345.dll"), mono::mono_exception);
     });
 
     suitepp::test("load valid assembly", [&]()
@@ -65,7 +65,7 @@ void test_suite()
 //			}
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
     
     suitepp::test("load valid assembly and bind", [&]()
@@ -80,7 +80,7 @@ void test_suite()
 			mono::add_internal_call("Tests.MyObject::ReturnAString", internal_call(MyObject_ReturnAString));
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get invalid type", [&]()
@@ -89,9 +89,9 @@ void test_suite()
         {
             auto assembly = domain.get_assembly("tests_managed.dll");
 
-            EXPECT(THROWS(assembly.get_type("SometypeThatDoesntExist12345")));
+            EXPECT_THROWS(assembly.get_type("SometypeThatDoesntExist12345"));
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get monopp valid type", [&]()
@@ -103,7 +103,7 @@ void test_suite()
 			assembly.get_type("Tests", "MonoppTest");
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get valid method", [&]()
@@ -126,7 +126,7 @@ void test_suite()
 
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get/set field", [&]()
@@ -155,7 +155,7 @@ void test_suite()
 			EXPECT(some_field == 6);
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get/set static field", [&]()
@@ -181,7 +181,7 @@ void test_suite()
 			EXPECT(some_field == 6);
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get invalid field", [&]()
@@ -190,9 +190,9 @@ void test_suite()
         {
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
-            EXPECT(THROWS(type.get_field("someInvalidField")));
+            EXPECT_THROWS(type.get_field("someInvalidField"));
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get/set property", [&]()
@@ -222,7 +222,7 @@ void test_suite()
 			EXPECT(some_prop == 55);
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get/set static property", [&]()
@@ -244,7 +244,7 @@ void test_suite()
 			EXPECT(some_prop == 55);
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("get invalid property", [&]()
@@ -253,9 +253,9 @@ void test_suite()
         {
             auto assembly = domain.get_assembly("tests_managed.dll");
             auto type = assembly.get_type("Tests", "MonoppTest");
-            EXPECT(THROWS(type.get_property("someInvalidProperty")));
+            EXPECT_THROWS(type.get_property("someInvalidProperty"));
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("call static method 1", [&]()
@@ -271,7 +271,7 @@ void test_suite()
 			EXPECT(number + 1337 == result);
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("call static method 2", [&]()
@@ -285,7 +285,7 @@ void test_suite()
 			method_thunk(13.37f, 42, 9000.0f);
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("call static method 3", [&]()
@@ -299,7 +299,7 @@ void test_suite()
 			method_thunk("Hello!");
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
     
     suitepp::test("call static method 4", [&]()
@@ -315,7 +315,7 @@ void test_suite()
 			EXPECT(result == std::string("The string value was: " + expected_string));
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("call static method 5", [&]()
@@ -326,10 +326,10 @@ void test_suite()
 			auto assembly = domain.get_assembly("tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void()>(type, "Function5");
-			EXPECT(THROWS(method_thunk()));
+			EXPECT_THROWS(method_thunk());
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("call static method 6", [&]()
@@ -343,7 +343,7 @@ void test_suite()
 			method_thunk();
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("call member method 1", [&]()
@@ -358,7 +358,7 @@ void test_suite()
 			method_thunk(obj);
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 
     suitepp::test("call member method 2", [&]()
@@ -374,7 +374,7 @@ void test_suite()
 			EXPECT(result == std::string("Return Value: test"));
 			// clang-format off
         };
-        EXPECT(NOTHROWS(expression()));
+        EXPECT_NOTHROWS(expression());
     });
 	// clang-format on
 }
