@@ -12,12 +12,6 @@ set_target_properties(${target_name} PROPERTIES
     CXX_EXTENSIONS NO
 
 )
-if(MINGW)
-	set_target_properties(${target_name} PROPERTIES
-		LINK_FLAGS 
-		"-static-libgcc -static-libstdc++ -static"
-	)
-endif()
 
 target_compile_definitions(${target_name} PUBLIC DATA_DIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/")
 
