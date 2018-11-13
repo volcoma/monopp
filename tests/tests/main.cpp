@@ -2,7 +2,7 @@
 #include "monopp_suite.h"
 #include "monort_suite.h"
 
-#include "monopp/mono_jit.h"
+#include <monopp/mono_jit.h>
 
 int main()
 {

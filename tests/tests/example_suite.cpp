@@ -1,15 +1,15 @@
 #include "example_suite.h"
 
-#include "../suitepp/suitepp/suitepp.hpp"
-#include "monopp/mono_assembly.h"
-#include "monopp/mono_domain.h"
-#include "monopp/mono_field_invoker.h"
-#include "monopp/mono_internal_call.h"
-#include "monopp/mono_method_invoker.h"
-#include "monopp/mono_object.h"
-#include "monopp/mono_property_invoker.h"
-#include "monopp/mono_string.h"
-#include "monopp/mono_type.h"
+#include <suitepp/suitepp/suitepp.hpp>
+#include <monopp/mono_assembly.h>
+#include <monopp/mono_domain.h>
+#include <monopp/mono_field_invoker.h>
+#include <monopp/mono_internal_call.h>
+#include <monopp/mono_method_invoker.h>
+#include <monopp/mono_object.h>
+#include <monopp/mono_property_invoker.h>
+#include <monopp/mono_string.h>
+#include <monopp/mono_type.h>
 #include <iostream>
 
 namespace example

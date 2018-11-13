@@ -7,20 +7,22 @@ set(INTERNAL_MONO_CONFIG_DIR "${MONO_CONFIG_PATH}"
 
 configure_file(mono_build_config.h.in mono_build_config.h @ONLY)
 
+set(target_name monopp)
+
 file(GLOB_RECURSE libsrc *.h *.cpp *.hpp *.c *.cc)
 
-add_library(monopp ${libsrc})
+add_library(${target_name} ${libsrc})
 
-target_include_directories(monopp
+target_include_directories(${target_name}
     PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}/..
         ${MONO_INCLUDE_PATH}
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(monopp PUBLIC ${MONO_LIBRARIES})
+target_link_libraries(${target_name} PUBLIC ${MONO_LIBRARIES})
 
-set_target_properties(monopp PROPERTIES
+set_target_properties(${target_name} PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
@@ -28,7 +30,7 @@ set_target_properties(monopp PROPERTIES
 )
 
 include(target_warning_support)
-set_warning_level(monopp ultra)
+set_warning_level(${target_name} ultra)
 
 include(target_code_style_support)
-set_code_style(monopp lower_case check_headers "${extra_flags}")
+set_code_style(${target_name} lower_case check_headers "${extra_flags}")

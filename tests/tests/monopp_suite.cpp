@@ -1,15 +1,15 @@
 #include "monopp_suite.h"
 
-#include "../suitepp/suitepp/suitepp.hpp"
-#include "monopp/mono_assembly.h"
-#include "monopp/mono_domain.h"
-#include "monopp/mono_field_invoker.h"
-#include "monopp/mono_internal_call.h"
-#include "monopp/mono_method_invoker.h"
-#include "monopp/mono_object.h"
-#include "monopp/mono_property_invoker.h"
-#include "monopp/mono_string.h"
-#include "monopp/mono_type.h"
+#include <suitepp/suitepp/suitepp.hpp>
+#include <monopp/mono_assembly.h>
+#include <monopp/mono_domain.h>
+#include <monopp/mono_field_invoker.h>
+#include <monopp/mono_internal_call.h>
+#include <monopp/mono_method_invoker.h>
+#include <monopp/mono_object.h>
+#include <monopp/mono_property_invoker.h>
+#include <monopp/mono_string.h>
+#include <monopp/mono_type.h>
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -57,7 +57,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto refs = assembly.dump_references();
 //			for(const auto& ref : refs)
 //			{
@@ -87,7 +87,7 @@ void test_suite()
     {
         auto expression = [&]()
         {
-            auto assembly = domain.get_assembly("tests_managed.dll");
+            auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 
             EXPECT_THROWS(assembly.get_type("SometypeThatDoesntExist12345"));
         };
@@ -99,7 +99,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			assembly.get_type("Tests", "MonoppTest");
 			// clang-format off
         };
@@ -111,7 +111,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
 			auto method1 = mono::make_method_invoker<void()>(type, "Method1");
@@ -134,7 +134,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
@@ -163,7 +163,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
 			auto field = type.get_field("someFieldStatic");
@@ -188,7 +188,7 @@ void test_suite()
     {
         auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
             EXPECT_THROWS(type.get_field("someInvalidField"));
         };
@@ -200,7 +200,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
 			auto prop = type.get_property("someProperty");
@@ -230,7 +230,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto prop = type.get_property("somePropertyStatic");
 			auto mutable_prop = mono::make_property_invoker<int>(prop);
@@ -251,7 +251,7 @@ void test_suite()
     {
         auto expression = [&]()
         {
-            auto assembly = domain.get_assembly("tests_managed.dll");
+            auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
             auto type = assembly.get_type("Tests", "MonoppTest");
             EXPECT_THROWS(type.get_property("someInvalidProperty"));
         };
@@ -263,7 +263,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<int(int)>(type, "Function1");
 			const auto number = 1000;
@@ -279,7 +279,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void(float, int, float)>(type, "Function2");
 			method_thunk(13.37f, 42, 9000.0f);
@@ -293,7 +293,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void(std::string)>(type, "Function3");
 			method_thunk("Hello!");
@@ -307,7 +307,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<std::string(std::string)>(type, "Function4");
 			auto expected_string = std::string("Hello!");
@@ -323,7 +323,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void()>(type, "Function5");
 			EXPECT_THROWS(method_thunk());
@@ -337,7 +337,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void()>(type, "Function6");
 			method_thunk();
@@ -351,7 +351,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto obj = type.new_instance();
 			auto method_thunk = mono::make_method_invoker<void()>(type, "Method1");
@@ -366,7 +366,7 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto obj = type.new_instance();
 			auto method_thunk = mono::make_method_invoker<std::string(std::string, int)>(type, "Method5");

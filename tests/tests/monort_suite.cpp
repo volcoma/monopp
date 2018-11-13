@@ -1,17 +1,17 @@
 #include "monort_suite.h"
+#include <suitepp/suitepp/suitepp.hpp>
 
-#include "monopp/mono_assembly.h"
-#include "monopp/mono_domain.h"
-#include "monopp/mono_field_invoker.h"
-#include "monopp/mono_internal_call.h"
-#include "monopp/mono_method_invoker.h"
-#include "monopp/mono_object.h"
-#include "monopp/mono_property_invoker.h"
-#include "monopp/mono_string.h"
-#include "monopp/mono_type.h"
+#include <monopp/mono_assembly.h>
+#include <monopp/mono_domain.h>
+#include <monopp/mono_field_invoker.h>
+#include <monopp/mono_internal_call.h>
+#include <monopp/mono_method_invoker.h>
+#include <monopp/mono_object.h>
+#include <monopp/mono_property_invoker.h>
+#include <monopp/mono_string.h>
+#include <monopp/mono_type.h>
 
-#include "../suitepp/suitepp/suitepp.hpp"
-#include "monort/monort.h"
+#include <monort/monort.h>
 #include <iostream>
 
 struct vec2f
@@ -87,7 +87,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto core_assembly = domain.get_assembly("monort_managed.dll");
+			auto core_assembly = domain.get_assembly(DATA_DIR"monort_managed.dll");
 			mono::managed_interface::init(core_assembly);
 		};
 
@@ -113,7 +113,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 
 			//std::cout << type.get_fullname() << std::endl;
@@ -141,7 +141,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto obj = type.new_instance();
 
@@ -161,7 +161,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 
 			auto obj = type.new_instance();
@@ -187,7 +187,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto field = type.get_field("someFieldPOD");
 			auto obj = type.new_instance();
@@ -213,7 +213,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto prop = type.get_property("somePropertyPOD");
             auto mutable_prop = mono::make_property_invoker<vec2f>(prop);
@@ -240,7 +240,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto field = type.get_field("someFieldPODStatic");
             auto mutable_field = mono::make_field_invoker<vec2f>(field);            
@@ -263,7 +263,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto prop = type.get_property("somePropertyPODStatic");
             auto mutable_prop = mono::make_property_invoker<vec2f>(prop);            
@@ -287,7 +287,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto field = type.get_field("someFieldNONPODStatic");
 			using vec2f_ptr = std::shared_ptr<vec2f>;
@@ -311,7 +311,7 @@ void test_suite()
     {
 		auto expression = [&]()
         {
-			auto assembly = domain.get_assembly("tests_managed.dll");
+			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonortTest");
 			auto prop = type.get_property("somePropertyNONPODStatic");
 
