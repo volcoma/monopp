@@ -1,6 +1,6 @@
 #include "monopp_suite.h"
 
-#include <suitepp/suitepp/suitepp.hpp>
+#include <suitepp/suitepp.hpp>
 #include <monopp/mono_assembly.h>
 #include <monopp/mono_domain.h>
 #include <monopp/mono_field_invoker.h>
