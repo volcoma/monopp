@@ -21,8 +21,6 @@ matrix:
             - libstdc++-5-dev
             - clang-3.8
             - cmake
-            - cmake-data
-            #- mono-devel
       env: 
         - COMPILERCXX='clang++-3.8'
         - COMPILERC='clang-3.8'
@@ -38,8 +36,6 @@ matrix:
             - libstdc++-6-dev
             - clang-3.9
             - cmake
-            - cmake-data
-            #- mono-devel
       env: 
         - COMPILERCXX='clang++-3.9'
         - COMPILERC='clang-3.9'
@@ -55,8 +51,6 @@ matrix:
             - libstdc++-6-dev
             - clang-4.0
             - cmake
-            - cmake-data
-            #- mono-devel
       env: 
         - COMPILERCXX='clang++-4.0'
         - COMPILERC='clang-4.0'
@@ -72,8 +66,7 @@ matrix:
             - libstdc++-7-dev
             - clang-5.0
             - cmake
-            - cmake-data
-            #- mono-devel
+
       env: 
         - COMPILERCXX='clang++-5.0'
         - COMPILERC='clang-5.0'
@@ -88,8 +81,6 @@ matrix:
           packages:
             - g++-5
             - cmake
-            - cmake-data
-            #- mono-devel
       env:
         - COMPILERCXX='g++-5'
         - COMPILERC='gcc-5'
@@ -103,8 +94,6 @@ matrix:
           packages:
             - g++-6
             - cmake
-            - cmake-data
-            #- mono-devel
       env:
         - COMPILERCXX='g++-6'
         - COMPILERC='gcc-6'
@@ -118,24 +107,21 @@ matrix:
           packages:
             - g++-7
             - cmake
-            - cmake-data
-            #- mono-devel
       env:
         - COMPILERCXX='g++-7'
         - COMPILERC='gcc-7'
         
 before_install:
   - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-  - sudo apt install apt-transport-https
-  - echo "deb https://download.mono-project.com/repo/ubuntu stable-trusty main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+  - sudo apt install apt-transport-https ca-certificates
+  - echo "deb https://download.mono-project.com/repo/ubuntu stable-xenial main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
   - sudo apt update
   - sudo apt-get -f install mono-devel
-#  - sudo apt-get install mono-devel
   
 script:
   - git submodule init
   - git submodule update
   - mkdir build
   - cd build
-  - cmake -DCMAKE_INSTALL_PREFIX=./install -DCMAKE_C_COMPILER=$COMPILERC -DCMAKE_CXX_COMPILER=$COMPILERCXX ..
+  - cmake -DCMAKE_INSTALL_PREFIX=./install -DCMAKE_C_COMPILER=$COMPILERC -DCMAKE_CXX_COMPILER=$COMPILERCXX -DBUILD_MONOPP_TESTS=ON ..
   - cmake --build .
