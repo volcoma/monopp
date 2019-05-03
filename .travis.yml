@@ -15,7 +15,7 @@ matrix:
       addons: &clang38
         apt:
           sources: 
-            - llvm-toolchain-trusty-3.8
+            - llvm-toolchain-xenial-3.8
             - ubuntu-toolchain-r-test
           packages:
             - libstdc++-5-dev
@@ -30,7 +30,7 @@ matrix:
       addons: &clang39
         apt:
           sources: 
-            - llvm-toolchain-trusty-3.9
+            - llvm-toolchain-xenial-3.9
             - ubuntu-toolchain-r-test
           packages:
             - libstdc++-6-dev
@@ -45,7 +45,7 @@ matrix:
       addons: &clang40
         apt:
           sources: 
-            - llvm-toolchain-trusty-4.0
+            - llvm-toolchain-xenial-4.0
             - ubuntu-toolchain-r-test
           packages:
             - libstdc++-6-dev
@@ -60,7 +60,7 @@ matrix:
       addons: &clang50
         apt:
           sources: 
-            - llvm-toolchain-trusty-5.0
+            - llvm-toolchain-xenial-5.0
             - ubuntu-toolchain-r-test
           packages:
             - libstdc++-7-dev
@@ -119,8 +119,7 @@ before_install:
   - sudo apt-get -f install mono-devel
   
 script:
-  - git submodule init
-  - git submodule update
+  - git submodule update --init --recursive
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX=./install -DCMAKE_C_COMPILER=$COMPILERC -DCMAKE_CXX_COMPILER=$COMPILERCXX -DBUILD_MONOPP_TESTS=ON ..
