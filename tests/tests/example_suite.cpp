@@ -17,7 +17,7 @@ namespace example
 void test_suite()
 {
 	// clang-format off
-	suitepp::test("full example", [&]()
+	TEST_CASE("full example")
     {
 		// clang-format on
 		/// Create an app domain. When destructed it will
@@ -188,7 +188,7 @@ void test_suite()
 			std::cout << method.get_full_declname() << std::endl;
 		}
 		// clang-format off
-	});
+	};
 	// clang-format on
 }
 } // namespace example

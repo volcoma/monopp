@@ -47,12 +47,12 @@ void test_suite()
 	mono::mono_domain::set_current_domain(domain);
 
 	// clang-format off
-    suitepp::test("load invalid assembly", [&]()
+    TEST_CASE("load invalid assembly")
     {
         EXPECT_THROWS_AS(domain.get_assembly("doesnt_exist_12345.dll"), mono::mono_exception);
-    });
+    };
 
-    suitepp::test("load valid assembly", [&]()
+    TEST_CASE("load valid assembly")
     {
         auto expression = [&]()
         {
@@ -66,9 +66,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
     
-    suitepp::test("load valid assembly and bind", [&]()
+    TEST_CASE("load valid assembly and bind")
     {
         auto expression = [&]()
         {
@@ -81,9 +81,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get invalid type", [&]()
+    TEST_CASE("get invalid type")
     {
         auto expression = [&]()
         {
@@ -92,9 +92,9 @@ void test_suite()
             EXPECT_THROWS(assembly.get_type("SometypeThatDoesntExist12345"));
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get monopp valid type", [&]()
+    TEST_CASE("get monopp valid type")
     {
         auto expression = [&]()
         {
@@ -104,9 +104,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get valid method", [&]()
+    TEST_CASE("get valid method")
     {
         auto expression = [&]()
         {
@@ -127,9 +127,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get/set field", [&]()
+    TEST_CASE("get/set field")
     {
         auto expression = [&]()
         {
@@ -156,9 +156,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get/set static field", [&]()
+    TEST_CASE("get/set static field")
     {
         auto expression = [&]()
         {
@@ -182,9 +182,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get invalid field", [&]()
+    TEST_CASE("get invalid field")
     {
         auto expression = [&]()
         {
@@ -193,9 +193,9 @@ void test_suite()
             EXPECT_THROWS(type.get_field("someInvalidField"));
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get/set property", [&]()
+    TEST_CASE("get/set property")
     {
         auto expression = [&]()
         {
@@ -223,9 +223,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get/set static property", [&]()
+    TEST_CASE("get/set static property")
     {
         auto expression = [&]()
         {
@@ -245,9 +245,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("get invalid property", [&]()
+    TEST_CASE("get invalid property")
     {
         auto expression = [&]()
         {
@@ -256,9 +256,9 @@ void test_suite()
             EXPECT_THROWS(type.get_property("someInvalidProperty"));
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("call static method 1", [&]()
+    TEST_CASE("call static method 1")
     {
         auto expression = [&]()
         {
@@ -272,9 +272,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("call static method 2", [&]()
+    TEST_CASE("call static method 2")
     {
         auto expression = [&]()
         {
@@ -286,9 +286,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("call static method 3", [&]()
+    TEST_CASE("call static method 3")
     {
         auto expression = [&]()
         {
@@ -300,9 +300,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
     
-    suitepp::test("call static method 4", [&]()
+    TEST_CASE("call static method 4")
     {
         auto expression = [&]()
         {
@@ -316,9 +316,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("call static method 5", [&]()
+    TEST_CASE("call static method 5")
     {
         auto expression = [&]()
         {
@@ -330,9 +330,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("call static method 6", [&]()
+    TEST_CASE("call static method 6")
     {
         auto expression = [&]()
         {
@@ -344,9 +344,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("call member method 1", [&]()
+    TEST_CASE("call member method 1")
     {
         auto expression = [&]()
         {
@@ -359,9 +359,9 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 
-    suitepp::test("call member method 2", [&]()
+    TEST_CASE("call member method 2")
     {
         auto expression = [&]()
         {
@@ -375,7 +375,7 @@ void test_suite()
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());
-    });
+    };
 	// clang-format on
 }
 } // namespace monopp
