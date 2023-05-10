@@ -16,14 +16,14 @@ namespace mono
 {
 
 template <typename T>
-bool is_compatible_type(const mono_type& type)
+auto is_compatible_type(const mono_type& type) -> bool
 {
 	const auto& expected_name = type.get_fullname();
 	return types::is_compatible_type<T>(expected_name);
 }
 
 template <typename Signature>
-bool has_compatible_signature(const mono_method& method)
+auto has_compatible_signature(const mono_method& method) -> bool
 {
 	constexpr auto arity = function_traits<Signature>::arity;
 	using return_type = typename function_traits<Signature>::return_type;
@@ -47,14 +47,16 @@ bool has_compatible_signature(const mono_method& method)
 	}
 	arg_types tuple;
 	size_t idx = 0;
-	for_each(tuple, [&compatible, &idx, &expected_arg_types](const auto& arg) {
-		ignore(arg);
-		auto expected_arg_type = expected_arg_types[idx];
-		using arg_type = decltype(arg);
-		compatible &= is_compatible_type<arg_type>(expected_arg_type);
+	for_each(tuple,
+			 [&compatible, &idx, &expected_arg_types](const auto& arg)
+			 {
+				 ignore(arg);
+				 auto expected_arg_type = expected_arg_types[idx];
+				 using arg_type = decltype(arg);
+				 compatible &= is_compatible_type<arg_type>(expected_arg_type);
 
-		idx++;
-	});
+				 idx++;
+			 });
 
 	return compatible;
 }
@@ -90,7 +92,8 @@ private:
 		auto tup =
 			std::make_tuple(convert_mono_type<std::decay_t<Args>>::to_mono(std::forward<Args>(args))...);
 
-		auto inv = [method, object](auto... args) {
+		auto inv = [method, object](auto... args)
+		{
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 
 			MonoObject* ex = nullptr;
@@ -105,7 +108,7 @@ private:
 	}
 
 	template <typename Signature>
-	friend mono_method_invoker<Signature> make_method_invoker(const mono_method&, bool);
+	friend auto make_method_invoker(const mono_method&, bool) -> mono_method_invoker<Signature>;
 
 	mono_method_invoker(const mono_method& o)
 		: mono_method(o)
@@ -140,7 +143,8 @@ private:
 		}
 		auto tup =
 			std::make_tuple(convert_mono_type<std::decay_t<Args>>::to_mono(std::forward<Args>(args))...);
-		auto inv = [method, object](auto... args) {
+		auto inv = [method, object](auto... args)
+		{
 			std::vector<void*> argsv = {to_mono_arg(args)...};
 
 			MonoObject* ex = nullptr;
@@ -158,7 +162,7 @@ private:
 	}
 
 	template <typename Signature>
-	friend mono_method_invoker<Signature> make_method_invoker(const mono_method&, bool);
+	friend auto make_method_invoker(const mono_method&, bool) -> mono_method_invoker<Signature>;
 
 	mono_method_invoker(const mono_method& o)
 		: mono_method(o)
@@ -167,7 +171,8 @@ private:
 };
 
 template <typename Signature>
-mono_method_invoker<Signature> make_method_invoker(const mono_method& method, bool check_signature = true)
+auto make_method_invoker(const mono_method& method, bool check_signature = true)
+	-> mono_method_invoker<Signature>
 {
 	if(check_signature && !has_compatible_signature<Signature>(method))
 	{
@@ -177,7 +182,7 @@ mono_method_invoker<Signature> make_method_invoker(const mono_method& method, bo
 }
 
 template <typename Signature>
-mono_method_invoker<Signature> make_method_invoker(const mono_type& type, const std::string& name)
+auto make_method_invoker(const mono_type& type, const std::string& name) -> mono_method_invoker<Signature>
 {
 	using arg_types = typename function_traits<Signature>::arg_types;
 	arg_types tup;

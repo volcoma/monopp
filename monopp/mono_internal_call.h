@@ -18,26 +18,36 @@ inline void add_internal_call(const std::string& name, F&& func)
 	mono_add_internal_call(name.c_str(), reinterpret_cast<const void*>(func));
 }
 
-template <typename signature_t, signature_t& signature>
-struct mono_jit_internal_call_wrapper;
+template <typename F, F& func>
+struct mono_jit_internal_call_wrapper_void;
 
-template <typename... args_t, void (&func)(args_t...)>
-struct mono_jit_internal_call_wrapper<void(args_t...), func>
+template <typename R, typename... Args, R (&func)(Args...)>
+struct mono_jit_internal_call_wrapper_void<R(Args...), func>
 {
-	static void wrapper(typename convert_mono_type<std::decay_t<args_t>>::mono_unboxed_type... args)
+	static void wrapper(typename convert_mono_type<std::decay_t<Args>>::mono_unboxed_type... args)
 	{
-		func(convert_mono_type<std::decay_t<args_t>>::from_mono_unboxed(std::move(args))...);
+		static_assert(std::is_void<std::decay_t<R>>::value,
+					  "[ internal_vcall ] called with a function with return type. "
+					  "Use [ internal_rcall ] instead.");
+		func(convert_mono_type<std::decay_t<Args>>::from_mono_unboxed(std::move(args))...);
 	}
 };
 
-template <typename return_t, typename... args_t, return_t (&func)(args_t...)>
-struct mono_jit_internal_call_wrapper<return_t(args_t...), func>
+template <typename F, F& func>
+struct mono_jit_internal_call_wrapper;
+
+template <typename R, typename... Args, R (&func)(Args...)>
+struct mono_jit_internal_call_wrapper<R(Args...), func>
 {
-	static typename convert_mono_type<std::decay_t<return_t>>::mono_unboxed_type
-	wrapper(typename convert_mono_type<std::decay_t<args_t>>::mono_unboxed_type... args)
+
+	static auto wrapper(typename convert_mono_type<std::decay_t<Args>>::mono_unboxed_type... args) ->
+		typename convert_mono_type<std::decay_t<R>>::mono_unboxed_type
 	{
-		return convert_mono_type<std::decay_t<return_t>>::to_mono(
-			func(convert_mono_type<std::decay_t<args_t>>::from_mono_unboxed(std::move(args))...));
+		static_assert(!std::is_same<R, void>::value,
+					  "[ internal_rcall ]' called with a function without a return type. "
+					  "Use [ internal_vcall ] instead.");
+		return convert_mono_type<std::decay_t<R>>::to_mono(
+			func(convert_mono_type<std::decay_t<Args>>::from_mono_unboxed(std::move(args))...));
 	}
 };
 
@@ -46,6 +56,8 @@ struct mono_jit_internal_call_wrapper<return_t(args_t...), func>
  * converstion is done through convert_mono_type. Add your own specialisation implementation
  * of this class to support more types.
  */
-#define internal_call(func) &mono::mono_jit_internal_call_wrapper<decltype(func), func>::wrapper
+
+#define internal_rcall(func) &mono::mono_jit_internal_call_wrapper<decltype(func), func>::wrapper
+#define internal_vcall(func) &mono::mono_jit_internal_call_wrapper_void<decltype(func), func>::wrapper
 
 } // namespace mono

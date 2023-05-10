@@ -62,14 +62,14 @@ auto mono_method::get_return_type() const -> mono_type
 	return mono_type(type);
 }
 
-std::vector<mono_type> mono_method::get_param_types() const
+auto mono_method::get_param_types() const -> std::vector<mono_type>
 {
 	void* iter = nullptr;
 	auto type = mono_signature_get_params(signature_, &iter);
 	std::vector<mono_type> params;
 	while(type)
 	{
-		params.emplace_back(mono_type(type));
+		params.emplace_back(type);
 
 		type = mono_signature_get_params(signature_, &iter);
 	}

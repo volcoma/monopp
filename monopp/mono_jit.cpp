@@ -55,7 +55,7 @@ static void on_log_callback(const char* log_domain, const char* log_level, const
 
 static MonoDomain* jit_domain = nullptr;
 
-bool init(const std::string& domain, bool enable_debugging)
+auto init(const std::string& domain, bool enable_debugging) -> bool
 {
 	mono_set_dirs(INTERNAL_MONO_ASSEMBLY_DIR, INTERNAL_MONO_CONFIG_DIR);
 

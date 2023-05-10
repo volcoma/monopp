@@ -7,7 +7,7 @@
 namespace mono
 {
 
-bool init(const std::string& domain, bool enable_debugging = false);
+auto init(const std::string& domain, bool enable_debugging = false) -> bool;
 
 void shutdown();
 

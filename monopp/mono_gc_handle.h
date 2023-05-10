@@ -23,7 +23,7 @@ class mono_scoped_gc_handle
 {
 public:
 	mono_scoped_gc_handle(const mono_scoped_gc_handle&) noexcept = delete;
-	mono_scoped_gc_handle& operator=(const mono_scoped_gc_handle&) noexcept = delete;
+	auto operator=(const mono_scoped_gc_handle&) noexcept -> mono_scoped_gc_handle& = delete;
 
 	explicit mono_scoped_gc_handle(mono_gc_handle& handle)
 		: handle_(handle)
@@ -36,7 +36,7 @@ public:
 		handle_.unlock();
 	}
 
-	auto& get_handle() const
+	auto get_handle() const -> mono_gc_handle&
 	{
 		return handle_;
 	}

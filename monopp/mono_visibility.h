@@ -13,7 +13,7 @@ enum class visibility
 	vis_public
 };
 
-inline std::string to_string(visibility vis)
+inline auto to_string(visibility vis) -> std::string
 {
 	switch(vis)
 	{

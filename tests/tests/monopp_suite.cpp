@@ -73,11 +73,11 @@ void test_suite()
         auto expression = [&]()
         {
 			// clang-format on
-			mono::add_internal_call("Tests.MyObject::CreateInternal", internal_call(MyObject_CreateInternal));
+			mono::add_internal_call("Tests.MyObject::CreateInternal", internal_vcall(MyObject_CreateInternal));
 			mono::add_internal_call("Tests.MyObject::DestroyInternal",
-									internal_call(MyObject_DestroyInternal));
-			mono::add_internal_call("Tests.MyObject::DoStuff", internal_call(MyObject_DoStuff));
-			mono::add_internal_call("Tests.MyObject::ReturnAString", internal_call(MyObject_ReturnAString));
+									internal_vcall(MyObject_DestroyInternal));
+			mono::add_internal_call("Tests.MyObject::DoStuff", internal_vcall(MyObject_DoStuff));
+			mono::add_internal_call("Tests.MyObject::ReturnAString", internal_rcall(MyObject_ReturnAString));
 			// clang-format off
         };
         EXPECT_NOTHROWS(expression());

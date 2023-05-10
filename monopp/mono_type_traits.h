@@ -140,14 +140,14 @@ namespace types
 {
 using index_t = size_t;
 
-inline index_t& get_counter()
+inline auto get_counter() -> index_t&
 {
 	static index_t value = 0;
 	return value;
 }
 
 template <typename T>
-inline index_t id()
+inline auto id() -> index_t
 {
 	static index_t sid = get_counter()++;
 	return sid;
@@ -159,7 +159,7 @@ struct type_names_t
 	std::string fullname;
 };
 
-inline const std::map<index_t, type_names_t>& get_types()
+inline auto get_types() -> const std::map<index_t, type_names_t>&
 {
 	// valid shortcuts are
 	// char, bool, byte, sbyte, uint16,
@@ -190,7 +190,7 @@ inline const std::map<index_t, type_names_t>& get_types()
 }
 
 template <typename T>
-inline type_names_t get_name(bool& found)
+inline auto get_name(bool& found) -> type_names_t
 {
 	const auto& types = get_types();
 	auto it = types.find(id<std::decay_t<T>>());
@@ -204,10 +204,11 @@ inline type_names_t get_name(bool& found)
 }
 
 template <typename... Args>
-inline std::pair<std::string, bool> get_args_signature(const std::tuple<Args...>& tup)
+inline auto get_args_signature(const std::tuple<Args...>& tup) -> std::pair<std::string, bool>
 {
 	bool all_types_known = false;
-	auto inv = [&all_types_known](auto... args) {
+	auto inv = [&all_types_known](auto... args)
+	{
 		std::vector<std::string> argsv = {types::get_name<decltype(args)>(all_types_known).name...};
 		ignore(args...);
 		std::string result;
@@ -230,7 +231,7 @@ inline std::pair<std::string, bool> get_args_signature(const std::tuple<Args...>
 }
 
 template <typename T>
-bool is_compatible_type(const std::string& expected_name)
+auto is_compatible_type(const std::string& expected_name) -> bool
 {
 	bool found = false;
 

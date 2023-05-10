@@ -20,7 +20,7 @@ public:
 
 private:
 	template <typename Signature>
-	friend mono_property_invoker<Signature> make_property_invoker(const mono_property&);
+	friend auto make_property_invoker(const mono_property&) -> mono_property_invoker<Signature>;
 
 	explicit mono_property_invoker(const mono_property& property)
 		: mono_property(property)
@@ -57,7 +57,7 @@ auto mono_property_invoker<T>::get_value(const mono_object& object) const -> T
 }
 
 template <typename T>
-mono_property_invoker<T> make_property_invoker(const mono_property& property)
+auto make_property_invoker(const mono_property& property) -> mono_property_invoker<T>
 {
 	// const auto& expected_name = type.get_fullname();
 	// bool compatible = types::is_compatible_type<T>(expected_name);
@@ -65,7 +65,7 @@ mono_property_invoker<T> make_property_invoker(const mono_property& property)
 }
 
 template <typename T>
-mono_property_invoker<T> make_property_invoker(const mono_type& type, const std::string& name)
+auto make_property_invoker(const mono_type& type, const std::string& name) -> mono_property_invoker<T>
 {
 	auto property = type.get_property(name);
 	return make_property_invoker<T>(property);

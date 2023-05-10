@@ -99,11 +99,11 @@ void test_suite()
 		auto expression = [&]()
         {
 			mono::add_internal_call("Tests.MonortTest::TestInternalPODCall(Tests.Vector2f)",
-									internal_call(MyVec_TestInternalPODCall));
+									internal_vcall(MyVec_TestInternalPODCall));
 			mono::add_internal_call("Tests.WrapperVector2f::.ctor(single,single)",
-									internal_call(MyVec_CreateInternalCtor));
+									internal_vcall(MyVec_CreateInternalCtor));
 			mono::add_internal_call("Tests.WrapperVector2f::.ctor(Tests.WrapperVector2f)",
-									internal_call(MyVec_CreateInternalCopyCtor));
+									internal_vcall(MyVec_CreateInternalCopyCtor));
 		};
 
 		EXPECT_NOTHROWS(expression());

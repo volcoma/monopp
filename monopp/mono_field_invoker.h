@@ -21,7 +21,7 @@ public:
 
 private:
 	template <typename signature_t>
-	friend mono_field_invoker<signature_t> make_field_invoker(const mono_field&);
+	friend auto make_field_invoker(const mono_field&) -> mono_field_invoker<signature_t>;
 
 	explicit mono_field_invoker(const mono_field& field)
 		: mono_field(field)
@@ -107,7 +107,7 @@ auto mono_field_invoker<T>::get_value_impl(const mono_object* object) const -> T
 }
 
 template <typename T>
-mono_field_invoker<T> make_field_invoker(const mono_field& field)
+auto make_field_invoker(const mono_field& field) -> mono_field_invoker<T>
 {
 	// const auto& expected_name = type.get_fullname();
 	// bool compatible = types::is_compatible_type<T>(expected_name);
@@ -115,7 +115,7 @@ mono_field_invoker<T> make_field_invoker(const mono_field& field)
 }
 
 template <typename T>
-mono_field_invoker<T> make_field_invoker(const mono_type& type, const std::string& name)
+auto make_field_invoker(const mono_type& type, const std::string& name) -> mono_field_invoker<T>
 {
 	auto field = type.get_field(name);
 	return make_field_invoker<T>(field);
