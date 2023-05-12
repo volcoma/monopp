@@ -31,6 +31,11 @@ set_target_properties(${target_name} PROPERTIES
 	WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
+
+add_custom_target(copy_mono_dependencies ALL
+    COMMAND ${CMAKE_COMMAND} -E copy ${MONO_LIBRARIES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
 include(target_warning_support)
 set_warning_level(${target_name} ultra)
 

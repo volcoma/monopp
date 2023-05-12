@@ -10,6 +10,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cm
 option(BUILD_MONOPP_SHARED "Build as a shared library." ON)
 option(BUILD_MONOPP_MONORT "Build the monort utility library" ON)
 option(BUILD_MONOPP_TESTS "Build the tests" ON)
+option(INSTALL_MONOPP "Install the library" ON)
+
 option(BUILD_MONOPP_WITH_CODE_STYLE_CHECKS "Build with code style checks." OFF)
 
 if(BUILD_MONOPP_TESTS)
@@ -34,6 +36,33 @@ if(BUILD_MONOPP_WITH_CODE_STYLE_CHECKS)
 	set(BUILD_WITH_CODE_STYLE_CHECKS ON)
 endif()
 
+
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+include(InstallRequiredSystemLibraries)
+
+if(MINGW)
+    get_filename_component( Mingw_Path ${CMAKE_CXX_COMPILER} PATH )
+    file(GLOB MINGW_SYSTEM_RUNTIME_LIBS "${Mingw_Path}/*.dll")
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} ${MINGW_SYSTEM_RUNTIME_LIBS})
+endif()
+message(STATUS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+
+if(WIN32)
+    if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
+        if(MSVC)
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+        endif()
+
+        if(MINGW)
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
+        endif()
+    endif()
+elseif(UNIX)
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -lrt -Wl,-rpath,'$ORIGIN'" )
+    set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -rdynamic -lrt -Wl,-rpath,'$ORIGIN'" )
+endif()
+
+
 add_subdirectory(3rdparty)
 add_subdirectory(monopp)
 
@@ -43,4 +72,13 @@ endif()
 
 if(BUILD_MONOPP_TESTS)
 	add_subdirectory(tests)
+endif()
+
+
+add_custom_target(copy_compiler_dependencies ALL
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
+if(INSTALL_MONOPP AND CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+    install( PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
 endif()
