@@ -43,7 +43,7 @@ class MonoppTest
 		}
 		set
 		{
-			//Console.WriteLine("FROM C# : Setting property value to {0}", value);
+            Console.WriteLine("FROM C# : Setting property value to {0}", value);
 			someField = value;
 		}
 	}
@@ -75,10 +75,10 @@ class MonoppTest
 	{
 		//Console.WriteLine("FROM C# : MonoppTest destroyed.");
 	}
-	
+
     void Method1()
 	{
-		//Console.WriteLine("FROM C# : Hello Mono World from instance.");
+        //Console.WriteLine("FROM C# : Hello Mono World from instance.");
 	}
 	
 	void Method2(string s)
@@ -222,7 +222,7 @@ public
 			return someFieldNONPODStatic;
 		}
 		set
-		{
+        {
 			//Console.WriteLine("FROM C# : Setting static NON POD property value");
 			someFieldNONPODStatic = value;
 		}

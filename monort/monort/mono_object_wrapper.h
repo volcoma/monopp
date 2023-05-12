@@ -33,7 +33,7 @@ namespace managed_interface
 	}
 
 template <typename T>
-class mono_object_wrapper : public object
+class mono_object_wrapper final : public object
 {
 public:
 	explicit mono_object_wrapper(const mono_object& mono_object, T obj);
@@ -52,7 +52,7 @@ public:
 	static auto& get_native_object(const mono_object& mono_object);
 
 private:
-	T native_object;
+	T native_object{};
 };
 
 template <typename T>

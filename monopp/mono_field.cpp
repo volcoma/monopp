@@ -23,7 +23,7 @@ mono_field::mono_field(const mono_type& type, const std::string& name)
 	if(is_static())
 	{
 		owning_type_vtable_ = mono_class_vtable(domain.get_internal_ptr(), type.get_internal_ptr());
-		mono_runtime_class_init(owning_type_vtable_);
+//		mono_runtime_class_init(owning_type_vtable_);
 	}
 }
 

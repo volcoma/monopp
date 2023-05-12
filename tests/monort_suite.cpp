@@ -102,8 +102,10 @@ void test_suite()
         {
 			mono::add_internal_call("Tests.MonortTest::TestInternalPODCall(Tests.Vector2f)",
 									internal_vcall(MyVec_TestInternalPODCall));
+
 			mono::add_internal_call("Tests.WrapperVector2f::.ctor(single,single)",
 									internal_vcall(MyVec_CreateInternalCtor));
+
 			mono::add_internal_call("Tests.WrapperVector2f::.ctor(Tests.WrapperVector2f)",
 									internal_vcall(MyVec_CreateInternalCopyCtor));
 		};
@@ -119,20 +121,20 @@ void test_suite()
 			auto type = assembly.get_type("Tests", "MonortTest");
 
 			//std::cout << type.get_fullname() << std::endl;
-			auto fields = type.get_fields();
-			auto props = type.get_properties();
-			auto methods = type.get_methods();
+//			auto fields = type.get_fields();
+//			auto props = type.get_properties();
+//			auto methods = type.get_methods();
 //			for(const auto& field : fields)
 //			{
-//				//std::cout << field.get_full_declname() << std::endl;
+//				std::cout << field.get_full_declname() << std::endl;
 //			}
 //			for(const auto& prop : props)
 //			{
-//				//std::cout << prop.get_full_declname() << std::endl;
+//				std::cout << prop.get_full_declname() << std::endl;
 //			}
 //			for(const auto& method : methods)
 //			{
-//				//std::cout << method.get_full_declname() << std::endl;
+//				std::cout << method.get_full_declname() << std::endl;
 //			}
 		};
 

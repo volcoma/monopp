@@ -57,7 +57,7 @@ void test_suite()
 		mono::compiler_params cmd;
 		cmd.files = {"managed/tests.cs"};
 		cmd.references = {"monort_managed.dll"};
-		cmd.output_name = "tests_managed33.dll";
+		cmd.output_name = "tests_managed.dll";
 
 		bool jit_compile_result = mono::compile(cmd);
 
@@ -68,12 +68,12 @@ void test_suite()
 	{
 		auto expression = [&]()
 		{
-			auto assembly = domain.get_assembly(DATA_DIR "tests_managed33.dll");
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto refs = assembly.dump_references();
-			//			for(const auto& ref : refs)
-			//			{
-			//				//std::cout << ref << std::endl;
-			//			}
+			for(const auto& ref : refs)
+			{
+				std::cout << ref << std::endl;
+			}
 		};
 		EXPECT_NOTHROWS(expression());
 	};

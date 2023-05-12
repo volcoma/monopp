@@ -167,6 +167,9 @@ auto create_compile_command(const compiler_params& params) -> std::string
 	command += " -out:";
 	command += quote(params.output_name);
 
+#ifdef _WIN32
+	command = quote(command);
+#endif
     return command;
 }
 
@@ -174,7 +177,7 @@ auto compile(const compiler_params& params) -> bool
 {
 	auto command = create_compile_command(params);
     std::cout << command << std::endl;
-	return std::system(quote(command).c_str()) == 0;
+	return std::system(command.c_str()) == 0;
 }
 
 
