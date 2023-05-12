@@ -106,4 +106,76 @@ void shutdown()
 	jit_domain = nullptr;
 }
 
+auto quote(const std::string& word) -> std::string
+{
+	std::string command;
+	command.append("\"");
+	command.append(word);
+	command.append("\"");
+	return command;
+}
+
+
+auto create_compile_command(const compiler_params& params) -> std::string
+{
+	std::string command;
+	command.append(quote(INTERNAL_MONO_MCS_EXECUTABLE));
+
+	for(const auto& path : params.files)
+	{
+		command += " ";
+		command += quote(path);
+	}
+
+    if(!params.output_type.empty())
+    {
+        command += " -target:";
+        command += params.output_type;
+    }
+
+    if(!params.references.empty())
+    {
+        command += " -reference:";
+
+        for(const auto& ref : params.references)
+        {
+            command += ref;
+            command += ",";
+        }
+
+        command.pop_back();
+    }
+
+    if(!params.references_locations.empty())
+    {
+        command += " -lib:";
+
+        for(const auto& loc : params.references_locations)
+        {
+            command += loc;
+            command += ",";
+        }
+
+        command.pop_back();
+    }
+
+#ifndef NDEBUG
+    command += " -debug";
+#else
+    command += " -optimize";
+#endif
+	command += " -out:";
+	command += quote(params.output_name);
+
+    return command;
+}
+
+auto compile(const compiler_params& params) -> bool
+{
+	auto command = create_compile_command(params);
+    std::cout << command << std::endl;
+	return std::system(quote(command).c_str()) == 0;
+}
+
+
 } // namespace mono

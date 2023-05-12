@@ -1,5 +1,5 @@
 #include "monort_suite.h"
-#include <suitepp/suitepp.hpp>
+#include <suitepp/suite.hpp>
 
 #include <monopp/mono_assembly.h>
 #include <monopp/mono_domain.h>
@@ -22,27 +22,29 @@ struct vec2f
 
 namespace mono
 {
-namespace managed_interface
-{
-struct vector2f
-{
-	float x;
-	float y;
-};
-template <>
-inline auto converter::convert(const vec2f& v) -> vector2f
-{
-	return vector2f{v.x, v.y};
-}
+//namespace managed_interface
+//{
+//struct vector2f
+//{
+//	float x;
+//	float y;
+//};
+//template <>
+//inline auto converter::convert(const vec2f& v) -> vector2f
+//{
+//	return vector2f{v.x, v.y};
+//}
 
-template <>
-inline auto converter::convert(const vector2f& v) -> vec2f
-{
-	return vec2f{v.x, v.y};
-}
-} // namespace managed_interface
+//template <>
+//inline auto converter::convert(const vector2f& v) -> vec2f
+//{
+//	return vec2f{v.x, v.y};
+//}
+//} // namespace managed_interface
 
-register_basic_mono_converter_for_pod(vec2f, managed_interface::vector2f);
+//register_basic_mono_converter_for_pod(vec2f, managed_interface::vector2f);
+
+
 register_basic_mono_converter_for_wrapper(std::shared_ptr<vec2f>);
 } // namespace mono
 

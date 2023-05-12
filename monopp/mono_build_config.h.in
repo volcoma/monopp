@@ -3,7 +3,10 @@
 /*!
  * NOTE: This is a generated file. Change the configuration through cmake.
  */
-
+ /*!
+ * Path to the Mono msc executable. May be a relative path.
+ */
+#cmakedefine INTERNAL_MONO_MCS_EXECUTABLE "@INTERNAL_MONO_MCS_EXECUTABLE@"
 /*!
  * Path to the Mono assembly dir (mono/lib). May be a relative path.
  */

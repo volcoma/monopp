@@ -36,9 +36,10 @@ namespace managed_interface
 struct converter
 {
 	template <typename src_t, typename dst_t>
-	static auto convert(const src_t&) -> dst_t
+	static auto convert(const src_t& val) -> dst_t
 	{
-		static_assert(std::is_same<src_t, dst_t>::value, "Please specialize");
+		static_assert(std::is_same<src_t, dst_t>::value, "Please specialize.");
+        return val;
 	}
 };
 

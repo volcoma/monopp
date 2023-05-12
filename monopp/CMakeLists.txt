@@ -1,5 +1,7 @@
 include(Mono)
 
+set(INTERNAL_MONO_MCS_EXECUTABLE "${MONO_MCS_EXECUTABLE}"
+    CACHE PATH "Path to the Mono msc executable (mono/bin/msc). May be a relative path.")
 set(INTERNAL_MONO_ASSEMBLY_DIR "${MONO_ASSEMBLY_PATH}"
     CACHE PATH "Path to the Mono assembly dir (mono/lib). May be a relative path.")
 set(INTERNAL_MONO_CONFIG_DIR "${MONO_CONFIG_PATH}"

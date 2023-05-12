@@ -1,6 +1,6 @@
 #include "example_suite.h"
 
-#include <suitepp/suitepp.hpp>
+#include <suitepp/suite.hpp>
 #include <monopp/mono_assembly.h>
 #include <monopp/mono_domain.h>
 #include <monopp/mono_field_invoker.h>

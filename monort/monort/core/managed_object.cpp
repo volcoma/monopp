@@ -1,7 +1,7 @@
 #include "managed_object.h"
-#include "monopp/mono_internal_call.h"
-#include "monopp/mono_jit.h"
-#include "monopp/mono_type.h"
+#include <monopp/mono_internal_call.h>
+#include <monopp/mono_jit.h>
+#include <monopp/mono_type.h>
 
 namespace mono
 {

@@ -1,17 +1,18 @@
 #include "monopp_suite.h"
 
-#include <suitepp/suitepp.hpp>
+#include <chrono>
+#include <iostream>
 #include <monopp/mono_assembly.h>
 #include <monopp/mono_domain.h>
 #include <monopp/mono_field_invoker.h>
 #include <monopp/mono_internal_call.h>
+#include <monopp/mono_jit.h>
 #include <monopp/mono_method_invoker.h>
 #include <monopp/mono_object.h>
 #include <monopp/mono_property_invoker.h>
 #include <monopp/mono_string.h>
 #include <monopp/mono_type.h>
-#include <chrono>
-#include <iostream>
+#include <suitepp/suite.hpp>
 #include <thread>
 namespace monopp
 {
@@ -46,72 +47,77 @@ void test_suite()
 	mono::mono_domain domain("domain");
 	mono::mono_domain::set_current_domain(domain);
 
-	// clang-format off
-    TEST_CASE("load invalid assembly")
-    {
-        EXPECT_THROWS_AS(domain.get_assembly("doesnt_exist_12345.dll"), mono::mono_exception);
-    };
+	TEST_CASE("load invalid assembly")
+	{
+		EXPECT_THROWS_AS(domain.get_assembly("doesnt_exist_12345.dll"), mono::mono_exception);
+	};
 
-    TEST_CASE("load valid assembly")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("jit compile assembly")
+	{
+		mono::compiler_params cmd;
+		cmd.files = {"managed/tests.cs"};
+		cmd.references = {"monort_managed.dll"};
+		cmd.output_name = "tests_managed33.dll";
+
+		bool jit_compile_result = mono::compile(cmd);
+
+		EXPECT(jit_compile_result == true);
+	};
+
+	TEST_CASE("load valid assembly")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed33.dll");
 			auto refs = assembly.dump_references();
-//			for(const auto& ref : refs)
-//			{
-//				//std::cout << ref << std::endl;
-//			}
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
-    
-    TEST_CASE("load valid assembly and bind")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			mono::add_internal_call("Tests.MyObject::CreateInternal", internal_vcall(MyObject_CreateInternal));
+			//			for(const auto& ref : refs)
+			//			{
+			//				//std::cout << ref << std::endl;
+			//			}
+		};
+		EXPECT_NOTHROWS(expression());
+	};
+
+	TEST_CASE("load valid assembly and bind")
+	{
+		auto expression = [&]()
+		{
+			mono::add_internal_call("Tests.MyObject::CreateInternal",
+									internal_vcall(MyObject_CreateInternal));
 			mono::add_internal_call("Tests.MyObject::DestroyInternal",
 									internal_vcall(MyObject_DestroyInternal));
 			mono::add_internal_call("Tests.MyObject::DoStuff", internal_vcall(MyObject_DoStuff));
 			mono::add_internal_call("Tests.MyObject::ReturnAString", internal_rcall(MyObject_ReturnAString));
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("get invalid type")
-    {
-        auto expression = [&]()
-        {
-            auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("get invalid type")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 
-            EXPECT_THROWS(assembly.get_type("SometypeThatDoesntExist12345"));
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+			EXPECT_THROWS(assembly.get_type("SometypeThatDoesntExist12345"));
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("get monopp valid type")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("get monopp valid type")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			assembly.get_type("Tests", "MonoppTest");
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("get valid method")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("get valid method")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
 			auto method1 = mono::make_method_invoker<void()>(type, "Method1");
@@ -123,18 +129,15 @@ void test_suite()
 			auto method4 = mono::make_method_invoker<void(int, int)>(type, "Method4");
 
 			auto method5 = mono::make_method_invoker<std::string(std::string, int)>(type, "Method5");
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
-
-    TEST_CASE("get/set field")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("get/set field")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
@@ -153,17 +156,15 @@ void test_suite()
 
 			some_field = mutable_field.get_value(obj);
 			EXPECT(some_field == 6);
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("get/set static field")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("get/set static field")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
 			auto field = type.get_field("someFieldStatic");
@@ -179,28 +180,26 @@ void test_suite()
 
 			some_field = mutable_field.get_value();
 			EXPECT(some_field == 6);
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("get invalid field")
-    {
-        auto expression = [&]()
-        {
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("get invalid field")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
-            EXPECT_THROWS(type.get_field("someInvalidField"));
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+			EXPECT_THROWS(type.get_field("someInvalidField"));
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("get/set property")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("get/set property")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 
 			auto prop = type.get_property("someProperty");
@@ -220,17 +219,15 @@ void test_suite()
 
 			some_prop = mutable_prop.get_value(obj);
 			EXPECT(some_prop == 55);
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("get/set static property")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("get/set static property")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto prop = type.get_property("somePropertyStatic");
 			auto mutable_prop = mono::make_property_invoker<int>(prop);
@@ -242,140 +239,122 @@ void test_suite()
 
 			some_prop = mutable_prop.get_value();
 			EXPECT(some_prop == 55);
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("get invalid property")
-    {
-        auto expression = [&]()
-        {
-            auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
-            auto type = assembly.get_type("Tests", "MonoppTest");
-            EXPECT_THROWS(type.get_property("someInvalidProperty"));
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+	TEST_CASE("get invalid property")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
+			auto type = assembly.get_type("Tests", "MonoppTest");
+			EXPECT_THROWS(type.get_property("someInvalidProperty"));
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("call static method 1")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("call static method 1")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<int(int)>(type, "Function1");
 			const auto number = 1000;
 			auto result = method_thunk(number);
 			EXPECT(number + 1337 == result);
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("call static method 2")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("call static method 2")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void(float, int, float)>(type, "Function2");
 			method_thunk(13.37f, 42, 9000.0f);
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("call static method 3")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("call static method 3")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void(std::string)>(type, "Function3");
 			method_thunk("Hello!");
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
-    
-    TEST_CASE("call static method 4")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+		};
+		EXPECT_NOTHROWS(expression());
+	};
+
+	TEST_CASE("call static method 4")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<std::string(std::string)>(type, "Function4");
 			auto expected_string = std::string("Hello!");
 			auto result = method_thunk(expected_string);
 			EXPECT(result == std::string("The string value was: " + expected_string));
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("call static method 5")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("call static method 5")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void()>(type, "Function5");
 			EXPECT_THROWS(method_thunk());
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("call static method 6")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("call static method 6")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto method_thunk = mono::make_method_invoker<void()>(type, "Function6");
 			method_thunk();
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("call member method 1")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("call member method 1")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto obj = type.new_instance();
 			auto method_thunk = mono::make_method_invoker<void()>(type, "Method1");
 			method_thunk(obj);
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 
-    TEST_CASE("call member method 2")
-    {
-        auto expression = [&]()
-        {
-			// clang-format on
-			auto assembly = domain.get_assembly(DATA_DIR"tests_managed.dll");
+	TEST_CASE("call member method 2")
+	{
+		auto expression = [&]()
+		{
+			auto assembly = domain.get_assembly(DATA_DIR "tests_managed.dll");
 			auto type = assembly.get_type("Tests", "MonoppTest");
 			auto obj = type.new_instance();
 			auto method_thunk = mono::make_method_invoker<std::string(std::string, int)>(type, "Method5");
 			auto result = method_thunk(obj, "test", 5);
 			EXPECT(result == std::string("Return Value: test"));
-			// clang-format off
-        };
-        EXPECT_NOTHROWS(expression());
-    };
-	// clang-format on
+		};
+		EXPECT_NOTHROWS(expression());
+	};
 }
 } // namespace monopp
