@@ -25,13 +25,13 @@ jobs:
         submodules: true
     - name: Select Xcode
       run: sudo xcode-select --switch "/Applications/Xcode_${{matrix.config.xcode}}.app"
-    - name: Setup Mono
-      run: |
-        brew install mono
+    #- name: Setup Mono
+    #  run: |
+    #    brew install mono
     - name: Build
       run: |
         cmake --preset macos-${{matrix.config.arch}}
         cmake --build --preset macos-${{matrix.config.arch}}-release
     - name: Test
       run: |
-        ctest --preset macos-${{matrix.config.arch}}-release
+        ctest --preset macos-${{matrix.config.arch}}-release --verbose
