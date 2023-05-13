@@ -27,11 +27,11 @@ jobs:
       run: sudo xcode-select --switch "/Applications/Xcode_${{matrix.config.xcode}}.app"
     - name: Setup Mono
       run: |
-        brew reinstall install mono --force
+        brew install mono --force
     - name: Build
       run: |
         cmake --preset macos-${{matrix.config.arch}}
         cmake --build --preset macos-${{matrix.config.arch}}-release
     - name: Test
       run: |
-        ctest --preset macos-${{matrix.config.arch}}-release --verbose
+        ctest --preset macos-${{matrix.config.arch}}-release --rerun-failed --output-on-failure
