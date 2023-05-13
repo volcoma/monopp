@@ -57,7 +57,7 @@ void test_suite()
 		mono::compiler_params cmd;
 		cmd.files = {DATA_DIR"managed/tests.cs"};
 		cmd.references = {DATA_DIR"monort_managed.dll"};
-		cmd.output_name = "tests_managed.dll";
+		cmd.output_name = DATA_DIR"tests_managed.dll";
 
 		bool jit_compile_result = mono::compile(cmd);
 
