@@ -62,7 +62,7 @@ void MyVec_CreateInternalCtor(const mono::mono_object& this_ptr, float x, float 
 	p->x = x;
 	p->y = y;
 
-	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
+	mono::managed<vec2f_ptr>::create(this_ptr, p);
 }
 
 void MyVec_CreateInternalCopyCtor(const mono::mono_object& this_ptr, const std::shared_ptr<vec2f>& rhs)
@@ -73,7 +73,7 @@ void MyVec_CreateInternalCopyCtor(const mono::mono_object& this_ptr, const std::
 	p->x = rhs->x;
 	p->y = rhs->y;
 
-	mono::managed_interface::mono_object_wrapper<vec2f_ptr>::create(this_ptr, p);
+	mono::managed<vec2f_ptr>::create(this_ptr, p);
 }
 
 namespace monort

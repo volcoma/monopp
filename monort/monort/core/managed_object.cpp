@@ -53,13 +53,13 @@ object::object(mono_object obj)
 	mutable_field.set_value(managed_object_, this);
 }
 
-std::unique_ptr<mono_type>& object::get_object_type()
+auto object::get_object_type() -> std::unique_ptr<mono_type>&
 {
 	static std::unique_ptr<mono_type> object_type;
 	return object_type;
 }
 
-std::unique_ptr<mono_field>& object::get_native_object_field()
+auto object::get_native_object_field() -> std::unique_ptr<mono_field>&
 {
 	static std::unique_ptr<mono_field> native_object_field;
 	return native_object_field;

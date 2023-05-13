@@ -37,7 +37,7 @@ class mono_object_wrapper final : public object
 {
 public:
 	explicit mono_object_wrapper(const mono_object& mono_object, T obj);
-	~mono_object_wrapper() final;
+	~mono_object_wrapper() final = default;
 
 	/*!
 	 * Create a new MonoObject and associate this wrapper to it.
@@ -49,7 +49,7 @@ public:
 	 */
 	static void create(const mono_object& mono_object, T obj);
 
-	static auto& get_native_object(const mono_object& mono_object);
+	static auto get_native_object(const mono_object& mono_object) -> auto&;
 
 private:
 	T native_object{};
@@ -77,13 +77,14 @@ mono_object_wrapper<T>::mono_object_wrapper(const mono_object& mono_object, T ob
 }
 
 template <typename T>
-mono_object_wrapper<T>::~mono_object_wrapper() = default;
-
-template <typename T>
-auto& mono_object_wrapper<T>::get_native_object(const mono_object& mono_object)
+auto mono_object_wrapper<T>::get_native_object(const mono_object& mono_object) -> auto&
 {
 	return object::get_managed_object_as<mono_object_wrapper<T>>(mono_object).native_object;
 }
 
 } // namespace managed_interface
+
+
+template<typename T>
+using managed = mono::managed_interface::mono_object_wrapper<T>;
 } // namespace mono
