@@ -1,3 +1,7 @@
+SET(CMAKE_SKIP_BUILD_RPATH FALSE)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+SET(CMAKE_INSTALL_RPATH "\${ORIGIN}")
+
 file(GLOB_RECURSE libsrc *.h *.cpp *.hpp *.c *.cc *.cs)
 
 set(target_name monopp_test)
