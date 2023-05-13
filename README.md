@@ -1,7 +1,6 @@
-# monopp
-
-[![Build Status](https://travis-ci.org/volcoma/monopp.svg?branch=master)](https://travis-ci.org/volcoma/monopp)
-[![Build status](https://ci.appveyor.com/api/projects/status/sqxrnsfb5lht8nkb?svg=true)](https://ci.appveyor.com/project/volcoma/monopp)
+![windows](https://github.com/volcoma/monopp/actions/workflows/windows.yml/badge.svg)
+![linux](https://github.com/volcoma/monopp/actions/workflows/linux.yml/badge.svg)
+![macos](https://github.com/volcoma/monopp/actions/workflows/macos.yml/badge.svg)
 
 ### A C++14 wrapper for embeddig C# into C++ using Mono. Clean and easy API.
 ### Only dependency is c++ standard library and Mono.
