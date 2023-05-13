@@ -7,6 +7,9 @@ set(INTERNAL_MONO_ASSEMBLY_DIR "${MONO_ASSEMBLY_PATH}"
 set(INTERNAL_MONO_CONFIG_DIR "${MONO_CONFIG_PATH}"
     CACHE PATH "Path to the Mono config dir (mono/etc). May be a relative path.")
 
+message(STATUS "Mono msc executable ${MONO_MCS_EXECUTABLE}")
+
+message(STATUS "Mono libraries ${MONO_LIBRARIES}")
 configure_file(mono_build_config.h.in mono_build_config.h @ONLY)
 
 set(target_name monopp)
@@ -31,10 +34,8 @@ set_target_properties(${target_name} PROPERTIES
 	WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
-
 add_custom_target(copy_mono_dependencies ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${MONO_LIBRARIES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
 
 include(target_warning_support)
 set_warning_level(${target_name} ultra)

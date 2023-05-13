@@ -13,7 +13,7 @@
 #include <monopp/mono_string.h>
 #include <monopp/mono_type.h>
 #include <suitepp/suite.hpp>
-#include <thread>
+
 namespace monopp
 {
 

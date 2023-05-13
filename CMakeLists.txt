@@ -28,7 +28,9 @@ if(BUILD_MONOPP_TESTS)
 	message(STATUS "Enabled monopp tests.")
 endif()
 
-if(BUILD_MONOPP_SHARED)
+if(APPLE)
+    set(BUILD_SHARED_LIBS OFF)
+elseif(BUILD_MONOPP_SHARED)
 	set(BUILD_SHARED_LIBS ON)
 endif()
 
@@ -36,6 +38,7 @@ if(BUILD_MONOPP_WITH_CODE_STYLE_CHECKS)
 	set(BUILD_WITH_CODE_STYLE_CHECKS ON)
 endif()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
 include(InstallRequiredSystemLibraries)
