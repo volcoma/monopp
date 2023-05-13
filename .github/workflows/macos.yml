@@ -27,6 +27,9 @@ jobs:
       run: sudo xcode-select --switch "/Applications/Xcode_${{matrix.config.xcode}}.app"
     - name: Setup Mono
       run: |
+        sudo rm -rf /Library/Frameworks/Mono.framework
+        sudo pkgutil --forget com.xamarin.mono-MDK.pkg
+        sudo rm /etc/paths.d/mono-commands
         brew install mono --force
     - name: Build
       run: |
