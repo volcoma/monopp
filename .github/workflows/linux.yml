@@ -31,4 +31,4 @@ jobs:
         cmake --build --preset linux-${{matrix.config.cc}}-release
     - name: Test
       run: |
-        ctest --preset linux-${{matrix.config.cc}}-release --rerun-failed --output-on-failure
+        ctest --preset linux-${{matrix.config.cc}}-release --verbose
