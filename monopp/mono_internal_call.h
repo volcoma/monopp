@@ -24,12 +24,17 @@ struct mono_jit_internal_call_wrapper_void;
 template <typename R, typename... Args, R (&func)(Args...)>
 struct mono_jit_internal_call_wrapper_void<R(Args...), func>
 {
-	static void wrapper(typename convert_mono_type<std::decay_t<Args>>::mono_unboxed_type... args)
+	template <typename T>
+	using args_t = convert_mono_type<std::decay_t<T>>;
+	template <typename T>
+	using boxed_t = typename args_t<T>::mono_unboxed_type;
+
+	static void wrapper(boxed_t<Args>... args)
 	{
 		static_assert(std::is_void<std::decay_t<R>>::value,
 					  "[ internal_vcall ] called with a function with return type. "
 					  "Use [ internal_rcall ] instead.");
-		func(convert_mono_type<std::decay_t<Args>>::from_mono_unboxed(std::move(args))...);
+		func(args_t<Args>::from_mono_unboxed(std::move(args))...);
 	}
 };
 
@@ -39,15 +44,20 @@ struct mono_jit_internal_call_wrapper;
 template <typename R, typename... Args, R (&func)(Args...)>
 struct mono_jit_internal_call_wrapper<R(Args...), func>
 {
+	using return_t = convert_mono_type<std::decay_t<R>>;
+	using unboxed_t = typename return_t::mono_unboxed_type;
 
-	static auto wrapper(typename convert_mono_type<std::decay_t<Args>>::mono_unboxed_type... args) ->
-		typename convert_mono_type<std::decay_t<R>>::mono_unboxed_type
+	template <typename T>
+	using args_t = convert_mono_type<std::decay_t<T>>;
+	template <typename T>
+	using boxed_t = typename args_t<T>::mono_unboxed_type;
+
+	static auto wrapper(boxed_t<Args>... args) -> unboxed_t
 	{
 		static_assert(!std::is_same<R, void>::value,
 					  "[ internal_rcall ]' called with a function without a return type. "
 					  "Use [ internal_vcall ] instead.");
-		return convert_mono_type<std::decay_t<R>>::to_mono(
-			func(convert_mono_type<std::decay_t<Args>>::from_mono_unboxed(std::move(args))...));
+		return return_t::to_mono(func(args_t<Args>::from_mono_unboxed(std::move(args))...));
 	}
 };
 
