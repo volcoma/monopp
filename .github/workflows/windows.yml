@@ -34,7 +34,7 @@ jobs:
         choco install mono
     - name: Build
       run: |
-        cmake --preset windows-${{matrix.config.arch}}-${{matrix.config.cc}}-release
+        cmake --preset windows-${{matrix.config.arch}}-${{matrix.config.cc}}
         cmake --build --preset windows-${{matrix.config.arch}}-${{matrix.config.cc}}-release
     - name: Test
       run: |
