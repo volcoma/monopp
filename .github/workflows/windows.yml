@@ -38,4 +38,5 @@ jobs:
         cmake --build --preset windows-${{matrix.config.arch}}-${{matrix.config.cc}}-release
     - name: Test
       run: |
+        dir
         ctest --preset windows-${{matrix.config.arch}}-${{matrix.config.cc}}-release --rerun-failed --output-on-failure
