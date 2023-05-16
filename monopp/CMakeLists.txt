@@ -7,9 +7,6 @@ set(INTERNAL_MONO_ASSEMBLY_DIR "${MONO_ASSEMBLY_PATH}"
 set(INTERNAL_MONO_CONFIG_DIR "${MONO_CONFIG_PATH}"
     CACHE PATH "Path to the Mono config dir (mono/etc). May be a relative path.")
 
-message(STATUS "Mono msc executable ${MONO_MCS_EXECUTABLE}")
-
-message(STATUS "Mono libraries ${MONO_LIBRARIES}")
 configure_file(mono_build_config.h.in mono_build_config.h @ONLY)
 
 set(target_name monopp)

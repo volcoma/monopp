@@ -7,11 +7,6 @@ if (NOT MONO_FOUND)
     message(FATAL_ERROR "Mono is required for this CMake script. Please install it.")
 endif ()
 
-if (WIN32)
-    find_file(MONO_DLL_PATH NAMES mono-2.0.dll mono-2.0-sgen.dll PATHS ${MONO_BINARY_PATH})
-    copy_files_to_runtime_path(FILES ${MONO_DLL_PATH})
-endif ()
-
 function(add_mono_assembly)
     cmake_parse_arguments(
         MONO_ASSEMBLY_PARSED_ARGS
@@ -59,6 +54,7 @@ function(copy_mono_runtimes_to_runtime_path)
     message(STATUS "Copying Mono runtimes to the runtime path.")
     copy_folder_to_runtime_path(
         PATH ${MONO_LIBRARY_PATH}/mono
+        DESTINATION mono
     )
 endfunction()
 
@@ -67,3 +63,11 @@ function(get_mono_pkg_config package output)
     string(REPLACE " " ";" _OUTPUT "${_OUTPUT}")
     set(${output} ${_OUTPUT} PARENT_SCOPE)
 endfunction()
+
+
+if (WIN32)
+    find_file(MONO_DLL_PATH NAMES mono-2.0.dll mono-2.0-sgen.dll PATHS ${MONO_BINARY_PATH})
+    copy_files_to_runtime_path(FILES ${MONO_DLL_PATH})
+    #copy_mono_runtimes_to_runtime_path()
+endif ()
+
