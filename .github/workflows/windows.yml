@@ -29,6 +29,8 @@ jobs:
     - name: Setup MinGW
       if: matrix.config.cc == 'mingw'
       uses: egor-tensin/setup-mingw@v2
+      with:
+        version: 12.2.0
     - name: Setup Mono
       run: |
         choco install mono
