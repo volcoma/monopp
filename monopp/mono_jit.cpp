@@ -54,10 +54,78 @@ static void on_log_callback(const char* log_domain, const char* log_level, const
 }
 
 static MonoDomain* jit_domain = nullptr;
+static compiler_paths comp_paths{};
 
-auto init(const std::string& domain, bool enable_debugging) -> bool
+auto mono_assembly_dir() -> const char*
 {
-	mono_set_dirs(INTERNAL_MONO_ASSEMBLY_DIR, INTERNAL_MONO_CONFIG_DIR);
+	return comp_paths.assembly_dir.empty() ? INTERNAL_MONO_ASSEMBLY_DIR : comp_paths.assembly_dir.c_str();
+}
+
+auto mono_config_dir() -> const char*
+{
+	return comp_paths.config_dir.empty() ? INTERNAL_MONO_CONFIG_DIR : comp_paths.config_dir.c_str();
+}
+
+auto mono_msc_executable() -> const char*
+{
+	return comp_paths.msc_executable.empty() ? INTERNAL_MONO_MCS_EXECUTABLE : comp_paths.msc_executable.c_str();
+}
+
+auto get_common_library_names() -> const std::vector<std::string>&
+{
+	static const std::vector<std::string> names{"mono-2.0", "monosgen-2.0", "mono-2.0-sgen"};
+	return names;
+}
+auto get_common_library_paths() -> const std::vector<std::string>&
+{
+	static const std::vector<std::string> paths{"C:/Program Files/Mono/lib",
+												"/usr/lib64",
+												"/usr/lib",
+												"/usr/local/lib64",
+												"/usr/local/lib",
+												"/opt/local/lib"};
+	return paths;
+}
+
+auto get_common_executable_names() -> const std::vector<std::string>&
+{
+#ifdef _WIN32
+	static const std::vector<std::string> names{"mcs.bat"};
+#else
+	static const std::vector<std::string> names{"mcs"};
+
+#endif
+
+	return names;
+}
+auto get_common_executable_paths() -> const std::vector<std::string>&
+{
+	static const std::vector<std::string> paths{
+		"C:/Program Files/Mono/bin",
+		"/bin",
+		"/usr/bin",
+		"/usr/local/bin"
+	};
+	return paths;
+}
+
+
+auto get_common_config_paths() -> const std::vector<std::string>&
+{
+	static const std::vector<std::string> paths{"C:/Program Files/Mono/etc",
+												"/usr/etc",
+												"/usr/local/etc",
+												"/opt/local/etc"};
+	return paths;
+}
+
+
+
+auto init(const compiler_paths& paths, bool enable_debugging) -> bool
+{
+	comp_paths = paths;
+
+	mono_set_dirs(mono_assembly_dir(), mono_config_dir());
 
 	if(enable_debugging)
 	{
@@ -91,7 +159,7 @@ auto init(const std::string& domain, bool enable_debugging) -> bool
 
 	set_log_handler("default", [](const std::string& msg) { std::cout << msg << std::endl; });
 
-	jit_domain = mono_jit_init(domain.c_str());
+	jit_domain = mono_jit_init("mono_jit");
 	mono_thread_set_main(mono_thread_current());
 
 	return jit_domain != nullptr;
@@ -119,7 +187,7 @@ auto quote(const std::string& word) -> std::string
 auto create_compile_command(const compiler_params& params) -> std::string
 {
 	std::string command;
-	command.append(quote(INTERNAL_MONO_MCS_EXECUTABLE));
+	command.append(quote(mono_msc_executable()));
 
 	for(const auto& path : params.files)
 	{
@@ -179,6 +247,5 @@ auto compile(const compiler_params& params) -> bool
     std::cout << command << std::endl;
 	return std::system(command.c_str()) == 0;
 }
-
 
 } // namespace mono

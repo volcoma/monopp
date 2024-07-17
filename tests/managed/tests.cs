@@ -137,7 +137,7 @@ class MonoppTest
 }
 
 
-public struct Vector2f
+public struct Vector2f  
 {
     public Vector2f(float _x, float _y)
 	{

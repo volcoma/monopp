@@ -55,6 +55,7 @@ void test_suite()
 	TEST_CASE("jit compile assembly")
 	{
 		mono::compiler_params cmd;
+		cmd.compiler_executable = DATA_DIR"mcs.bat";
 		cmd.files = {DATA_DIR"managed/tests.cs"};
 		cmd.references = {DATA_DIR"monort_managed.dll"};
 		cmd.output_name = DATA_DIR"tests_managed.dll";

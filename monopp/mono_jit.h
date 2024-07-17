@@ -7,12 +7,20 @@
 namespace mono
 {
 
-auto init(const std::string& domain, bool enable_debugging = false) -> bool;
+struct compiler_paths
+{
+	std::string assembly_dir;
+	std::string config_dir;
+	std::string msc_executable;
+};
+
+auto init(const compiler_paths& paths = {}, bool enable_debugging = false) -> bool;
 
 void shutdown();
 
 struct compiler_params
 {
+	std::string compiler_executable{};
 	// Specifies the format of the output assembly
 	// Can be one of: exe, winexe, library, module
 	std::string output_type = "library";
@@ -37,5 +45,13 @@ struct compiler_params
 
 auto create_compile_command(const compiler_params& params) -> std::string;
 auto compile(const compiler_params& params) -> bool;
+
+auto get_common_library_names() -> const std::vector<std::string>&;
+auto get_common_library_paths() -> const std::vector<std::string>&;
+
+auto get_common_executable_names() -> const std::vector<std::string>&;
+auto get_common_executable_paths() -> const std::vector<std::string>&;
+
+auto get_common_config_paths() -> const std::vector<std::string>&;
 
 } // namespace mono
