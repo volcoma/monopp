@@ -1,4 +1,9 @@
-﻿cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.14)
+
+set(MONOPP_MAIN_PROJECT ON)
+if(DEFINED PROJECT_SOURCE_DIR)
+    set(MONOPP_MAIN_PROJECT OFF)
+endif()
 
 project(monopp)
 include(CTest)
@@ -9,7 +14,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cm
 
 option(BUILD_MONOPP_SHARED "Build as a shared library." ON)
 option(BUILD_MONOPP_MONORT "Build the monort utility library" ON)
-option(BUILD_MONOPP_TESTS "Build the tests" ON)
+option(BUILD_MONOPP_TESTS "Build the tests" ${MONOPP_MAIN_PROJECT})
 
 option(BUILD_MONOPP_WITH_CODE_STYLE_CHECKS "Build with code style checks." OFF)
 
