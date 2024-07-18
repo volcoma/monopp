@@ -50,7 +50,6 @@ if(BUILD_MONOPP_WITH_CODE_STYLE_CHECKS)
 	set(BUILD_WITH_CODE_STYLE_CHECKS ON)
 endif()
 
-add_subdirectory(3rdparty)
 add_subdirectory(monopp)
 
 if(BUILD_MONOPP_MONORT)	
@@ -58,6 +57,7 @@ if(BUILD_MONOPP_MONORT)
 endif()
 
 if(BUILD_MONOPP_TESTS)
+    add_subdirectory(3rdparty)
     add_subdirectory(tests)
 
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
