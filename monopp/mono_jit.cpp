@@ -73,7 +73,11 @@ auto mono_msc_executable() -> const char*
 
 auto get_common_library_names() -> const std::vector<std::string>&
 {
+#ifdef _WIN32
 	static const std::vector<std::string> names{"mono-2.0", "monosgen-2.0", "mono-2.0-sgen"};
+#else
+	static const std::vector<std::string> names{"libmono-2.0", "libmonosgen-2.0", "libmono-2.0-sgen"};
+#endif
 	return names;
 }
 auto get_common_library_paths() -> const std::vector<std::string>&
