@@ -245,6 +245,82 @@ auto create_compile_command(const compiler_params& params) -> std::string
     return command;
 }
 
+auto create_compile_command_detailed(const compiler_params& params) -> compile_cmd
+{
+	compile_cmd cmd;
+	cmd.cmd = mono_msc_executable();
+
+	for(const auto& path : params.files)
+	{
+		//cmd.args.emplace_back(quote(path));
+		cmd.args.emplace_back(path);
+
+	}
+
+	if(!params.output_type.empty())
+	{
+		std::string arg;
+		arg += "-target:";
+		arg += params.output_type;
+
+		cmd.args.emplace_back(arg);
+	}
+
+	if(!params.references.empty())
+	{
+		std::string arg;
+		arg += "-reference:";
+
+		for(const auto& ref : params.references)
+		{
+			//arg += quote(ref);
+			arg += ref;
+
+			arg += ",";
+		}
+
+		arg.pop_back();
+		cmd.args.emplace_back(arg);
+	}
+
+	if(!params.references_locations.empty())
+	{
+		std::string arg;
+		arg += "-lib:";
+
+		for(const auto& loc : params.references_locations)
+		{
+			//arg += quote(loc);
+			arg += loc;
+
+			arg += ",";
+		}
+
+		arg.pop_back();
+		cmd.args.emplace_back(arg);
+	}
+
+#ifndef NDEBUG
+	cmd.args.emplace_back("-debug");
+
+#else
+	cmd.args.emplace_back("-optimize");
+#endif
+
+	{
+		std::string arg;
+
+		arg += "-out:";
+		//arg += quote(params.output_name);
+		arg += params.output_name;
+
+		cmd.args.emplace_back(arg);
+
+	}
+
+	return cmd;
+}
+
 auto compile(const compiler_params& params) -> bool
 {
 	auto command = create_compile_command(params);

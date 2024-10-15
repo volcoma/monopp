@@ -20,30 +20,36 @@ void shutdown();
 
 struct compiler_params
 {
-	std::string compiler_executable{};
+	// Specifies output assembly name
+	std::string output_name;
+
+	// Specifies the input files to compile
+	std::vector<std::string> files;
+
 	// Specifies the format of the output assembly
 	// Can be one of: exe, winexe, library, module
 	std::string output_type = "library";
 
-	// Specifies output assembly name
-	std::string output_name;
-
-    // Specifies the input files to compile
-	std::vector<std::string> files;
-
-    // Everything below is optional
+	// Everything below is optional
 
 	// Imports metadata from the specified assemblies
 	std::vector<std::string> references;
 
 	// Specifies the location of referenced assemblies
-    std::vector<std::string> references_locations;
+	std::vector<std::string> references_locations;
 
 	// Defines one or more conditional symbols
 	std::vector<std::string> defines;
 };
 
+struct compile_cmd
+{
+	std::string cmd;
+	std::vector<std::string> args;
+};
+
 auto create_compile_command(const compiler_params& params) -> std::string;
+auto create_compile_command_detailed(const compiler_params& params) -> compile_cmd;
 auto compile(const compiler_params& params) -> bool;
 
 auto get_common_library_names() -> const std::vector<std::string>&;
