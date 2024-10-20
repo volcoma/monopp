@@ -45,4 +45,9 @@ private:
 	mono_gc_handle& handle_;
 };
 
+
+auto gc_get_heap_size() -> int64_t;
+auto gc_get_used_size() -> int64_t;
+
+
 } // namespace mono

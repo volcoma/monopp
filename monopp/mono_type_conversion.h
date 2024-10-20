@@ -28,7 +28,7 @@ struct convert_mono_type
 	using mono_unboxed_type = T;
 	using mono_boxed_type = MonoObject*;
 
-	static_assert(std::is_pod<mono_unboxed_type>::value, "Specialize convertor for non-pod types");
+	static_assert(std::is_trivially_copyable<mono_unboxed_type>::value, "Specialize convertor for non-pod types");
 
 	static auto to_mono(const cpp_type& obj) -> mono_unboxed_type
 	{

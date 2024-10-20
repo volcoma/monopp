@@ -26,6 +26,7 @@ public:
 	auto new_string(const std::string& str) const -> mono_string;
 
 	static void set_current_domain(const mono_domain& domain);
+	static void set_current_domain(const mono_domain* domain);
 
 	static auto get_current_domain() -> const mono_domain&;
 

@@ -2,6 +2,7 @@
 #include "mono_assembly.h"
 
 #include "mono_string.h"
+#include "mono_method_invoker.h"
 
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/appdomain.h>
@@ -12,6 +13,30 @@ END_MONO_INCLUDE
 
 namespace mono
 {
+
+namespace
+{
+auto mono_managed_gc_collect(std::string& err) -> bool
+{
+	try
+	{
+		mono_type gc_class(mono_get_corlib(), "System", "GC");
+
+		auto collect_method = mono::make_method_invoker<void()>(gc_class, "Collect");
+		auto wait_for_pending_finalizers_method = mono::make_method_invoker<void()>(gc_class, "WaitForPendingFinalizers");
+
+		collect_method();
+		wait_for_pending_finalizers_method();
+		return true;
+
+	}
+	catch(const std::exception& e)
+	{
+		err = e.what();
+		return false;
+	}
+}
+} // namespace
 static const mono_domain* current_domain = nullptr;
 
 auto mono_domain::get_internal_ptr() const -> MonoDomain*
@@ -22,6 +47,11 @@ auto mono_domain::get_internal_ptr() const -> MonoDomain*
 void mono_domain::set_current_domain(const mono_domain& domain)
 {
 	current_domain = &domain;
+}
+
+void mono_domain::set_current_domain(const mono_domain* domain)
+{
+	current_domain = domain;
 }
 
 auto mono_domain::get_current_domain() -> const mono_domain&
@@ -49,11 +79,15 @@ mono_domain::~mono_domain()
 {
 	if(domain_)
 	{
-		auto root_domain = mono_get_root_domain();
-		auto res = mono_domain_set(root_domain, 0);
-		if(res)
+		std::string err;
+		if(mono_managed_gc_collect(err))
 		{
-			mono_domain_unload(domain_);
+			auto root_domain = mono_get_root_domain();
+			auto res = mono_domain_set(root_domain, 0);
+			if(res)
+			{
+				mono_domain_unload(domain_);
+			}
 		}
 	}
 	mono_gc_collect(mono_gc_max_generation());

@@ -307,6 +307,8 @@ auto create_compile_command_detailed(const compiler_params& params) -> compile_c
 	cmd.args.emplace_back("-optimize");
 #endif
 
+	cmd.args.emplace_back("-unsafe");
+
 	{
 		std::string arg;
 
