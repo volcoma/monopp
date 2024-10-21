@@ -27,6 +27,7 @@ public:
 
 	static void set_current_domain(const mono_domain& domain);
 	static void set_current_domain(const mono_domain* domain);
+	static void set_assemblies_path(const std::string& path);
 
 	static auto get_current_domain() -> const mono_domain&;
 

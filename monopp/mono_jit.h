@@ -40,6 +40,12 @@ struct compiler_params
 
 	// Defines one or more conditional symbols
 	std::vector<std::string> defines;
+
+	// Debug or Optimized?
+	bool debug{true};
+
+	// Unsafe mode
+	bool unsafe{true};
 };
 
 struct compile_cmd

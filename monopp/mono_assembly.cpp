@@ -9,6 +9,8 @@
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/appdomain.h>
 #include <mono/metadata/assembly.h>
+#include <mono/metadata/image.h>
+#include <mono/metadata/tokentype.h>
 END_MONO_INCLUDE
 
 namespace mono
@@ -32,6 +34,41 @@ auto mono_assembly::get_type(const std::string& name) const -> mono_type
 auto mono_assembly::get_type(const std::string& name_space, const std::string& name) const -> mono_type
 {
 	return mono_type(image_, name_space, name);
+}
+
+std::vector<mono_type> mono_assembly::get_types() const
+{
+	// Get all types in an assembly
+	std::vector<mono_type> classes;
+
+	int num_types = mono_image_get_table_rows(image_, MONO_TABLE_TYPEDEF);
+
+	for (int i = 1; i <= num_types; ++i) {
+		MonoClass* klass = mono_class_get(image_, (i + MONO_TOKEN_TYPE_DEF));
+		if (klass)
+		{
+			classes.push_back(mono_type(klass));
+		}
+	}
+	return classes;
+
+}
+
+auto mono_assembly::get_types_derived_from(const mono_type& base) const -> std::vector<mono_type>
+{
+	auto types = get_types();
+
+	std::vector<mono_type> result;
+
+	for(const auto& type : types)
+	{
+		if(type.is_derived_from(base))
+		{
+			result.emplace_back(type);
+		}
+	}
+
+	return result;
 }
 
 auto mono_assembly::dump_references() const -> std::vector<std::string>

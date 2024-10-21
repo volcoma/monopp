@@ -231,11 +231,20 @@ auto create_compile_command(const compiler_params& params) -> std::string
         command.pop_back();
     }
 
-#ifndef NDEBUG
-    command += " -debug";
-#else
-    command += " -optimize";
-#endif
+	if(params.debug)
+	{
+		command += " -debug";
+	}
+	else
+	{
+		command += " -optimize";
+	}
+
+	if(params.unsafe)
+	{
+		command += " -unsafe";
+	}
+
 	command += " -out:";
 	command += quote(params.output_name);
 
@@ -300,14 +309,19 @@ auto create_compile_command_detailed(const compiler_params& params) -> compile_c
 		cmd.args.emplace_back(arg);
 	}
 
-#ifndef NDEBUG
-	cmd.args.emplace_back("-debug");
+	if(params.debug)
+	{
+		cmd.args.emplace_back("-debug");
+	}
+	else
+	{
+		cmd.args.emplace_back("-optimize");
+	}
 
-#else
-	cmd.args.emplace_back("-optimize");
-#endif
-
-	cmd.args.emplace_back("-unsafe");
+	if(params.unsafe)
+	{
+		cmd.args.emplace_back("-unsafe");
+	}
 
 	{
 		std::string arg;

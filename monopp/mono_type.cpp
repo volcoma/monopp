@@ -171,7 +171,7 @@ void mono_type::generate_meta()
 
 auto mono_type::is_derived_from(const mono_type& type) const -> bool
 {
-	return mono_class_is_subclass_of(class_, type.get_internal_ptr(), false) != 0;
+	return mono_class_is_subclass_of(class_, type.get_internal_ptr(), true) != 0;
 }
 auto mono_type::get_namespace() const -> const std::string&
 {

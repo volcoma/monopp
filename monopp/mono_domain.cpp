@@ -46,12 +46,27 @@ auto mono_domain::get_internal_ptr() const -> MonoDomain*
 
 void mono_domain::set_current_domain(const mono_domain& domain)
 {
-	current_domain = &domain;
+	set_current_domain(&domain);
 }
 
 void mono_domain::set_current_domain(const mono_domain* domain)
 {
 	current_domain = domain;
+
+	if(current_domain)
+	{
+		mono_domain_set(current_domain->domain_, 0);
+	}
+	else
+	{
+		auto root_domain = mono_get_root_domain();
+		mono_domain_set(root_domain, 0);
+	}
+}
+
+void mono_domain::set_assemblies_path(const std::string& path)
+{
+	mono_set_assemblies_path(path.c_str());
 }
 
 auto mono_domain::get_current_domain() -> const mono_domain&
@@ -83,7 +98,13 @@ mono_domain::~mono_domain()
 		if(mono_managed_gc_collect(err))
 		{
 			auto root_domain = mono_get_root_domain();
-			auto res = mono_domain_set(root_domain, 0);
+
+			bool res = true;
+			if(mono_domain_get() == domain_ && mono_domain_get() != root_domain)
+			{
+				res = mono_domain_set(root_domain, 0);
+			}
+
 			if(res)
 			{
 				mono_domain_unload(domain_);
