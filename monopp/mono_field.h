@@ -30,8 +30,15 @@ public:
 
 	auto is_static() const -> bool;
 
+	auto get_attributes() const -> std::vector<mono_type>;
+
+	auto is_readonly() const -> bool;
+
+	auto is_const() const -> bool;
+
 protected:
 	void generate_meta();
+
 	auto is_valuetype() const -> bool;
 
 	mono_type type_;

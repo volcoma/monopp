@@ -35,6 +35,12 @@ public:
 
 	auto is_static() const -> bool;
 
+	auto get_attributes() const -> std::vector<mono_type>;
+
+	auto is_special_name() const -> bool;
+
+	auto has_default() const -> bool;
+
 	auto get_internal_ptr() const -> MonoProperty*;
 
 private:

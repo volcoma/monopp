@@ -19,13 +19,30 @@ public:
 	explicit mono_method(const mono_type& type, const std::string& name, int argc);
 
 	auto get_return_type() const -> mono_type;
+
 	auto get_param_types() const -> std::vector<mono_type>;
+
 	auto get_name() const -> const std::string&;
+
 	auto get_fullname() const -> const std::string&;
+
 	auto get_full_declname() const -> const std::string&;
+
 	auto get_visibility() const -> visibility;
+
 	auto is_static() const -> bool;
+
 	auto is_virtual() const -> bool;
+
+	auto is_pinvoke_impl() const -> bool;
+
+	auto is_special_name() const -> bool;
+
+	auto is_internal_call() const -> bool;
+
+	auto is_synchronized() const -> bool;
+
+	auto get_attributes() const -> std::vector<mono_type>;
 
 protected:
 	void generate_meta();

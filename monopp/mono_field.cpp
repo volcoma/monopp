@@ -3,6 +3,7 @@
 #include "mono_exception.h"
 
 BEGIN_MONO_INCLUDE
+#include <mono/metadata/appdomain.h>
 #include <mono/metadata/attrdefs.h>
 #include <mono/metadata/debug-helpers.h>
 END_MONO_INCLUDE
@@ -23,7 +24,7 @@ mono_field::mono_field(const mono_type& type, const std::string& name)
 	if(is_static())
 	{
 		owning_type_vtable_ = mono_class_vtable(domain.get_internal_ptr(), type.get_internal_ptr());
-//		mono_runtime_class_init(owning_type_vtable_);
+		//		mono_runtime_class_init(owning_type_vtable_);
 	}
 }
 
@@ -83,5 +84,109 @@ auto mono_field::is_static() const -> bool
 	uint32_t flags = mono_field_get_flags(field_);
 
 	return (flags & MONO_FIELD_ATTR_STATIC) != 0;
+}
+
+auto mono_field::get_attributes() const -> std::vector<mono_type>
+{
+	std::vector<mono_type> result;
+
+	// Get custom attributes from the field
+	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_field(type_.get_internal_ptr(), field_);
+
+	if(attr_info)
+	{
+		result.reserve(attr_info->num_attrs);
+
+		// Iterate over the custom attributes
+		for(int i = 0; i < attr_info->num_attrs; ++i)
+		{
+			MonoCustomAttrEntry* entry = &attr_info->attrs[i];
+
+			// Get the MonoClass* of the attribute
+			MonoClass* attr_class = mono_method_get_class(entry->ctor);
+
+			// Add the attribute class to the result vector
+			result.emplace_back(attr_class);
+		}
+
+		// Free the attribute info when done
+		mono_custom_attrs_free(attr_info);
+	}
+
+	// Get field flags
+	uint32_t flags = mono_field_get_flags(field_);
+
+	MonoImage* corlib = mono_get_corlib(); // Get corlib once for efficiency
+
+	// Check for NotSerialized (NonSerialized in .NET)
+	if((flags & MONO_FIELD_ATTR_NOT_SERIALIZED) != 0)
+	{
+		MonoClass* non_serialized_attr_class =
+			mono_class_from_name(corlib, "System", "NonSerializedAttribute");
+		if(non_serialized_attr_class)
+		{
+			result.emplace_back(non_serialized_attr_class);
+		}
+	}
+
+	// Check for SpecialName
+	if((flags & MONO_FIELD_ATTR_SPECIAL_NAME) != 0)
+	{
+		MonoClass* special_name_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "SpecialNameAttribute");
+		if(special_name_attr_class)
+		{
+			result.emplace_back(special_name_attr_class);
+		}
+	}
+
+	// Check for RTSpecialName
+	if((flags & MONO_FIELD_ATTR_RT_SPECIAL_NAME) != 0)
+	{
+		MonoClass* rt_special_name_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "RuntimeSpecialNameAttribute");
+		if(rt_special_name_attr_class)
+		{
+			result.emplace_back(rt_special_name_attr_class);
+		}
+	}
+
+	// Check for PinvokeImpl
+	if((flags & MONO_FIELD_ATTR_PINVOKE_IMPL) != 0)
+	{
+		MonoClass* field_offset_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.InteropServices", "FieldOffsetAttribute");
+		if(field_offset_attr_class)
+		{
+			result.emplace_back(field_offset_attr_class);
+		}
+	}
+
+	// Check for Literal (const fields)
+	if((flags & MONO_FIELD_ATTR_LITERAL) != 0)
+	{
+		// No direct attribute in .NET, but you can note this flag
+		// Alternatively, you can represent it as a constant field
+	}
+
+	// Check for InitOnly (readonly fields)
+	if((flags & MONO_FIELD_ATTR_INIT_ONLY) != 0)
+	{
+		// No direct attribute, but you can note this flag or create a method is_readonly()
+	}
+
+	return result;
+}
+
+auto mono_field::is_readonly() const -> bool
+{
+	uint32_t flags = mono_field_get_flags(field_);
+	return (flags & MONO_FIELD_ATTR_INIT_ONLY) != 0;
+}
+
+auto mono_field::is_const() const -> bool
+{
+	uint32_t flags = mono_field_get_flags(field_);
+	return (flags & MONO_FIELD_ATTR_LITERAL) != 0;
 }
 } // namespace mono

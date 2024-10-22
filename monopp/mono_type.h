@@ -46,6 +46,8 @@ public:
 
 	auto get_methods() const -> std::vector<mono_method>;
 
+	auto get_attributes() const -> std::vector<mono_type>;
+
 	auto has_base_type() const -> bool;
 
 	auto get_base_type() const -> mono_type;
@@ -62,11 +64,21 @@ public:
 
 	auto is_valuetype() const -> bool;
 
+	auto is_struct() const -> bool;
+
+	auto is_class() const -> bool;
+
+	auto is_enum() const -> bool;
+
 	auto get_rank() const -> int;
 
 	auto get_sizeof() const -> std::uint32_t;
 
 	auto get_alignof() const -> std::uint32_t;
+
+	bool is_abstract() const;
+	bool is_sealed() const;
+	bool is_interface() const;
 
 	auto get_internal_ptr() const -> MonoClass*;
 
@@ -90,6 +102,8 @@ private:
 	int rank_ = 0;
 
 	bool valuetype_ = true;
+
+	bool enum_ = false;
 };
 
 } // namespace mono

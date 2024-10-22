@@ -9,9 +9,11 @@
 #include "mono_property.h"
 
 BEGIN_MONO_INCLUDE
+#include <mono/metadata/appdomain.h>
+#include <mono/metadata/attrdefs.h>
 #include <mono/metadata/debug-helpers.h>
 END_MONO_INCLUDE
-
+#include <iostream>
 namespace mono
 {
 
@@ -130,6 +132,129 @@ auto mono_type::get_methods() const -> std::vector<mono_method>
 	return methods;
 }
 
+auto mono_type::get_attributes() const -> std::vector<mono_type>
+{
+	std::vector<mono_type> result;
+
+	// Get custom attributes from the class
+	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_class(class_);
+
+	if(attr_info)
+	{
+		result.reserve(attr_info->num_attrs);
+		// Iterate over the custom attributes
+		for(int i = 0; i < attr_info->num_attrs; ++i)
+		{
+			MonoCustomAttrEntry* entry = &attr_info->attrs[i];
+			MonoClass* attr_class = mono_method_get_class(entry->ctor);
+			result.emplace_back(attr_class);
+		}
+
+		// Free the attribute info when done
+		mono_custom_attrs_free(attr_info);
+	}
+
+	// Get class flags
+	uint32_t flags = mono_class_get_flags(class_);
+
+	MonoImage* corlib = mono_get_corlib(); // Get corlib once for efficiency
+
+	// Check for Serializable
+	if((flags & MONO_TYPE_ATTR_SERIALIZABLE) != 0)
+	{
+		MonoClass* serializable_attr_class = mono_class_from_name(corlib, "System", "SerializableAttribute");
+		if(serializable_attr_class)
+		{
+			result.emplace_back(serializable_attr_class);
+		}
+	}
+
+	// Check for ComImport
+	if((flags & MONO_TYPE_ATTR_IMPORT) != 0)
+	{
+		MonoClass* com_import_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.InteropServices", "ComImportAttribute");
+		if(com_import_attr_class)
+		{
+			result.emplace_back(com_import_attr_class);
+		}
+	}
+
+	// Check for SpecialName
+	if((flags & MONO_TYPE_ATTR_SPECIAL_NAME) != 0)
+	{
+		MonoClass* special_name_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "SpecialNameAttribute");
+		if(special_name_attr_class)
+		{
+			result.emplace_back(special_name_attr_class);
+		}
+	}
+
+	// Check for StructLayout
+	uint32_t layout = flags & MONO_TYPE_ATTR_LAYOUT_MASK;
+	if(layout == MONO_TYPE_ATTR_SEQUENTIAL_LAYOUT || layout == MONO_TYPE_ATTR_EXPLICIT_LAYOUT)
+	{
+		MonoClass* struct_layout_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.InteropServices", "StructLayoutAttribute");
+		if(struct_layout_attr_class)
+		{
+			result.emplace_back(struct_layout_attr_class);
+		}
+	}
+
+	// Check for Abstract
+	if((flags & MONO_TYPE_ATTR_ABSTRACT) != 0)
+	{
+		// There is no AbstractAttribute, but you can note this flag
+		// Alternatively, you can create a custom representation
+	}
+
+	// Check for Sealed
+	if((flags & MONO_TYPE_ATTR_SEALED) != 0)
+	{
+		// There is no SealedAttribute, but you can note this flag
+	}
+
+	// Check for Interface
+	if((flags & MONO_TYPE_ATTR_INTERFACE) != 0)
+	{
+		// There is no InterfaceAttribute, but you can note this flag
+	}
+
+	// Check for BeforeFieldInit
+	if((flags & MONO_TYPE_ATTR_BEFORE_FIELD_INIT) != 0)
+	{
+		// There is no BeforeFieldInitAttribute, but you can note this flag
+	}
+
+	// Check for HasSecurity
+	if((flags & MONO_TYPE_ATTR_HAS_SECURITY) != 0)
+	{
+		// There is no HasSecurityAttribute, but you can note this flag
+	}
+
+	// Check for UnicodeClass (string format)
+	uint32_t string_format = flags & MONO_TYPE_ATTR_STRING_FORMAT_MASK;
+	if(string_format == MONO_TYPE_ATTR_UNICODE_CLASS)
+	{
+		// MonoClass* unicode_class_attr = mono_class_from_name(corlib, "System.Runtime.CompilerServices",
+		// "UnicodeClassAttribute");
+		//  Note: There is no UnicodeClassAttribute in .NET
+		//  You can decide how to represent this flag
+	}
+
+	// Check for AutoClass (string format)
+	if(string_format == MONO_TYPE_ATTR_AUTO_CLASS)
+	{
+		// Similar to above
+	}
+
+	// Additional pseudo-custom attributes can be added similarly
+
+	return result;
+}
+
 auto mono_type::has_base_type() const -> bool
 {
 	return mono_class_get_parent(class_) != nullptr;
@@ -166,6 +291,7 @@ void mono_type::generate_meta()
 	fullname_ = namespace_.empty() ? name_ : namespace_ + "." + name_;
 	rank_ = mono_class_get_rank(class_);
 	valuetype_ = !!mono_class_is_valuetype(class_);
+	enum_ = mono_class_is_enum(class_);
 	sizeof_ = std::uint32_t(mono_class_value_size(class_, &alignof_));
 }
 
@@ -190,18 +316,48 @@ auto mono_type::is_valuetype() const -> bool
 	return valuetype_;
 }
 
+auto mono::mono_type::mono_type::is_enum() const -> bool
+{
+	return enum_;
+}
+
+auto mono::mono_type::mono_type::is_class() const -> bool
+{
+	return !is_valuetype();
+}
+
+auto mono::mono_type::mono_type::is_struct() const -> bool
+{
+	return is_valuetype() && !is_enum();
+}
+
 auto mono_type::get_rank() const -> int
 {
 	return rank_;
 }
 
-uint32_t mono_type::get_sizeof() const
+auto mono_type::get_sizeof() const -> uint32_t
 {
 	return sizeof_;
 }
 
-uint32_t mono_type::get_alignof() const
+auto mono_type::get_alignof() const -> uint32_t
 {
 	return alignof_;
+}
+
+auto mono_type::is_abstract() const -> bool
+{
+	return (mono_class_get_flags(class_) & MONO_TYPE_ATTR_ABSTRACT) != 0;
+}
+
+auto mono_type::is_sealed() const -> bool
+{
+	return (mono_class_get_flags(class_) & MONO_TYPE_ATTR_SEALED) != 0;
+}
+
+auto mono_type::is_interface() const -> bool
+{
+	return (mono_class_get_flags(class_) & MONO_TYPE_ATTR_INTERFACE) != 0;
 }
 } // namespace mono

@@ -3,6 +3,7 @@
 #include "mono_type.h"
 
 BEGIN_MONO_INCLUDE
+#include <mono/metadata/appdomain.h>
 #include <mono/metadata/attrdefs.h>
 #include <mono/metadata/debug-helpers.h>
 END_MONO_INCLUDE
@@ -120,5 +121,109 @@ auto mono_method::is_virtual() const -> bool
 {
 	uint32_t flags = mono_method_get_flags(method_, nullptr);
 	return (flags & MONO_METHOD_ATTR_VIRTUAL) != 0;
+}
+
+auto mono_method::is_pinvoke_impl() const -> bool
+{
+	uint32_t flags = mono_method_get_flags(method_, nullptr);
+	return (flags & MONO_METHOD_ATTR_PINVOKE_IMPL) != 0;
+}
+
+auto mono_method::is_special_name() const -> bool
+{
+	uint32_t flags = mono_method_get_flags(method_, nullptr);
+	return (flags & MONO_METHOD_ATTR_SPECIAL_NAME) != 0;
+}
+
+auto mono_method::is_internal_call() const -> bool
+{
+	uint32_t impl_flags = 0;
+	mono_method_get_flags(method_, &impl_flags);
+	return (impl_flags & MONO_METHOD_IMPL_ATTR_INTERNAL_CALL) != 0;
+}
+
+auto mono_method::is_synchronized() const -> bool
+{
+	uint32_t impl_flags = 0;
+	mono_method_get_flags(method_, &impl_flags);
+	return (impl_flags & MONO_METHOD_IMPL_ATTR_SYNCHRONIZED) != 0;
+}
+
+auto mono_method::get_attributes() const -> std::vector<mono_type>
+{
+	std::vector<mono_type> result;
+
+	// Get custom attributes from the method
+	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_method(method_);
+
+	if(attr_info)
+	{
+		result.reserve(attr_info->num_attrs);
+
+		// Iterate over the custom attributes
+		for(int i = 0; i < attr_info->num_attrs; ++i)
+		{
+			MonoCustomAttrEntry* entry = &attr_info->attrs[i];
+
+			// Get the MonoClass* of the attribute
+			MonoClass* attr_class = mono_method_get_class(entry->ctor);
+
+			result.emplace_back(attr_class);
+		}
+
+		// Free the attribute info when done
+		mono_custom_attrs_free(attr_info);
+	}
+
+	// Get method flags
+	uint32_t impl_flags{};
+	uint32_t flags = mono_method_get_flags(method_, &impl_flags);
+
+	MonoImage* corlib = mono_get_corlib(); // Get corlib once for efficiency
+
+	// Check for SpecialName
+	if((flags & MONO_METHOD_ATTR_SPECIAL_NAME) != 0)
+	{
+		MonoClass* special_name_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "SpecialNameAttribute");
+		if(special_name_attr_class)
+		{
+			result.emplace_back(special_name_attr_class);
+		}
+	}
+
+	// Check for PInvokeImpl
+	if((flags & MONO_METHOD_ATTR_PINVOKE_IMPL) != 0)
+	{
+		MonoClass* dll_import_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.InteropServices", "DllImportAttribute");
+		if(dll_import_attr_class)
+		{
+			result.emplace_back(dll_import_attr_class);
+		}
+	}
+
+	// Check for MethodImpl attributes
+
+	if((impl_flags & MONO_METHOD_IMPL_ATTR_INTERNAL_CALL) != 0)
+	{
+		// InternalCall methods may correspond to [MethodImpl(MethodImplOptions.InternalCall)]
+		// There is no direct attribute class, but you can note this flag
+	}
+
+	if((impl_flags & MONO_METHOD_IMPL_ATTR_SYNCHRONIZED) != 0)
+	{
+		// Synchronized methods correspond to [MethodImpl(MethodImplOptions.Synchronized)]
+		MonoClass* method_impl_attr_class =
+			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "MethodImplAttribute");
+		if(method_impl_attr_class)
+		{
+			result.emplace_back(method_impl_attr_class);
+		}
+	}
+
+	// Add more checks for other MethodImplOptions as needed
+
+	return result;
 }
 } // namespace mono
