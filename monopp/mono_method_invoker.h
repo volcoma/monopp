@@ -104,7 +104,7 @@ private:
 			}
 		};
 
-		apply(inv, tup);
+		mono::apply(inv, tup);
 	}
 
 	template <typename Signature>
@@ -157,7 +157,7 @@ private:
 			return result;
 		};
 
-		auto result = apply(inv, tup);
+		auto result = mono::apply(inv, tup);
 		return convert_mono_type<std::decay_t<RetType>>::from_mono_boxed(std::move(result));
 	}
 

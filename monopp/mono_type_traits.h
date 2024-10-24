@@ -226,7 +226,7 @@ inline auto get_args_signature(const std::tuple<Args...>& tup) -> std::pair<std:
 		return result;
 	};
 
-	auto args = apply(inv, tup);
+	auto args = mono::apply(inv, tup);
 	return std::make_pair(args, all_types_known);
 }
 
