@@ -83,11 +83,11 @@ void test_suite()
 		auto expression = [&]()
 		{
 			mono::add_internal_call("Tests.MyObject::CreateInternal",
-									internal_vcall(MyObject_CreateInternal));
+									internal_call(MyObject_CreateInternal));
 			mono::add_internal_call("Tests.MyObject::DestroyInternal",
-									internal_vcall(MyObject_DestroyInternal));
-			mono::add_internal_call("Tests.MyObject::DoStuff", internal_vcall(MyObject_DoStuff));
-			mono::add_internal_call("Tests.MyObject::ReturnAString", internal_rcall(MyObject_ReturnAString));
+									internal_call(MyObject_DestroyInternal));
+			mono::add_internal_call("Tests.MyObject::DoStuff", internal_call(MyObject_DoStuff));
+			mono::add_internal_call("Tests.MyObject::ReturnAString", internal_call(MyObject_ReturnAString));
 		};
 		EXPECT_NOTHROWS(expression());
 	};

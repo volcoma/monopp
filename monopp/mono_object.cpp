@@ -4,6 +4,11 @@
 namespace mono
 {
 
+mono_object::mono_object()
+	: object_(nullptr)
+{
+}
+
 mono_object::mono_object(MonoObject* object)
 	: type_(mono_object_get_class(object))
 	, object_(object)

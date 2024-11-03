@@ -14,6 +14,7 @@ class mono_domain;
 class mono_object
 {
 public:
+	mono_object();
 	explicit mono_object(MonoObject* object);
 	explicit mono_object(const mono_domain& domain, const mono_type& type);
 

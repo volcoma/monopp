@@ -12,13 +12,17 @@ auto get_exception_info(MonoObject* ex) -> mono_thunk_exception::mono_exception_
 	const auto& type = obj.get_type();
 	const auto& exception_typename = type.get_fullname();
 
+	auto source_prop = type.get_property("Source");
+	auto mutable_source_prop = make_property_invoker<std::string>(source_prop);
+
 	auto message_prop = type.get_property("Message");
-	auto mutable_msg_prop = make_property_invoker<std::string>(message_prop);
+	auto mutable_message_prop = make_property_invoker<std::string>(message_prop);
 
 	auto stacktrace_prop = type.get_property("StackTrace");
 	auto mutable_stack_prop = make_property_invoker<std::string>(stacktrace_prop);
 
-	auto message = mutable_msg_prop.get_value(obj);
+	auto source = mutable_source_prop.get_value(obj);
+	auto message = mutable_message_prop.get_value(obj);
 	auto stacktrace = mutable_stack_prop.get_value(obj);
 	return {exception_typename, message, stacktrace};
 }

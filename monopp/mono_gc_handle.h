@@ -45,9 +45,27 @@ private:
 	mono_gc_handle& handle_;
 };
 
+struct mono_scoped_object
+{
+
+	explicit mono_scoped_object(const mono_object& obj)
+		: object(obj.get_internal_ptr())
+		, lock(object)
+	{}
+	~mono_scoped_object() = default;
+
+	mono_scoped_object(const mono_scoped_object&) noexcept = delete;
+	auto operator=(const mono_scoped_object&) noexcept -> mono_scoped_object& = delete;
+
+
+	mono_gc_handle object;
+	mono_scoped_gc_handle lock;
+};
+
 
 auto gc_get_heap_size() -> int64_t;
 auto gc_get_used_size() -> int64_t;
+void gc_collect();
 
 
 } // namespace mono

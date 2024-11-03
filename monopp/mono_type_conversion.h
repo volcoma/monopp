@@ -28,7 +28,8 @@ struct convert_mono_type
 	using mono_unboxed_type = T;
 	using mono_boxed_type = MonoObject*;
 
-	static_assert(std::is_trivially_copyable<mono_unboxed_type>::value, "Specialize convertor for non-pod types");
+	static_assert(std::is_trivially_copyable<mono_unboxed_type>::value,
+				  "Specialize convertor for non-pod types");
 
 	static auto to_mono(const cpp_type& obj) -> mono_unboxed_type
 	{
@@ -75,6 +76,40 @@ struct convert_mono_type<mono_object>
 	static auto from_mono_boxed(const mono_unboxed_type& obj) -> cpp_type
 	{
 		return cpp_type(obj);
+	}
+};
+
+template <>
+struct convert_mono_type<mono_type>
+{
+	using cpp_type = mono_type;
+	using mono_unboxed_type = MonoReflectionType*;
+	using mono_boxed_type = MonoReflectionType*;
+
+	static auto to_mono(const cpp_type& obj) -> mono_unboxed_type
+	{
+		// Get the current Mono domain
+		MonoDomain* domain = mono_domain_get();
+
+		// Obtain the MonoType* from your cpp_type (assuming a getter function)
+		MonoType* monoType = mono_class_get_type(obj.get_internal_ptr());
+
+		// Convert MonoType* to MonoReflectionType*
+		MonoReflectionType* reflectionType = mono_type_get_object(domain, monoType);
+
+		return reflectionType;
+	}
+
+	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
+	{
+		MonoType* monoType = mono_reflection_type_get_type(obj);
+		return cpp_type(monoType);
+	}
+
+	static auto from_mono_boxed(const mono_unboxed_type& obj) -> cpp_type
+	{
+		MonoType* monoType = mono_reflection_type_get_type(obj);
+		return cpp_type(monoType);
 	}
 };
 

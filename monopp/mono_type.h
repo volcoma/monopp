@@ -7,6 +7,8 @@
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/class.h>
 #include <mono/metadata/image.h>
+#include <mono/metadata/reflection.h>
+#include "mono/metadata/appdomain.h"
 END_MONO_INCLUDE
 
 namespace mono

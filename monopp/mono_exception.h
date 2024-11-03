@@ -23,12 +23,15 @@ public:
 
 	auto message() const -> const std::string&;
 
+	auto soruce() const -> const std::string&;
+
 	auto stacktrace() const -> const std::string&;
 
 	struct mono_exception_info
 	{
 		std::string exception_typename;
 		std::string message;
+		std::string source;
 		std::string stacktrace;
 	};
 

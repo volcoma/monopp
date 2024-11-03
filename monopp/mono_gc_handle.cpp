@@ -29,4 +29,9 @@ auto gc_get_used_size() -> int64_t
 	return mono_gc_get_used_size();
 }
 
+void gc_collect()
+{
+	mono_gc_collect(mono_gc_max_generation());
+}
+
 } // namespace mono

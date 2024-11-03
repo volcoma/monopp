@@ -22,7 +22,7 @@ void finalize(const mono::mono_object& obj)
 }
 void object::register_internal_calls()
 {
-	add_internal_call("Monopp.Core.NativeObject::Finalize", internal_vcall(finalize));
+	add_internal_call("Monopp.Core.NativeObject::Finalize", internal_call(finalize));
 }
 
 void object::initialize_type_field(const mono_assembly& assembly)
