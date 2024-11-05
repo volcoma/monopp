@@ -31,6 +31,11 @@ auto mono_object::valid() const -> bool
 	return object_ != nullptr;
 }
 
+mono_object::operator bool() const
+{
+	return valid();
+}
+
 auto mono_object::get_internal_ptr() const -> MonoObject*
 {
 	return object_;

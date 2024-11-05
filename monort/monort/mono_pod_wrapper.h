@@ -15,7 +15,8 @@ namespace managed_interface
 		using mono_unboxed_type = mono_data_type_aligned;                                                    \
 		using mono_boxed_type = MonoObject*;                                                                 \
                                                                                                              \
-		static_assert(std::is_pod<mono_unboxed_type>::value, "basic_mono_converter is only for pod types");  \
+		static_assert(std::is_trivially_copyable<mono_unboxed_type>::value,                                  \
+					  "basic_mono_converter is only for pod types");                                         \
                                                                                                              \
 		static auto to_mono(const cpp_type& obj) -> mono_unboxed_type                                        \
 		{                                                                                                    \
@@ -39,7 +40,7 @@ struct converter
 	static auto convert(const src_t& val) -> dst_t
 	{
 		static_assert(std::is_same<src_t, dst_t>::value, "Please specialize.");
-        return val;
+		return val;
 	}
 };
 

@@ -25,6 +25,14 @@ mono_method::mono_method(const mono_type& type, const std::string& name_with_arg
 {
 	auto desc = mono_method_desc_new((":" + name_with_args).c_str(), 0);
 	method_ = mono_method_desc_search_in_class(desc, type.get_internal_ptr());
+
+	auto t = type;
+	while(!method_ && t.valid())
+	{
+		method_ = mono_method_desc_search_in_class(desc, type.get_internal_ptr());
+		t = t.get_base_type();
+	}
+
 	mono_method_desc_free(desc);
 
 	if(!method_)
