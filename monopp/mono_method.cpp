@@ -24,14 +24,13 @@ mono_method::mono_method(MonoMethod* method)
 mono_method::mono_method(const mono_type& type, const std::string& name_with_args)
 {
 	auto desc = mono_method_desc_new((":" + name_with_args).c_str(), 0);
-	method_ = mono_method_desc_search_in_class(desc, type.get_internal_ptr());
 
-	// auto t = type;
-	// while(!method_ && t.valid())
-	// {
-	// 	method_ = mono_method_desc_search_in_class(desc, type.get_internal_ptr());
-	// 	t = t.get_base_type();
-	// }
+	auto check_type = type;
+	while(!method_ && check_type.valid())
+	{
+		method_ = mono_method_desc_search_in_class(desc, check_type.get_internal_ptr());
+		check_type = check_type.get_base_type();
+	}
 
 	mono_method_desc_free(desc);
 
@@ -45,8 +44,13 @@ mono_method::mono_method(const mono_type& type, const std::string& name_with_arg
 }
 
 mono_method::mono_method(const mono_type& type, const std::string& name, int argc)
-{
-	method_ = mono_class_get_method_from_name(type.get_internal_ptr(), name.c_str(), argc);
+{	
+	auto check_type = type;
+	while(!method_ && check_type.valid())
+	{
+		method_ = mono_class_get_method_from_name(check_type.get_internal_ptr(), name.c_str(), argc);
+		check_type = check_type.get_base_type();
+	}
 
 	if(!method_)
 	{

@@ -203,4 +203,12 @@ auto make_method_invoker(const mono_type& type, const std::string& name) -> mono
 	}
 }
 
+template <typename Signature>
+auto make_method_invoker(const mono_object& obj, const std::string& name) -> mono_method_invoker<Signature>
+{
+	const auto& type = obj.get_type();
+
+	return make_method_invoker<Signature>(type, name);
+}
+
 } // namespace mono
