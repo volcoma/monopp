@@ -58,11 +58,11 @@ public:
 
 	auto is_derived_from(const mono_type& type) const -> bool;
 
-	auto get_namespace() const -> const std::string&;
+	auto get_namespace() const -> std::string;
 
-	auto get_name() const -> const std::string&;
+	auto get_name() const -> std::string;
 
-	auto get_fullname() const -> const std::string&;
+	auto get_fullname() const -> std::string;
 
 	auto is_valuetype() const -> bool;
 
@@ -89,23 +89,21 @@ private:
 
 	non_owning_ptr<MonoClass> class_ = nullptr;
 
-	non_owning_ptr<MonoType> type_ = nullptr;
+#ifndef NDEBUG
+	struct meta_info
+	{
+		std::string name_space;
+		std::string name;
+		std::string fullname;
+		std::uint32_t size = 0;
+		std::uint32_t align = 0;
+		int rank = 0;
+		bool is_valuetype = true;
+		bool is_enum = false;
+	};
+	std::shared_ptr<meta_info> meta_{};
+#endif
 
-	std::string namespace_;
-
-	std::string name_;
-
-	std::string fullname_;
-
-	std::uint32_t sizeof_ = 0;
-
-	std::uint32_t alignof_ = 0;
-
-	int rank_ = 0;
-
-	bool valuetype_ = true;
-
-	bool enum_ = false;
 };
 
 } // namespace mono

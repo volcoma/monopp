@@ -14,7 +14,6 @@ namespace mono
 
 mono_property::mono_property(const mono_type& type, const std::string& name)
 	: property_(mono_class_get_property_from_name(type.get_internal_ptr(), name.c_str()))
-	, name_(name)
 {
 	if(!property_)
 		throw mono_exception("NATIVE::Could not get property : " + name + " for class " + type.get_name());
@@ -27,23 +26,21 @@ auto mono_property::get_internal_ptr() const -> MonoProperty*
 	return property_;
 }
 
-auto mono_property::get_name() const -> const std::string&
+auto mono_property::get_name() const -> std::string
 {
-	return name_;
+	return mono_property_get_name(get_internal_ptr());
 }
 
-auto mono_property::get_fullname() const -> const std::string&
+auto mono_property::get_full_declname() const -> std::string
 {
-	return fullname_;
-}
-auto mono_property::get_full_declname() const -> const std::string&
-{
-	return full_declname_;
+	std::string storage = (is_static() ? " static " : " ");
+	return to_string(get_visibility()) + storage + get_name();
 }
 
-auto mono_property::get_type() const -> const mono_type&
+auto mono_property::get_type() const -> mono_type
 {
-	return type_;
+	auto get_method = get_get_method();
+	return get_method.get_return_type();
 }
 
 auto mono_property::get_get_method() const -> mono_method
@@ -93,11 +90,11 @@ auto mono_property::is_static() const -> bool
 
 void mono_property::generate_meta()
 {
-	auto get_method = get_get_method();
-	type_ = mono_type(get_method.get_return_type());
-	fullname_ = name_;
-	std::string storage = (is_static() ? " static " : " ");
-	full_declname_ = to_string(get_visibility()) + storage + fullname_;
+#ifndef NDEBUG
+	meta_ = std::make_shared<meta_info>();
+	meta_->name = get_name();
+	meta_->full_declname = get_full_declname();
+#endif
 }
 
 auto mono_property::get_attributes() const -> std::vector<mono_type>

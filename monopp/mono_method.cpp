@@ -16,7 +16,7 @@ mono_method::mono_method(MonoMethod* method)
 	method_ = method;
 	if(!method_)
 	{
-		throw mono_exception("NATIVE::Could not create method");
+		throw mono_exception("NATIVE::Could not get method");
 	}
 	generate_meta();
 }
@@ -37,7 +37,7 @@ mono_method::mono_method(const mono_type& type, const std::string& name_with_arg
 	if(!method_)
 	{
 		const auto& type_name = type.get_name();
-		throw mono_exception("NATIVE::Could not create method : " + name_with_args + " for class " +
+		throw mono_exception("NATIVE::Could not get method : " + name_with_args + " for class " +
 							 type_name);
 	}
 	generate_meta();
@@ -55,7 +55,7 @@ mono_method::mono_method(const mono_type& type, const std::string& name, int arg
 	if(!method_)
 	{
 		const auto& type_name = type.get_name();
-		throw mono_exception("NATIVE::Could not create method : " + name + " for class " + type_name);
+		throw mono_exception("NATIVE::Could not get method : " + name + " for class " + type_name);
 	}
 	generate_meta();
 }

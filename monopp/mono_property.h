@@ -19,13 +19,11 @@ class mono_property
 public:
 	explicit mono_property(const mono_type& type, const std::string& name);
 
-	auto get_name() const -> const std::string&;
+	auto get_name() const -> std::string;
 
-	auto get_fullname() const -> const std::string&;
+	auto get_full_declname() const -> std::string;
 
-	auto get_full_declname() const -> const std::string&;
-
-	auto get_type() const -> const mono_type&;
+	auto get_type() const -> mono_type;
 
 	auto get_get_method() const -> mono_method;
 
@@ -50,11 +48,15 @@ private:
 
 	non_owning_ptr<MonoProperty> property_ = nullptr;
 
-	std::string name_;
+#ifndef NDEBUG
+	struct meta_info
+	{
+		std::string name;
+		std::string full_declname;
+	};
 
-	std::string fullname_;
-
-	std::string full_declname_;
+	std::shared_ptr<meta_info> meta_{};
+#endif
 };
 
 } // namespace mono

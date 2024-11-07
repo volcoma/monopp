@@ -36,19 +36,22 @@ mono_type::mono_type(MonoImage* image, const std::string& name_space, const std:
 
 mono_type::mono_type(MonoClass* cls)
 {
-	class_ = cls;
-	if(!class_)
-		throw mono_exception("NATIVE::Could not get class");
-
-	generate_meta();
+	if(cls)
+	{
+		class_ = cls;
+		generate_meta();
+	}
 }
 mono_type::mono_type(MonoType* type)
 {
-	class_ = mono_class_from_mono_type(type);
-	if(!class_)
-		throw mono_exception("NATIVE::Could not get class");
+	if(type)
+	{
+		class_ = mono_class_from_mono_type(type);
+		if(!class_)
+			throw mono_exception("NATIVE::Could not get class");
 
-	generate_meta();
+		generate_meta();
+	}
 }
 auto mono_type::valid() const -> bool
 {
@@ -285,40 +288,45 @@ auto mono_type::get_internal_ptr() const -> MonoClass*
 
 void mono_type::generate_meta()
 {
-	type_ = mono_class_get_type(class_);
-	namespace_ = mono_class_get_namespace(class_);
-	name_ = mono_class_get_name(class_);
-	fullname_ = namespace_.empty() ? name_ : namespace_ + "." + name_;
-	rank_ = mono_class_get_rank(class_);
-	valuetype_ = !!mono_class_is_valuetype(class_);
-	enum_ = mono_class_is_enum(class_);
-	sizeof_ = std::uint32_t(mono_class_value_size(class_, &alignof_));
+#ifndef NDEBUG
+	meta_ = std::make_shared<meta_info>();
+	meta_->name_space = get_namespace();
+	meta_->name = get_name();
+	meta_->fullname = get_fullname();
+	meta_->rank = get_rank();
+	meta_->is_valuetype = is_valuetype();
+	meta_->is_enum = is_enum();
+	meta_->size = get_sizeof();
+	meta_->align = get_alignof();
+#endif
 }
 
 auto mono_type::is_derived_from(const mono_type& type) const -> bool
 {
 	return mono_class_is_subclass_of(class_, type.get_internal_ptr(), true) != 0;
 }
-auto mono_type::get_namespace() const -> const std::string&
+auto mono_type::get_namespace() const -> std::string
 {
-	return namespace_;
+	return mono_class_get_namespace(class_);
 }
-auto mono_type::get_name() const -> const std::string&
+auto mono_type::get_name() const -> std::string
 {
-	return name_;
+	return mono_class_get_name(class_);
 }
-auto mono_type::get_fullname() const -> const std::string&
+auto mono_type::get_fullname() const -> std::string
 {
-	return fullname_;
+	auto name_space = get_namespace();
+	auto name = get_name();
+	return name_space.empty() ? name : name_space + "." + name;
 }
 auto mono_type::is_valuetype() const -> bool
 {
-	return valuetype_;
+	return !!mono_class_is_valuetype(class_);
 }
 
 auto mono::mono_type::mono_type::is_enum() const -> bool
 {
-	return enum_;
+	return mono_class_is_enum(class_);
 }
 
 auto mono::mono_type::mono_type::is_class() const -> bool
@@ -333,17 +341,20 @@ auto mono::mono_type::mono_type::is_struct() const -> bool
 
 auto mono_type::get_rank() const -> int
 {
-	return rank_;
+	return mono_class_get_rank(class_);
 }
 
 auto mono_type::get_sizeof() const -> uint32_t
 {
-	return sizeof_;
+	uint32_t align{};
+	return std::uint32_t(mono_class_value_size(class_, &align));
 }
 
 auto mono_type::get_alignof() const -> uint32_t
 {
-	return alignof_;
+	uint32_t align{};
+	mono_class_value_size(class_, &align);
+	return align;
 }
 
 auto mono_type::is_abstract() const -> bool
