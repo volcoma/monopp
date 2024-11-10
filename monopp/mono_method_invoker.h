@@ -185,8 +185,7 @@ template <typename Signature>
 auto make_method_invoker(const mono_type& type, const std::string& name) -> mono_method_invoker<Signature>
 {
 	using arg_types = typename function_traits<Signature>::arg_types;
-	arg_types tup;
-	auto args_result = types::get_args_signature(tup);
+	auto args_result = types::get_args_signature<arg_types>();
 	auto args = args_result.first;
 	auto all_types_known = args_result.second;
 

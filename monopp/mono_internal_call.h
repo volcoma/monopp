@@ -12,6 +12,11 @@ END_MONO_INCLUDE
 namespace mono
 {
 
+template <typename F>
+inline void add_internal_call(const char* name, F&& func)
+{
+	mono_add_internal_call(name, reinterpret_cast<const void*>(func));
+}
 
 template <typename F>
 inline void add_internal_call(const std::string& name, F&& func)

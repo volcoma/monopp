@@ -31,6 +31,11 @@ auto mono_property::get_name() const -> std::string
 	return mono_property_get_name(get_internal_ptr());
 }
 
+auto mono_property::get_fullname() const -> std::string
+{
+	return mono_property_get_name(get_internal_ptr());
+}
+
 auto mono_property::get_full_declname() const -> std::string
 {
 	std::string storage = (is_static() ? " static " : " ");
@@ -93,6 +98,7 @@ void mono_property::generate_meta()
 #ifndef NDEBUG
 	meta_ = std::make_shared<meta_info>();
 	meta_->name = get_name();
+	meta_->fullname = get_fullname();
 	meta_->full_declname = get_full_declname();
 #endif
 }

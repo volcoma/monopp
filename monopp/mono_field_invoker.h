@@ -83,7 +83,7 @@ auto mono_field_invoker<T>::get_value_impl(const mono_object* object) const -> T
 	T val{};
 	assert(field_);
 	MonoObject* refvalue = nullptr;
-	auto arg = reinterpret_cast<void*>(&val);
+	void* arg = &val;
 	if(!is_valuetype())
 	{
 		arg = &refvalue;

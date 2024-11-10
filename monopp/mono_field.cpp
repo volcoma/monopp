@@ -12,7 +12,6 @@ namespace mono
 
 mono_field::mono_field(const mono_type& type, const std::string& name)
 	: field_(mono_class_get_field_from_name(type.get_internal_ptr(), name.c_str()))
-	, name_(name)
 {
 	if(!field_)
 	{
@@ -20,21 +19,28 @@ mono_field::mono_field(const mono_type& type, const std::string& name)
 	}
 	const auto& domain = mono_domain::get_current_domain();
 
-	generate_meta();
 	if(is_static())
 	{
 		owning_type_vtable_ = mono_class_vtable(domain.get_internal_ptr(), type.get_internal_ptr());
 		//		mono_runtime_class_init(owning_type_vtable_);
 	}
+
+	auto field_type = mono_field_get_type(field_);
+	type_ = mono_type(mono_class_from_mono_type(field_type));
+
+	generate_meta();
 }
 
 void mono_field::generate_meta()
 {
-	auto type = mono_field_get_type(field_);
-	type_ = mono_type(mono_class_from_mono_type(type));
-	fullname_ = mono_field_full_name(field_);
-	std::string storage = (is_static() ? " static " : " ");
-	full_declname_ = to_string(get_visibility()) + storage + fullname_;
+#ifndef NDEBUG
+	meta_ = std::make_shared<meta_info>();
+
+	meta_->name = get_name();
+	meta_->fullname = get_fullname();
+	meta_->full_declname = get_full_declname();
+
+#endif
 }
 
 auto mono_field::is_valuetype() const -> bool
@@ -42,17 +48,19 @@ auto mono_field::is_valuetype() const -> bool
 	return get_type().is_valuetype();
 }
 
-auto mono_field::get_name() const -> const std::string&
+auto mono_field::get_name() const -> std::string
 {
-	return name_;
+	return mono_field_get_name(field_);
 }
-auto mono_field::get_fullname() const -> const std::string&
+auto mono_field::get_fullname() const -> std::string
 {
-	return fullname_;
+	return mono_field_full_name(field_);
 }
-auto mono_field::get_full_declname() const -> const std::string&
+
+auto mono_field::get_full_declname() const -> std::string
 {
-	return full_declname_;
+	std::string storage = (is_static() ? " static " : " ");
+	return to_string(get_visibility()) + storage + get_fullname();
 }
 auto mono_field::get_type() const -> const mono_type&
 {

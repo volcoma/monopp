@@ -18,11 +18,11 @@ class mono_field
 public:
 	explicit mono_field(const mono_type& type, const std::string& name);
 
-	auto get_name() const -> const std::string&;
+	auto get_name() const -> std::string;
 
-	auto get_fullname() const -> const std::string&;
+	auto get_fullname() const -> std::string;
 
-	auto get_full_declname() const -> const std::string&;
+	auto get_full_declname() const -> std::string;
 
 	auto get_type() const -> const mono_type&;
 
@@ -47,11 +47,16 @@ protected:
 
 	non_owning_ptr<MonoVTable> owning_type_vtable_ = nullptr;
 
-	std::string name_;
+#ifndef NDEBUG
+	struct meta_info
+	{
+		std::string name;
+		std::string fullname;
+		std::string full_declname;
+	};
 
-	std::string fullname_;
-
-	std::string full_declname_;
+	std::shared_ptr<meta_info> meta_{};
+#endif
 };
 
 } // namespace mono

@@ -22,11 +22,11 @@ public:
 
 	auto get_param_types() const -> std::vector<mono_type>;
 
-	auto get_name() const -> const std::string&;
+	auto get_name() const -> std::string;
 
-	auto get_fullname() const -> const std::string&;
+	auto get_fullname() const -> std::string;
 
-	auto get_full_declname() const -> const std::string&;
+	auto get_full_declname() const -> std::string;
 
 	auto get_visibility() const -> visibility;
 
@@ -49,9 +49,19 @@ protected:
 
 	non_owning_ptr<MonoMethod> method_ = nullptr;
 	non_owning_ptr<MonoMethodSignature> signature_ = nullptr;
-	std::string name_;
-	std::string fullname_;
-	std::string full_declname_;
+
+
+#ifndef NDEBUG
+	struct meta_info
+	{
+		std::string name;
+		std::string fullname;
+		std::string full_declname;
+	};
+
+	std::shared_ptr<meta_info> meta_{};
+#endif
+
 };
 
 } // namespace mono

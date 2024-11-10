@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <vector>
@@ -9,6 +10,17 @@
 namespace mono
 {
 
+namespace detail
+{
+
+template <typename Tuple, typename F, std::size_t... I>
+void for_each_tuple_type_impl(F&& f, std::index_sequence<I...>)
+{
+	using discard = int[];
+	(void)discard{0, (void(f(std::integral_constant<std::size_t, I>{})), 0)...};
+}
+
+} // namespace detail
 template <typename T>
 using is_mono_valuetype = std::is_pod<T>;
 
@@ -136,6 +148,31 @@ void for_each(Tuple&& tuple, F&& f)
 				  std::make_index_sequence<std::tuple_size<std::remove_reference_t<Tuple>>::value>{});
 }
 
+template <class T>
+struct tag_t
+{
+	constexpr tag_t(){};
+	using type = T;
+};
+template <class T>
+constexpr tag_t<T> tag{};
+template <class Tag>
+using type_t = typename Tag::type;
+
+template <class... Ts, class F>
+void for_each_type(F&& f)
+{
+	using discard = int[];
+	(void)discard{0, (void(f(tag<Ts>)), 0)...};
+}
+
+template <typename Tuple, typename F>
+void for_each_tuple_type(F&& f)
+{
+	constexpr auto size = std::tuple_size<std::decay_t<Tuple>>::value;
+	detail::for_each_tuple_type_impl<Tuple>(std::forward<F>(f), std::make_index_sequence<size>{});
+}
+
 namespace types
 {
 using index_t = size_t;
@@ -203,31 +240,28 @@ inline auto get_name(bool& found) -> type_names_t
 	return it->second;
 }
 
-template <typename... Args>
-inline auto get_args_signature(const std::tuple<Args...>& tup) -> std::pair<std::string, bool>
+template <typename Tuple>
+inline auto get_args_signature() -> std::pair<std::string, bool>
 {
+
 	bool all_types_known = false;
-	auto inv = [&all_types_known](auto... args)
-	{
-		std::vector<std::string> argsv = {types::get_name<decltype(args)>(all_types_known).name...};
-		ignore(args...);
-		std::string result;
-		size_t i = 0;
-		for(const auto& tp : argsv)
+
+	size_t i = 0;
+	std::string result;
+	for_each_tuple_type<Tuple>(
+		[&](auto tag)
 		{
+			using arg_t = typename std::decay_t<decltype(tag)>::type;
+
 			if(i++ > 0)
 			{
 				result += ',';
 			}
 
-			result += tp;
-		}
+			result += types::get_name<arg_t>(all_types_known).name;
+		});
 
-		return result;
-	};
-
-	auto args = mono::apply(inv, tup);
-	return std::make_pair(args, all_types_known);
+	return std::make_pair(result, all_types_known);
 }
 
 template <typename T>

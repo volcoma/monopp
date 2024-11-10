@@ -18,6 +18,8 @@ mono_method::mono_method(MonoMethod* method)
 	{
 		throw mono_exception("NATIVE::Could not get method");
 	}
+	signature_ = mono_method_signature(method_);
+
 	generate_meta();
 }
 
@@ -37,14 +39,15 @@ mono_method::mono_method(const mono_type& type, const std::string& name_with_arg
 	if(!method_)
 	{
 		const auto& type_name = type.get_name();
-		throw mono_exception("NATIVE::Could not get method : " + name_with_args + " for class " +
-							 type_name);
+		throw mono_exception("NATIVE::Could not get method : " + name_with_args + " for class " + type_name);
 	}
+	signature_ = mono_method_signature(method_);
+
 	generate_meta();
 }
 
 mono_method::mono_method(const mono_type& type, const std::string& name, int argc)
-{	
+{
 	auto check_type = type;
 	while(!method_ && check_type.valid())
 	{
@@ -57,16 +60,19 @@ mono_method::mono_method(const mono_type& type, const std::string& name, int arg
 		const auto& type_name = type.get_name();
 		throw mono_exception("NATIVE::Could not get method : " + name + " for class " + type_name);
 	}
+	signature_ = mono_method_signature(method_);
+
 	generate_meta();
 }
 
 void mono_method::generate_meta()
 {
-	signature_ = mono_method_signature(method_);
-	name_ = mono_method_get_name(method_);
-	fullname_ = mono_method_full_name(method_, true);
-	std::string storage = (is_static() ? " static " : " ");
-	full_declname_ = to_string(get_visibility()) + storage + fullname_;
+#ifndef NDEBUG
+	meta_ = std::make_shared<meta_info>();
+	meta_->name = get_name();
+	meta_->fullname = get_fullname();
+	meta_->full_declname = get_full_declname();
+#endif
 }
 
 auto mono_method::get_return_type() const -> mono_type
@@ -90,18 +96,20 @@ auto mono_method::get_param_types() const -> std::vector<mono_type>
 	return params;
 }
 
-auto mono_method::get_name() const -> const std::string&
+auto mono_method::get_name() const -> std::string
 {
-	return name_;
+	return mono_method_get_name(method_);
 }
 
-auto mono_method::get_fullname() const -> const std::string&
+auto mono_method::get_fullname() const -> std::string
 {
-	return fullname_;
+	return mono_method_full_name(method_, true);
+	;
 }
-auto mono_method::get_full_declname() const -> const std::string&
+auto mono_method::get_full_declname() const -> std::string
 {
-	return full_declname_;
+	std::string storage = (is_static() ? " static " : " ");
+	return to_string(get_visibility()) + storage + get_fullname();
 }
 auto mono_method::get_visibility() const -> visibility
 {

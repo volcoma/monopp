@@ -21,6 +21,8 @@ public:
 
 	auto get_name() const -> std::string;
 
+	auto get_fullname() const -> std::string;
+
 	auto get_full_declname() const -> std::string;
 
 	auto get_type() const -> mono_type;
@@ -52,6 +54,7 @@ private:
 	struct meta_info
 	{
 		std::string name;
+		std::string fullname;
 		std::string full_declname;
 	};
 
