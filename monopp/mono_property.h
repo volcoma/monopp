@@ -25,7 +25,7 @@ public:
 
 	auto get_full_declname() const -> std::string;
 
-	auto get_type() const -> mono_type;
+	auto get_type() const -> const mono_type&;
 
 	auto get_get_method() const -> mono_method;
 

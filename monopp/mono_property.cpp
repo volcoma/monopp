@@ -18,6 +18,9 @@ mono_property::mono_property(const mono_type& type, const std::string& name)
 	if(!property_)
 		throw mono_exception("NATIVE::Could not get property : " + name + " for class " + type.get_name());
 
+	auto get_method = get_get_method();
+	type_= get_method.get_return_type();
+
 	generate_meta();
 }
 
@@ -42,10 +45,9 @@ auto mono_property::get_full_declname() const -> std::string
 	return to_string(get_visibility()) + storage + get_name();
 }
 
-auto mono_property::get_type() const -> mono_type
+auto mono_property::get_type() const -> const mono_type&
 {
-	auto get_method = get_get_method();
-	return get_method.get_return_type();
+	return type_;
 }
 
 auto mono_property::get_get_method() const -> mono_method
@@ -107,8 +109,10 @@ auto mono_property::get_attributes() const -> std::vector<mono_type>
 {
 	std::vector<mono_type> result;
 
+	auto parent_class = mono_property_get_parent(property_);
+
 	// Get custom attributes from the property
-	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_property(type_.get_internal_ptr(), property_);
+	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_property(parent_class, property_);
 
 	if(attr_info)
 	{

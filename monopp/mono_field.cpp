@@ -98,8 +98,9 @@ auto mono_field::get_attributes() const -> std::vector<mono_type>
 {
 	std::vector<mono_type> result;
 
+	auto parent_class = mono_field_get_parent(field_);
 	// Get custom attributes from the field
-	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_field(type_.get_internal_ptr(), field_);
+	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_field(parent_class, field_);
 
 	if(attr_info)
 	{
