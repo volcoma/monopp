@@ -12,17 +12,28 @@ END_MONO_INCLUDE
 namespace mono
 {
 
-template <typename F>
-inline void add_internal_call(const char* name, F&& func)
-{
-	mono_add_internal_call(name, reinterpret_cast<const void*>(func));
-}
 
 template <typename F>
 inline void add_internal_call(const std::string& name, F&& func)
 {
 	mono_add_internal_call(name.c_str(), reinterpret_cast<const void*>(func));
 }
+
+struct internal_call_registry
+{
+	internal_call_registry(const std::string& type)
+	{
+		full_typename = type;
+	}
+
+	template <typename F>
+	inline void add_internal_call(const std::string& name, F&& func)
+	{
+		mono::add_internal_call(full_typename + "::" + name, std::forward<F>(func));
+	}
+
+	std::string full_typename;
+};
 
 // Helper traits to handle return types
 template <typename R, bool IsVoid = std::is_void<R>::value>
