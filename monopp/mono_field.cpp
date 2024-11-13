@@ -1,6 +1,7 @@
 #include "mono_field.h"
 #include "mono_domain.h"
 #include "mono_exception.h"
+#include "mono_object.h"
 
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/appdomain.h>
@@ -94,49 +95,40 @@ auto mono_field::is_static() const -> bool
 	return (flags & MONO_FIELD_ATTR_STATIC) != 0;
 }
 
-auto mono_field::get_attributes() const -> std::vector<mono_type>
+auto mono_field::get_attributes() const -> std::vector<mono_object>
 {
-	std::vector<mono_type> result;
+	std::vector<mono_object> result;
 
 	auto parent_class = mono_field_get_parent(field_);
 	// Get custom attributes from the field
 	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_field(parent_class, field_);
 
-	if(attr_info)
+	if(!attr_info)
 	{
-		result.reserve(attr_info->num_attrs);
+		return result;
+	}
+	result.reserve(attr_info->num_attrs);
 
-		// Iterate over the custom attributes
-		for(int i = 0; i < attr_info->num_attrs; ++i)
+	// Iterate over the custom attributes
+	for(int i = 0; i < attr_info->num_attrs; ++i)
+	{
+		MonoCustomAttrEntry* entry = &attr_info->attrs[i];
+
+		// Get the MonoClass* of the attribute
+		MonoClass* attr_class = mono_method_get_class(entry->ctor);
+
+		MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, attr_class);
+		// Add the attribute instance to the result vector
+		if(attr_obj)
 		{
-			MonoCustomAttrEntry* entry = &attr_info->attrs[i];
-
-			// Get the MonoClass* of the attribute
-			MonoClass* attr_class = mono_method_get_class(entry->ctor);
-
-			// Add the attribute class to the result vector
-			result.emplace_back(attr_class);
+			result.emplace_back(attr_obj);
 		}
-
-		// Free the attribute info when done
-		mono_custom_attrs_free(attr_info);
 	}
 
 	// Get field flags
 	uint32_t flags = mono_field_get_flags(field_);
 
 	MonoImage* corlib = mono_get_corlib(); // Get corlib once for efficiency
-
-	// Check for NotSerialized (NonSerialized in .NET)
-	if((flags & MONO_FIELD_ATTR_NOT_SERIALIZED) != 0)
-	{
-		MonoClass* non_serialized_attr_class =
-			mono_class_from_name(corlib, "System", "NonSerializedAttribute");
-		if(non_serialized_attr_class)
-		{
-			result.emplace_back(non_serialized_attr_class);
-		}
-	}
 
 	// Check for SpecialName
 	if((flags & MONO_FIELD_ATTR_SPECIAL_NAME) != 0)
@@ -145,7 +137,28 @@ auto mono_field::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "SpecialNameAttribute");
 		if(special_name_attr_class)
 		{
-			result.emplace_back(special_name_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, special_name_attr_class);
+
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
+		}
+	}
+
+	// Check for NotSerialized (NonSerialized in .NET)
+	if((flags & MONO_FIELD_ATTR_NOT_SERIALIZED) != 0)
+	{
+		MonoClass* non_serialized_attr_class =
+			mono_class_from_name(corlib, "System", "NonSerializedAttribute");
+		if(non_serialized_attr_class)
+		{
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, non_serialized_attr_class);
+
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -156,7 +169,12 @@ auto mono_field::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "RuntimeSpecialNameAttribute");
 		if(rt_special_name_attr_class)
 		{
-			result.emplace_back(rt_special_name_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, rt_special_name_attr_class);
+
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -167,7 +185,11 @@ auto mono_field::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Runtime.InteropServices", "FieldOffsetAttribute");
 		if(field_offset_attr_class)
 		{
-			result.emplace_back(field_offset_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, field_offset_attr_class);
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -183,6 +205,9 @@ auto mono_field::get_attributes() const -> std::vector<mono_type>
 	{
 		// No direct attribute, but you can note this flag or create a method is_readonly()
 	}
+
+	// Free the attribute info when done
+	mono_custom_attrs_free(attr_info);
 
 	return result;
 }

@@ -48,7 +48,7 @@ public:
 
 	auto get_methods() const -> std::vector<mono_method>;
 
-	auto get_attributes() const -> std::vector<mono_type>;
+	auto get_attributes() const -> std::vector<mono_object>;
 
 	auto has_base_type() const -> bool;
 

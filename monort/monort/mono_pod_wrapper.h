@@ -28,6 +28,7 @@ namespace managed_interface
 		}                                                                                                    \
 		static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type                                  \
 		{                                                                                                    \
+			assert(check_pod_type<mono_unboxed_type>(obj) && "Different type layouts");                      \
 			void* ptr = mono_object_unbox(obj);                                                              \
 			return managed_interface::converter::convert<mono_unboxed_type, cpp_type>(                       \
 				*reinterpret_cast<mono_unboxed_type*>(ptr));                                                 \

@@ -22,6 +22,19 @@ inline auto to_mono_arg(MonoObject* t)
 }
 
 template <typename T>
+auto check_pod_type(MonoObject* obj) -> bool
+{
+	mono_object object(obj);
+	const auto& type = object.get_type();
+	const auto mono_sz = type.get_sizeof();
+	const auto mono_align = type.get_alignof();
+	constexpr auto cpp_sz = sizeof(T);
+	constexpr auto cpp_align = alignof(T);
+
+	return mono_sz <= cpp_sz && mono_align <= cpp_align;
+}
+
+template <typename T>
 struct convert_mono_type
 {
 	using cpp_type = T;
@@ -43,14 +56,7 @@ struct convert_mono_type
 
 	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
 	{
-		mono_object object(obj);
-		const auto& type = object.get_type();
-		const auto mono_sz = type.get_sizeof();
-		const auto mono_align = type.get_alignof();
-		constexpr auto cpp_sz = sizeof(cpp_type);
-		constexpr auto cpp_align = alignof(cpp_type);
-		ignore(mono_align, mono_sz, cpp_sz, cpp_align);
-		assert(mono_sz <= cpp_sz && mono_align <= cpp_align && "Different type layouts");
+		assert(check_pod_type<mono_unboxed_type>(obj) && "Different type layouts");
 		void* ptr = mono_object_unbox(obj);
 		return *reinterpret_cast<cpp_type*>(ptr);
 	}
@@ -135,7 +141,7 @@ struct convert_mono_type<std::string>
 		return mono_string(mono_object(obj)).as_utf8();
 	}
 
-	static auto from_mono_boxed(const mono_unboxed_type& obj) -> cpp_type
+	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
 	{
 		if(!obj)
 		{

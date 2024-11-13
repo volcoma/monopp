@@ -135,26 +135,30 @@ auto mono_type::get_methods() const -> std::vector<mono_method>
 	return methods;
 }
 
-auto mono_type::get_attributes() const -> std::vector<mono_type>
+auto mono_type::get_attributes() const -> std::vector<mono_object>
 {
-	std::vector<mono_type> result;
+	std::vector<mono_object> result;
 
 	// Get custom attributes from the class
 	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_class(class_);
 
-	if(attr_info)
+	if(!attr_info)
 	{
-		result.reserve(attr_info->num_attrs);
-		// Iterate over the custom attributes
-		for(int i = 0; i < attr_info->num_attrs; ++i)
-		{
-			MonoCustomAttrEntry* entry = &attr_info->attrs[i];
-			MonoClass* attr_class = mono_method_get_class(entry->ctor);
-			result.emplace_back(attr_class);
-		}
+		return result;
+	}
+	result.reserve(attr_info->num_attrs);
+	// Iterate over the custom attributes
+	for(int i = 0; i < attr_info->num_attrs; ++i)
+	{
+		MonoCustomAttrEntry* entry = &attr_info->attrs[i];
+		MonoClass* attr_class = mono_method_get_class(entry->ctor);
 
-		// Free the attribute info when done
-		mono_custom_attrs_free(attr_info);
+		MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, attr_class);
+		// Add the attribute instance to the result vector
+		if(attr_obj)
+		{
+			result.emplace_back(attr_obj);
+		}
 	}
 
 	// Get class flags
@@ -168,7 +172,12 @@ auto mono_type::get_attributes() const -> std::vector<mono_type>
 		MonoClass* serializable_attr_class = mono_class_from_name(corlib, "System", "SerializableAttribute");
 		if(serializable_attr_class)
 		{
-			result.emplace_back(serializable_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, serializable_attr_class);
+
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -179,7 +188,12 @@ auto mono_type::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Runtime.InteropServices", "ComImportAttribute");
 		if(com_import_attr_class)
 		{
-			result.emplace_back(com_import_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, com_import_attr_class);
+
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -190,7 +204,12 @@ auto mono_type::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "SpecialNameAttribute");
 		if(special_name_attr_class)
 		{
-			result.emplace_back(special_name_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, special_name_attr_class);
+
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -202,7 +221,12 @@ auto mono_type::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Runtime.InteropServices", "StructLayoutAttribute");
 		if(struct_layout_attr_class)
 		{
-			result.emplace_back(struct_layout_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, struct_layout_attr_class);
+
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -255,6 +279,8 @@ auto mono_type::get_attributes() const -> std::vector<mono_type>
 
 	// Additional pseudo-custom attributes can be added similarly
 
+	// Free the attribute info when done
+	mono_custom_attrs_free(attr_info);
 	return result;
 }
 

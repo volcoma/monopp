@@ -2,6 +2,7 @@
 #include "mono_assembly.h"
 #include "mono_exception.h"
 #include "mono_method.h"
+#include "mono_object.h"
 
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/appdomain.h>
@@ -19,7 +20,7 @@ mono_property::mono_property(const mono_type& type, const std::string& name)
 		throw mono_exception("NATIVE::Could not get property : " + name + " for class " + type.get_name());
 
 	auto get_method = get_get_method();
-	type_= get_method.get_return_type();
+	type_ = get_method.get_return_type();
 
 	generate_meta();
 }
@@ -105,33 +106,35 @@ void mono_property::generate_meta()
 #endif
 }
 
-auto mono_property::get_attributes() const -> std::vector<mono_type>
+auto mono_property::get_attributes() const -> std::vector<mono_object>
 {
-	std::vector<mono_type> result;
+	std::vector<mono_object> result;
 
 	auto parent_class = mono_property_get_parent(property_);
 
 	// Get custom attributes from the property
 	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_property(parent_class, property_);
 
-	if(attr_info)
+	if(!attr_info)
 	{
-		result.reserve(attr_info->num_attrs);
+		return result;
+	}
+	result.reserve(attr_info->num_attrs);
 
-		// Iterate over the custom attributes
-		for(int i = 0; i < attr_info->num_attrs; ++i)
+	// Iterate over the custom attributes
+	for(int i = 0; i < attr_info->num_attrs; ++i)
+	{
+		MonoCustomAttrEntry* entry = &attr_info->attrs[i];
+
+		// Get the MonoClass* of the attribute
+		MonoClass* attr_class = mono_method_get_class(entry->ctor);
+
+		MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, attr_class);
+		// Add the attribute instance to the result vector
+		if(attr_obj)
 		{
-			MonoCustomAttrEntry* entry = &attr_info->attrs[i];
-
-			// Get the MonoClass* of the attribute
-			MonoClass* attr_class = mono_method_get_class(entry->ctor);
-
-			// Add the attribute class to the result vector
-			result.emplace_back(attr_class);
+			result.emplace_back(attr_obj);
 		}
-
-		// Free the attribute info when done
-		mono_custom_attrs_free(attr_info);
 	}
 
 	// Get property flags
@@ -146,7 +149,11 @@ auto mono_property::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "SpecialNameAttribute");
 		if(special_name_attr_class)
 		{
-			result.emplace_back(special_name_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, special_name_attr_class);
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -157,7 +164,11 @@ auto mono_property::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "RuntimeSpecialNameAttribute");
 		if(rt_special_name_attr_class)
 		{
-			result.emplace_back(rt_special_name_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, rt_special_name_attr_class);
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
 
@@ -168,9 +179,18 @@ auto mono_property::get_attributes() const -> std::vector<mono_type>
 			mono_class_from_name(corlib, "System.Reflection", "DefaultMemberAttribute");
 		if(default_member_attr_class)
 		{
-			result.emplace_back(default_member_attr_class);
+			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, default_member_attr_class);
+			if(attr_obj)
+			{
+				result.emplace_back(attr_obj);
+			}
 		}
 	}
+
+
+
+		   // Free the attribute info when done
+	mono_custom_attrs_free(attr_info);
 
 	return result;
 }

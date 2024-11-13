@@ -30,7 +30,7 @@ public:
 
 	auto is_static() const -> bool;
 
-	auto get_attributes() const -> std::vector<mono_type>;
+	auto get_attributes() const -> std::vector<mono_object>;
 
 	auto is_readonly() const -> bool;
 
