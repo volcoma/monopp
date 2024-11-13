@@ -142,145 +142,31 @@ auto mono_type::get_attributes() const -> std::vector<mono_object>
 	// Get custom attributes from the class
 	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_class(class_);
 
-	if(!attr_info)
+	if(attr_info)
 	{
-		return result;
-	}
-	result.reserve(attr_info->num_attrs);
-	// Iterate over the custom attributes
-	for(int i = 0; i < attr_info->num_attrs; ++i)
-	{
-		MonoCustomAttrEntry* entry = &attr_info->attrs[i];
-		MonoClass* attr_class = mono_method_get_class(entry->ctor);
-
-		MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, attr_class);
-		// Add the attribute instance to the result vector
-		if(attr_obj)
+		result.reserve(attr_info->num_attrs);
+		// Iterate over the custom attributes
+		for(int i = 0; i < attr_info->num_attrs; ++i)
 		{
-			result.emplace_back(attr_obj);
-		}
-	}
+			MonoCustomAttrEntry* entry = &attr_info->attrs[i];
 
-	// Get class flags
-	uint32_t flags = mono_class_get_flags(class_);
+			// Get the MonoClass* of the attribute
+			MonoClass* attr_class = mono_method_get_class(entry->ctor);
 
-	MonoImage* corlib = mono_get_corlib(); // Get corlib once for efficiency
-
-	// Check for Serializable
-	if((flags & MONO_TYPE_ATTR_SERIALIZABLE) != 0)
-	{
-		MonoClass* serializable_attr_class = mono_class_from_name(corlib, "System", "SerializableAttribute");
-		if(serializable_attr_class)
-		{
-			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, serializable_attr_class);
-
-			if(attr_obj)
+			if(attr_class)
 			{
-				result.emplace_back(attr_obj);
+				MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, attr_class);
+				// Add the attribute instance to the result vector
+				if(attr_obj)
+				{
+					result.emplace_back(attr_obj);
+				}
 			}
 		}
+		// Free the attribute info when done
+		mono_custom_attrs_free(attr_info);
 	}
 
-	// Check for ComImport
-	if((flags & MONO_TYPE_ATTR_IMPORT) != 0)
-	{
-		MonoClass* com_import_attr_class =
-			mono_class_from_name(corlib, "System.Runtime.InteropServices", "ComImportAttribute");
-		if(com_import_attr_class)
-		{
-			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, com_import_attr_class);
-
-			if(attr_obj)
-			{
-				result.emplace_back(attr_obj);
-			}
-		}
-	}
-
-	// Check for SpecialName
-	if((flags & MONO_TYPE_ATTR_SPECIAL_NAME) != 0)
-	{
-		MonoClass* special_name_attr_class =
-			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "SpecialNameAttribute");
-		if(special_name_attr_class)
-		{
-			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, special_name_attr_class);
-
-			if(attr_obj)
-			{
-				result.emplace_back(attr_obj);
-			}
-		}
-	}
-
-	// Check for StructLayout
-	uint32_t layout = flags & MONO_TYPE_ATTR_LAYOUT_MASK;
-	if(layout == MONO_TYPE_ATTR_SEQUENTIAL_LAYOUT || layout == MONO_TYPE_ATTR_EXPLICIT_LAYOUT)
-	{
-		MonoClass* struct_layout_attr_class =
-			mono_class_from_name(corlib, "System.Runtime.InteropServices", "StructLayoutAttribute");
-		if(struct_layout_attr_class)
-		{
-			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, struct_layout_attr_class);
-
-			if(attr_obj)
-			{
-				result.emplace_back(attr_obj);
-			}
-		}
-	}
-
-	// Check for Abstract
-	if((flags & MONO_TYPE_ATTR_ABSTRACT) != 0)
-	{
-		// There is no AbstractAttribute, but you can note this flag
-		// Alternatively, you can create a custom representation
-	}
-
-	// Check for Sealed
-	if((flags & MONO_TYPE_ATTR_SEALED) != 0)
-	{
-		// There is no SealedAttribute, but you can note this flag
-	}
-
-	// Check for Interface
-	if((flags & MONO_TYPE_ATTR_INTERFACE) != 0)
-	{
-		// There is no InterfaceAttribute, but you can note this flag
-	}
-
-	// Check for BeforeFieldInit
-	if((flags & MONO_TYPE_ATTR_BEFORE_FIELD_INIT) != 0)
-	{
-		// There is no BeforeFieldInitAttribute, but you can note this flag
-	}
-
-	// Check for HasSecurity
-	if((flags & MONO_TYPE_ATTR_HAS_SECURITY) != 0)
-	{
-		// There is no HasSecurityAttribute, but you can note this flag
-	}
-
-	// Check for UnicodeClass (string format)
-	uint32_t string_format = flags & MONO_TYPE_ATTR_STRING_FORMAT_MASK;
-	if(string_format == MONO_TYPE_ATTR_UNICODE_CLASS)
-	{
-		// MonoClass* unicode_class_attr = mono_class_from_name(corlib, "System.Runtime.CompilerServices",
-		// "UnicodeClassAttribute");
-		//  Note: There is no UnicodeClassAttribute in .NET
-		//  You can decide how to represent this flag
-	}
-
-	// Check for AutoClass (string format)
-	if(string_format == MONO_TYPE_ATTR_AUTO_CLASS)
-	{
-		// Similar to above
-	}
-
-	// Additional pseudo-custom attributes can be added similarly
-
-	// Free the attribute info when done
-	mono_custom_attrs_free(attr_info);
 	return result;
 }
 

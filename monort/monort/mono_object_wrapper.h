@@ -16,7 +16,7 @@ namespace managed_interface
 		using mono_unboxed_type = MonoObject*;                                                               \
 		using mono_boxed_type = MonoObject*;                                                                 \
                                                                                                              \
-		static auto to_mono(const cpp_type& obj) -> mono_unboxed_type                                        \
+		static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type                                \
 		{                                                                                                    \
 			return managed_interface::mono_object_wrapper<cpp_type>::create(obj).get_internal_ptr();         \
 		}                                                                                                    \
@@ -84,7 +84,6 @@ auto mono_object_wrapper<T>::get_native_object(const mono_object& mono_object) -
 
 } // namespace managed_interface
 
-
-template<typename T>
+template <typename T>
 using managed = mono::managed_interface::mono_object_wrapper<T>;
 } // namespace mono

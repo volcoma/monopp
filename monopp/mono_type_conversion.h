@@ -4,6 +4,7 @@
 
 #include "mono_domain.h"
 #include "mono_string.h"
+#include "mono_array.h"
 #include "mono_type.h"
 #include "mono_type_traits.h"
 
@@ -44,7 +45,7 @@ struct convert_mono_type
 	static_assert(std::is_trivially_copyable<mono_unboxed_type>::value,
 				  "Specialize convertor for non-pod types");
 
-	static auto to_mono(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
 	{
 		return obj;
 	}
@@ -69,7 +70,7 @@ struct convert_mono_type<mono_object>
 	using mono_unboxed_type = MonoObject*;
 	using mono_boxed_type = MonoObject*;
 
-	static auto to_mono(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
 	{
 		return obj.get_internal_ptr();
 	}
@@ -79,7 +80,7 @@ struct convert_mono_type<mono_object>
 		return cpp_type(obj);
 	}
 
-	static auto from_mono_boxed(const mono_unboxed_type& obj) -> cpp_type
+	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
 	{
 		return cpp_type(obj);
 	}
@@ -92,7 +93,7 @@ struct convert_mono_type<mono_type>
 	using mono_unboxed_type = MonoReflectionType*;
 	using mono_boxed_type = MonoReflectionType*;
 
-	static auto to_mono(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
 	{
 		// Get the current Mono domain
 		MonoDomain* domain = mono_domain_get();
@@ -112,7 +113,7 @@ struct convert_mono_type<mono_type>
 		return cpp_type(monoType);
 	}
 
-	static auto from_mono_boxed(const mono_unboxed_type& obj) -> cpp_type
+	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
 	{
 		MonoType* monoType = mono_reflection_type_get_type(obj);
 		return cpp_type(monoType);
@@ -126,7 +127,7 @@ struct convert_mono_type<std::string>
 	using mono_unboxed_type = MonoObject*;
 	using mono_boxed_type = MonoObject*;
 
-	static auto to_mono(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
 	{
 		const auto& domain = mono_domain::get_current_domain();
 		return mono_string(domain, obj).get_internal_ptr();
@@ -148,6 +149,38 @@ struct convert_mono_type<std::string>
 			return {};
 		}
 		return mono_string(mono_object(obj)).as_utf8();
+	}
+};
+
+template <>
+struct convert_mono_type<std::vector<int>>
+{
+	using cpp_type = std::vector<int>;
+	using mono_unboxed_type = MonoObject*;
+	using mono_boxed_type = MonoObject*;
+
+	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
+	{
+		const auto& domain = mono_domain::get_current_domain();
+		return mono_array<int>(domain, obj).get_internal_ptr();
+	}
+
+	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
+	{
+		if(!obj)
+		{
+			return {};
+		}
+		return mono_array<int>(mono_object(obj)).to_vector();
+	}
+
+	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
+	{
+		if(!obj)
+		{
+			return {};
+		}
+		return mono_array<int>(mono_object(obj)).to_vector();
 	}
 };
 

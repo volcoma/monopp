@@ -18,7 +18,7 @@ namespace managed_interface
 		static_assert(std::is_trivially_copyable<mono_unboxed_type>::value,                                  \
 					  "basic_mono_converter is only for pod types");                                         \
                                                                                                              \
-		static auto to_mono(const cpp_type& obj) -> mono_unboxed_type                                        \
+		static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type                                \
 		{                                                                                                    \
 			return managed_interface::converter::convert<cpp_type, mono_unboxed_type>(obj);                  \
 		}                                                                                                    \

@@ -7,6 +7,7 @@ BEGIN_MONO_INCLUDE
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/mono-debug.h>
+#include <mono/metadata/mono-config.h>
 #include <mono/metadata/threads.h>
 #include <mono/utils/mono-logger.h>
 #include <mono_build_config.h>
@@ -56,19 +57,19 @@ static void on_log_callback(const char* log_domain, const char* log_level, const
 static MonoDomain* jit_domain = nullptr;
 static compiler_paths comp_paths{};
 
-auto mono_assembly_dir() -> const char*
+auto mono_assembly_dir() -> std::string
 {
-	return comp_paths.assembly_dir.empty() ? INTERNAL_MONO_ASSEMBLY_DIR : comp_paths.assembly_dir.c_str();
+	return comp_paths.assembly_dir.empty() ? INTERNAL_MONO_ASSEMBLY_DIR : comp_paths.assembly_dir;
 }
 
-auto mono_config_dir() -> const char*
+auto mono_config_dir() -> std::string
 {
-	return comp_paths.config_dir.empty() ? INTERNAL_MONO_CONFIG_DIR : comp_paths.config_dir.c_str();
+	return comp_paths.config_dir.empty() ? INTERNAL_MONO_CONFIG_DIR : comp_paths.config_dir;
 }
 
-auto mono_msc_executable() -> const char*
+auto mono_msc_executable() -> std::string
 {
-	return comp_paths.msc_executable.empty() ? INTERNAL_MONO_MCS_EXECUTABLE : comp_paths.msc_executable.c_str();
+	return comp_paths.msc_executable.empty() ? INTERNAL_MONO_MCS_EXECUTABLE : comp_paths.msc_executable;
 }
 
 auto get_common_library_names() -> const std::vector<std::string>&
@@ -86,10 +87,22 @@ auto get_common_library_paths() -> const std::vector<std::string>&
 												"/usr/lib64",
 												"/usr/lib",
 												"/usr/local/lib64",
-												"/usr/local/lib",
-												"/opt/local/lib"};
+												"/usr/local/lib"};
 	return paths;
 }
+
+
+auto get_common_config_paths() -> const std::vector<std::string>&
+{
+	static const std::vector<std::string> paths{"C:/Program Files/Mono/etc",
+												"/etc",
+												"/etc",
+												"/usr/local/etc",
+												"/usr/local/etc"};
+	return paths;
+}
+
+
 
 auto get_common_executable_names() -> const std::vector<std::string>&
 {
@@ -106,30 +119,22 @@ auto get_common_executable_paths() -> const std::vector<std::string>&
 {
 	static const std::vector<std::string> paths{
 		"C:/Program Files/Mono/bin",
-		"/bin",
 		"/usr/bin",
+		"/usr/bin",
+		"/usr/local/bin",
 		"/usr/local/bin"
 	};
 	return paths;
 }
 
 
-auto get_common_config_paths() -> const std::vector<std::string>&
-{
-	static const std::vector<std::string> paths{"C:/Program Files/Mono/etc",
-												"/usr/etc",
-												"/usr/local/etc",
-												"/opt/local/etc"};
-	return paths;
-}
-
-
-
 auto init(const compiler_paths& paths, bool enable_debugging) -> bool
 {
 	comp_paths = paths;
 
-	mono_set_dirs(mono_assembly_dir(), mono_config_dir());
+	auto assembly_dir = mono_assembly_dir();
+	auto config_dir = mono_config_dir();
+	mono_set_dirs(assembly_dir.c_str(), config_dir.c_str());
 
 	if(enable_debugging)
 	{
@@ -158,6 +163,8 @@ auto init(const compiler_paths& paths, bool enable_debugging) -> bool
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 	}
 
+	auto config_file = config_dir + "/mono/config";
+	mono_config_parse(config_file.c_str());
 	mono_trace_set_level_string("warning");
 	mono_trace_set_log_handler(on_log_callback, nullptr);
 

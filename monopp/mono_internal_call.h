@@ -2,7 +2,6 @@
 
 #include "mono_config.h"
 
-#include "mono_assembly.h"
 #include "mono_type_conversion.h"
 
 BEGIN_MONO_INCLUDE
@@ -11,7 +10,6 @@ END_MONO_INCLUDE
 
 namespace mono
 {
-
 
 template <typename F>
 inline void add_internal_call(const std::string& name, F&& func)
@@ -49,7 +47,7 @@ struct return_type_traits<R, false>
 	template <typename Func, typename... Args>
 	static unboxed_return_t call(Func func, Args&&... args)
 	{
-		return return_t::to_mono(func(std::forward<Args>(args)...));
+		return return_t::to_mono_unboxed(func(std::forward<Args>(args)...));
 	}
 };
 
@@ -69,7 +67,7 @@ struct return_type_traits<R, true>
 template <typename Signature, Signature& func>
 struct mono_jit_internal_call_wrapper;
 
-template <typename R, typename... Args, R(&func)(Args...)>
+template <typename R, typename... Args, R (&func)(Args...)>
 struct mono_jit_internal_call_wrapper<R(Args...), func>
 {
 	template <typename T>

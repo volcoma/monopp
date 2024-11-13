@@ -103,111 +103,32 @@ auto mono_field::get_attributes() const -> std::vector<mono_object>
 	// Get custom attributes from the field
 	MonoCustomAttrInfo* attr_info = mono_custom_attrs_from_field(parent_class, field_);
 
-	if(!attr_info)
+	if(attr_info)
 	{
-		return result;
-	}
-	result.reserve(attr_info->num_attrs);
+		result.reserve(attr_info->num_attrs);
 
-	// Iterate over the custom attributes
-	for(int i = 0; i < attr_info->num_attrs; ++i)
-	{
-		MonoCustomAttrEntry* entry = &attr_info->attrs[i];
-
-		// Get the MonoClass* of the attribute
-		MonoClass* attr_class = mono_method_get_class(entry->ctor);
-
-		MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, attr_class);
-		// Add the attribute instance to the result vector
-		if(attr_obj)
+		// Iterate over the custom attributes
+		for(int i = 0; i < attr_info->num_attrs; ++i)
 		{
-			result.emplace_back(attr_obj);
-		}
-	}
+			MonoCustomAttrEntry* entry = &attr_info->attrs[i];
 
-	// Get field flags
-	uint32_t flags = mono_field_get_flags(field_);
+			// Get the MonoClass* of the attribute
+			MonoClass* attr_class = mono_method_get_class(entry->ctor);
 
-	MonoImage* corlib = mono_get_corlib(); // Get corlib once for efficiency
-
-	// Check for SpecialName
-	if((flags & MONO_FIELD_ATTR_SPECIAL_NAME) != 0)
-	{
-		MonoClass* special_name_attr_class =
-			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "SpecialNameAttribute");
-		if(special_name_attr_class)
-		{
-			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, special_name_attr_class);
-
-			if(attr_obj)
+			if(attr_class)
 			{
-				result.emplace_back(attr_obj);
+				MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, attr_class);
+				// Add the attribute instance to the result vector
+				if(attr_obj)
+				{
+					result.emplace_back(attr_obj);
+				}
 			}
 		}
+
+		// Free the attribute info when done
+		mono_custom_attrs_free(attr_info);
 	}
-
-	// Check for NotSerialized (NonSerialized in .NET)
-	if((flags & MONO_FIELD_ATTR_NOT_SERIALIZED) != 0)
-	{
-		MonoClass* non_serialized_attr_class =
-			mono_class_from_name(corlib, "System", "NonSerializedAttribute");
-		if(non_serialized_attr_class)
-		{
-			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, non_serialized_attr_class);
-
-			if(attr_obj)
-			{
-				result.emplace_back(attr_obj);
-			}
-		}
-	}
-
-	// Check for RTSpecialName
-	if((flags & MONO_FIELD_ATTR_RT_SPECIAL_NAME) != 0)
-	{
-		MonoClass* rt_special_name_attr_class =
-			mono_class_from_name(corlib, "System.Runtime.CompilerServices", "RuntimeSpecialNameAttribute");
-		if(rt_special_name_attr_class)
-		{
-			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, rt_special_name_attr_class);
-
-			if(attr_obj)
-			{
-				result.emplace_back(attr_obj);
-			}
-		}
-	}
-
-	// Check for PinvokeImpl
-	if((flags & MONO_FIELD_ATTR_PINVOKE_IMPL) != 0)
-	{
-		MonoClass* field_offset_attr_class =
-			mono_class_from_name(corlib, "System.Runtime.InteropServices", "FieldOffsetAttribute");
-		if(field_offset_attr_class)
-		{
-			MonoObject* attr_obj = mono_custom_attrs_get_attr(attr_info, field_offset_attr_class);
-			if(attr_obj)
-			{
-				result.emplace_back(attr_obj);
-			}
-		}
-	}
-
-	// Check for Literal (const fields)
-	if((flags & MONO_FIELD_ATTR_LITERAL) != 0)
-	{
-		// No direct attribute in .NET, but you can note this flag
-		// Alternatively, you can represent it as a constant field
-	}
-
-	// Check for InitOnly (readonly fields)
-	if((flags & MONO_FIELD_ATTR_INIT_ONLY) != 0)
-	{
-		// No direct attribute, but you can note this flag or create a method is_readonly()
-	}
-
-	// Free the attribute info when done
-	mono_custom_attrs_free(attr_info);
 
 	return result;
 }

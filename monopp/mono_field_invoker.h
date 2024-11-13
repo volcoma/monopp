@@ -50,7 +50,7 @@ void mono_field_invoker<T>::set_value_impl(const mono_object* object, const T& v
 {
 	assert(field_);
 
-	auto mono_val = convert_mono_type<T>::to_mono(val);
+	auto mono_val = convert_mono_type<T>::to_mono_unboxed(val);
 	auto arg = to_mono_arg(mono_val);
 
 	if(object)
