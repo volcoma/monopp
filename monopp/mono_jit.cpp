@@ -158,6 +158,7 @@ auto init(const compiler_paths& paths, bool enable_debugging) -> bool
 			// xdomain-checks: Makes sure that no references are left when a domain is unloaded.
 			"--gc-debug=check-remset-consistency,verify-before-collections,xdomain-checks"
 		};
+
 		// clang-format on
 		mono_jit_parse_options(sizeof(options) / sizeof(char*), const_cast<char**>(options));
 		mono_debug_init(MONO_DEBUG_FORMAT_MONO);

@@ -152,17 +152,17 @@ struct convert_mono_type<std::string>
 	}
 };
 
-template <>
-struct convert_mono_type<std::vector<int>>
+template <typename T>
+struct convert_mono_type<std::vector<T>>
 {
-	using cpp_type = std::vector<int>;
+	using cpp_type = std::vector<T>;
 	using mono_unboxed_type = MonoObject*;
 	using mono_boxed_type = MonoObject*;
 
 	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
 	{
 		const auto& domain = mono_domain::get_current_domain();
-		return mono_array<int>(domain, obj).get_internal_ptr();
+		return mono_array<T>(domain, obj).get_internal_ptr();
 	}
 
 	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
@@ -171,7 +171,7 @@ struct convert_mono_type<std::vector<int>>
 		{
 			return {};
 		}
-		return mono_array<int>(mono_object(obj)).to_vector();
+		return mono_array<T>(mono_object(obj)).to_vector();
 	}
 
 	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
@@ -180,7 +180,7 @@ struct convert_mono_type<std::vector<int>>
 		{
 			return {};
 		}
-		return mono_array<int>(mono_object(obj)).to_vector();
+		return mono_array<T>(mono_object(obj)).to_vector();
 	}
 };
 

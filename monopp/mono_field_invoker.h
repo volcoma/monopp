@@ -1,7 +1,6 @@
 #pragma once
 #include "mono_field.h"
 
-#include "mono_domain.h"
 #include "mono_object.h"
 #include "mono_type_conversion.h"
 namespace mono
