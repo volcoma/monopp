@@ -22,7 +22,7 @@ void for_each_tuple_type_impl(F&& f, std::index_sequence<I...>)
 
 } // namespace detail
 template <typename T>
-using is_mono_valuetype = std::is_trivially_copyable<T>;
+using is_mono_valuetype = std::is_standard_layout<T>;
 
 template <typename Functor>
 struct function_traits : public function_traits<decltype(&Functor::operator())>

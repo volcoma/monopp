@@ -41,13 +41,14 @@ struct return_type_traits;
 template <typename R>
 struct return_type_traits<R, false>
 {
-	using return_t = convert_mono_type<std::decay_t<R>>;
-	using unboxed_return_t = typename return_t::mono_unboxed_type;
+	using return_t = mono_converter<std::decay_t<R>>;
+	using managed_return_t = typename return_t::managed_type;
 
 	template <typename Func, typename... Args>
-	static unboxed_return_t call(Func func, Args&&... args)
+	static managed_return_t call(Func func, Args&&... args)
 	{
-		return return_t::to_mono_unboxed(func(std::forward<Args>(args)...));
+		auto result = func(std::forward<Args>(args)...);
+		return return_t::to_mono(result);
 	}
 };
 
@@ -55,7 +56,7 @@ struct return_type_traits<R, false>
 template <typename R>
 struct return_type_traits<R, true>
 {
-	using unboxed_return_t = void;
+	using managed_return_t = void;
 
 	template <typename Func, typename... Args>
 	static void call(Func func, Args&&... args)
@@ -71,23 +72,47 @@ template <typename R, typename... Args, R (&func)(Args...)>
 struct mono_jit_internal_call_wrapper<R(Args...), func>
 {
 	template <typename T>
-	using args_t = convert_mono_type<std::decay_t<T>>;
+	using args_t = mono_converter<std::decay_t<T>>;
 
 	template <typename T>
-	using boxed_t = typename args_t<T>::mono_unboxed_type;
+	using is_ref = std::is_reference<T>;
+
+	template <typename T>
+	static constexpr bool pass_by_value =
+		(is_ref<T>::value && std::is_const<std::remove_reference_t<T>>::value) || !is_ref<T>::value;
+
+	template <typename T>
+	using func_args_t = std::conditional_t<pass_by_value<T>, typename args_t<T>::managed_type,
+										   typename args_t<T>::managed_type&>;
 
 	using traits = return_type_traits<R>;
-	using unboxed_return_t = typename traits::unboxed_return_t;
+	using managed_return_t = typename traits::managed_return_t;
 
-	static unboxed_return_t wrapper(boxed_t<Args>... args)
+	static managed_return_t wrapper(func_args_t<Args>... args)
 	{
-		return traits::call(func, args_t<Args>::from_mono_unboxed(std::move(args))...);
+		return traits::call(func, handle_argument<Args>(args)...);
+	}
+
+private:
+	template <typename T>
+	static std::enable_if_t<pass_by_value<T>, typename args_t<T>::native_type>
+	handle_argument(func_args_t<T> arg)
+	{
+		return args_t<T>::from_mono(arg);
+	}
+
+	template <typename T>
+	static std::enable_if_t<!pass_by_value<T>, typename args_t<T>::native_type>
+	handle_argument(func_args_t<T> /*arg*/)
+	{
+		static_assert(pass_by_value<T>,
+					  "Arguments by reference are not supported. Pass by value or by const ref.");
 	}
 };
 
 /*!
  * Wrap a function for mono::add_internal_call, where automatic type
- * conversion is done through convert_mono_type. Add your own specialization implementation
+ * conversion is done through mono_converter. Add your own specialization implementation
  * of this class to support more types.
  */
 #define internal_call(func) &mono::mono_jit_internal_call_wrapper<decltype(func), func>::wrapper

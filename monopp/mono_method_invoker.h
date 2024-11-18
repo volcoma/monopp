@@ -89,8 +89,7 @@ private:
 
 			method = mono_object_get_virtual_method(object, method);
 		}
-		auto tup = std::make_tuple(
-			convert_mono_type<std::decay_t<Args>>::to_mono_unboxed(std::forward<Args>(args))...);
+		auto tup = std::make_tuple(mono_converter<std::decay_t<Args>>::to_mono(std::forward<Args>(args))...);
 
 		auto inv = [method, object](auto... args)
 		{
@@ -141,8 +140,7 @@ private:
 
 			method = mono_object_get_virtual_method(object, method);
 		}
-		auto tup = std::make_tuple(
-			convert_mono_type<std::decay_t<Args>>::to_mono_unboxed(std::forward<Args>(args))...);
+		auto tup = std::make_tuple(mono_converter<std::decay_t<Args>>::to_mono(std::forward<Args>(args))...);
 		auto inv = [method, object](auto... args)
 		{
 			std::vector<void*> argsv = {to_mono_arg(args)...};
@@ -158,7 +156,7 @@ private:
 		};
 
 		auto result = mono::apply(inv, tup);
-		return convert_mono_type<std::decay_t<RetType>>::from_mono_boxed(std::move(result));
+		return mono_converter<std::decay_t<RetType>>::from_mono(std::move(result));
 	}
 
 	template <typename Signature>

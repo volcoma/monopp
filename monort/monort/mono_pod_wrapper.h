@@ -7,31 +7,34 @@ namespace mono
 namespace managed_interface
 {
 
-#define register_basic_mono_converter_for_pod(cpp_type_raw, mono_data_type_aligned)                          \
+#define register_basic_mono_converter_for_pod(native_type_raw, mono_data_type_aligned)                       \
 	template <>                                                                                              \
-	struct convert_mono_type<cpp_type_raw>                                                                   \
+	struct mono_converter<native_type_raw>                                                                   \
 	{                                                                                                        \
-		using cpp_type = cpp_type_raw;                                                                       \
-		using mono_unboxed_type = mono_data_type_aligned;                                                    \
-		using mono_boxed_type = MonoObject*;                                                                 \
+		using native_type = native_type_raw;                                                                 \
+		using managed_type = mono_data_type_aligned;                                                         \
                                                                                                              \
-		static_assert(std::is_trivially_copyable<mono_unboxed_type>::value,                                  \
-					  "basic_mono_converter is only for pod types");                                         \
+		static_assert(is_mono_valuetype<managed_type>::value,                                                \
+					  "basic_mono_converter is only for value types");                                       \
                                                                                                              \
-		static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type                                \
+		static auto to_mono(const native_type& obj) -> managed_type                                          \
 		{                                                                                                    \
-			return managed_interface::converter::convert<cpp_type, mono_unboxed_type>(obj);                  \
+			return managed_interface::converter::convert<native_type, managed_type>(obj);                    \
 		}                                                                                                    \
-		static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type                              \
+																											 \
+		template <typename U>                                                                                \
+		static auto from_mono(U obj) -> std::enable_if_t<std::is_same<U, MonoObject*>::value, native_type>   \
 		{                                                                                                    \
-			return managed_interface::converter::convert<mono_unboxed_type, cpp_type>(obj);                  \
-		}                                                                                                    \
-		static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type                                  \
-		{                                                                                                    \
-			assert(check_pod_type<mono_unboxed_type>(obj) && "Different type layouts");                      \
+			assert(check_type_layout<managed_type>(obj) && "Different type layouts");                        \
 			void* ptr = mono_object_unbox(obj);                                                              \
-			return managed_interface::converter::convert<mono_unboxed_type, cpp_type>(                       \
-				*reinterpret_cast<mono_unboxed_type*>(ptr));                                                 \
+			return managed_interface::converter::convert<managed_type, native_type>(                         \
+				*reinterpret_cast<managed_type*>(ptr));                                                      \
+		}                                                                                                    \
+		template <typename U>                                                                                \
+		static auto from_mono(const U& obj)                                                                  \
+			-> std::enable_if_t<!std::is_same<U, MonoObject*>::value, native_type>                           \
+		{                                                                                                    \
+			return managed_interface::converter::convert<managed_type, native_type>(obj);                    \
 		}                                                                                                    \
 	}
 

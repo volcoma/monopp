@@ -2,9 +2,9 @@
 
 #include "mono_config.h"
 
+#include "mono_array.h"
 #include "mono_domain.h"
 #include "mono_string.h"
-#include "mono_array.h"
 #include "mono_type.h"
 #include "mono_type_traits.h"
 
@@ -23,7 +23,7 @@ inline auto to_mono_arg(MonoObject* t)
 }
 
 template <typename T>
-auto check_pod_type(MonoObject* obj) -> bool
+auto check_type_layout(MonoObject* obj) -> bool
 {
 	mono_object object(obj);
 	const auto& type = object.get_type();
@@ -32,73 +32,65 @@ auto check_pod_type(MonoObject* obj) -> bool
 	constexpr auto cpp_sz = sizeof(T);
 	constexpr auto cpp_align = alignof(T);
 
-	return mono_sz <= cpp_sz && mono_align <= cpp_align;
+	return mono_sz == cpp_sz && mono_align <= cpp_align;
 }
 
 template <typename T>
-struct convert_mono_type
+struct mono_converter
 {
-	using cpp_type = T;
-	using mono_unboxed_type = T;
-	using mono_boxed_type = MonoObject*;
+	using native_type = T;
+	using managed_type = T;
 
-	static_assert(std::is_trivially_copyable<mono_unboxed_type>::value,
-				  "Specialize convertor for non-pod types");
+	static_assert(is_mono_valuetype<managed_type>::value, "Specialize converter for non-value types");
 
-	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono(const native_type& obj) -> managed_type
 	{
 		return obj;
 	}
 
-	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
+	template <typename U>
+	static auto from_mono(U obj) -> std::enable_if_t<std::is_same<U, MonoObject*>::value, native_type>
 	{
-		return obj;
-	}
-
-	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
-	{
-		assert(check_pod_type<mono_unboxed_type>(obj) && "Different type layouts");
+		assert(check_type_layout<managed_type>(obj) && "Different type layouts");
 		void* ptr = mono_object_unbox(obj);
-		return *reinterpret_cast<cpp_type*>(ptr);
+		return *reinterpret_cast<native_type*>(ptr);
+	}
+	template <typename U>
+	static auto from_mono(const U& obj) -> std::enable_if_t<!std::is_same<U, MonoObject*>::value, native_type>
+	{
+		return obj;
 	}
 };
 
 template <>
-struct convert_mono_type<mono_object>
+struct mono_converter<mono_object>
 {
-	using cpp_type = mono_object;
-	using mono_unboxed_type = MonoObject*;
-	using mono_boxed_type = MonoObject*;
+	using native_type = mono_object;
+	using managed_type = MonoObject*;
 
-	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono(const native_type& obj) -> managed_type
 	{
 		return obj.get_internal_ptr();
 	}
 
-	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
+	static auto from_mono(const managed_type& obj) -> native_type
 	{
-		return cpp_type(obj);
-	}
-
-	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
-	{
-		return cpp_type(obj);
+		return native_type(obj);
 	}
 };
 
 template <>
-struct convert_mono_type<mono_type>
+struct mono_converter<mono_type>
 {
-	using cpp_type = mono_type;
-	using mono_unboxed_type = MonoReflectionType*;
-	using mono_boxed_type = MonoReflectionType*;
+	using native_type = mono_type;
+	using managed_type = MonoReflectionType*;
 
-	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono(const native_type& obj) -> managed_type
 	{
 		// Get the current Mono domain
 		MonoDomain* domain = mono_domain_get();
 
-		// Obtain the MonoType* from your cpp_type (assuming a getter function)
+		// Obtain the MonoType* from your native_type (assuming a getter function)
 		MonoType* monoType = mono_class_get_type(obj.get_internal_ptr());
 
 		// Convert MonoType* to MonoReflectionType*
@@ -107,42 +99,26 @@ struct convert_mono_type<mono_type>
 		return reflectionType;
 	}
 
-	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
+	static auto from_mono(const managed_type& obj) -> native_type
 	{
 		MonoType* monoType = mono_reflection_type_get_type(obj);
-		return cpp_type(monoType);
-	}
-
-	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
-	{
-		MonoType* monoType = mono_reflection_type_get_type(obj);
-		return cpp_type(monoType);
+		return native_type(monoType);
 	}
 };
 
 template <>
-struct convert_mono_type<std::string>
+struct mono_converter<std::string>
 {
-	using cpp_type = std::string;
-	using mono_unboxed_type = MonoObject*;
-	using mono_boxed_type = MonoObject*;
+	using native_type = std::string;
+	using managed_type = MonoObject*;
 
-	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono(const native_type& obj) -> managed_type
 	{
 		const auto& domain = mono_domain::get_current_domain();
 		return mono_string(domain, obj).get_internal_ptr();
 	}
 
-	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
-	{
-		if(!obj)
-		{
-			return {};
-		}
-		return mono_string(mono_object(obj)).as_utf8();
-	}
-
-	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
+	static auto from_mono(const managed_type& obj) -> native_type
 	{
 		if(!obj)
 		{
@@ -153,28 +129,18 @@ struct convert_mono_type<std::string>
 };
 
 template <typename T>
-struct convert_mono_type<std::vector<T>>
+struct mono_converter<std::vector<T>>
 {
-	using cpp_type = std::vector<T>;
-	using mono_unboxed_type = MonoObject*;
-	using mono_boxed_type = MonoObject*;
+	using native_type = std::vector<T>;
+	using managed_type = MonoObject*;
 
-	static auto to_mono_unboxed(const cpp_type& obj) -> mono_unboxed_type
+	static auto to_mono(const native_type& obj) -> managed_type
 	{
 		const auto& domain = mono_domain::get_current_domain();
 		return mono_array<T>(domain, obj).get_internal_ptr();
 	}
 
-	static auto from_mono_unboxed(const mono_unboxed_type& obj) -> cpp_type
-	{
-		if(!obj)
-		{
-			return {};
-		}
-		return mono_array<T>(mono_object(obj)).to_vector();
-	}
-
-	static auto from_mono_boxed(const mono_boxed_type& obj) -> cpp_type
+	static auto from_mono(const managed_type& obj) -> native_type
 	{
 		if(!obj)
 		{
