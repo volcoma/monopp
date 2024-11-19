@@ -4,6 +4,7 @@
 
 #include "mono_string.h"
 #include "mono_type.h"
+#include <fstream>
 #include <sstream>
 
 BEGIN_MONO_INCLUDE
@@ -16,14 +17,100 @@ END_MONO_INCLUDE
 namespace mono
 {
 
-mono_assembly::mono_assembly(const mono_domain& domain, const std::string& path)
+namespace
 {
-	assembly_ = mono_domain_assembly_open(domain.get_internal_ptr(), path.c_str());
+template <typename Container = std::string, typename CharT = char, typename Traits = std::char_traits<char>>
+auto read_stream_into_container(std::basic_istream<CharT, Traits>& in, Container& container) -> bool
+{
+	static_assert(
+		std::is_same<Container,
+					 std::basic_string<CharT, Traits, typename Container::allocator_type>>::value ||
+			std::is_same<Container, std::vector<CharT, typename Container::allocator_type>>::value ||
+			std::is_same<Container, std::vector<std::make_unsigned_t<CharT>,
+												typename Container::allocator_type>>::value ||
+			std::is_same<Container,
+						 std::vector<std::make_signed_t<CharT>, typename Container::allocator_type>>::value,
+		"only strings and vectors of ((un)signed) CharT allowed");
 
-	if(!assembly_)
-		throw mono_exception("NATIVE::Could not open assembly with path : " + path);
+	auto const start_pos = in.tellg();
+	if(std::streamsize(-1) == start_pos || !in.good())
+	{
+		return false;
+	}
 
-	image_ = mono_assembly_get_image(assembly_);
+	if(!in.seekg(0, std::ios_base::end) || !in.good())
+	{
+		return false;
+	}
+
+	auto const end_pos = in.tellg();
+
+	if(std::streamsize(-1) == end_pos || !in.good())
+	{
+		return false;
+	}
+
+	auto const char_count = end_pos - start_pos;
+
+	if(!in.seekg(start_pos) || !in.good())
+	{
+		return false;
+	}
+
+	container.resize(static_cast<std::size_t>(char_count));
+
+	if(!container.empty())
+	{
+		in.read(reinterpret_cast<CharT*>(&container[0]), char_count);
+		container.resize(in.gcount());
+	}
+
+	return in.good() || in.eof();
+}
+} // namespace
+
+mono_assembly::mono_assembly(const mono_domain& domain, const std::string& path, bool shared)
+{
+	if(shared)
+	{
+		assembly_ = mono_domain_assembly_open(domain.get_internal_ptr(), path.c_str());
+
+		if(!assembly_)
+			throw mono_exception("NATIVE::Could not open assembly with path : " + path);
+
+		image_ = mono_assembly_get_image(assembly_);
+	}
+	else
+	{
+		mono_domain_set(domain.get_internal_ptr(), true);
+
+		// Read the file into memory
+		std::ifstream file(path, std::ios::binary); // | std::ios::ate);
+		if(!file.is_open())
+		{
+			throw mono_exception("NATIVE::Could not open assembly with path : " + path);
+		}
+		std::vector<char> buffer;
+		if(!read_stream_into_container(file, buffer))
+		{
+			throw mono_exception("NATIVE::Could not read assembly with path : " + path);
+		}
+
+		// Load the assembly from memory
+		MonoImageOpenStatus status;
+		image_ =
+			mono_image_open_from_data(buffer.data(), static_cast<uint32_t>(buffer.size()), true, &status);
+		if(!image_ || status != MONO_IMAGE_OK)
+		{
+			throw mono_exception("NATIVE::Failed to load assembly from memory with path : " + path);
+			return;
+		}
+
+		assembly_ = mono_assembly_load_from(image_, path.c_str(), &status);
+
+		if(!assembly_)
+			throw mono_exception("NATIVE::Could not open assembly with path : " + path);
+	}
 }
 
 auto mono_assembly::get_type(const std::string& name) const -> mono_type
@@ -43,15 +130,15 @@ std::vector<mono_type> mono_assembly::get_types() const
 
 	int num_types = mono_image_get_table_rows(image_, MONO_TABLE_TYPEDEF);
 
-	for (int i = 1; i <= num_types; ++i) {
+	for(int i = 1; i <= num_types; ++i)
+	{
 		MonoClass* klass = mono_class_get(image_, (i + MONO_TOKEN_TYPE_DEF));
-		if (klass)
+		if(klass)
 		{
 			classes.push_back(mono_type(klass));
 		}
 	}
 	return classes;
-
 }
 
 auto mono_assembly::get_types_derived_from(const mono_type& base) const -> std::vector<mono_type>

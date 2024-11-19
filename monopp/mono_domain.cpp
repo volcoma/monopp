@@ -114,7 +114,7 @@ mono_domain::~mono_domain()
 	mono_gc_collect(mono_gc_max_generation());
 }
 
-auto mono_domain::get_assembly(const std::string& path) const -> mono_assembly
+auto mono_domain::get_assembly(const std::string& path, bool shared) const -> mono_assembly
 {
 	auto it = assemblies_.find(path);
 	if(it != assemblies_.end())
@@ -123,7 +123,7 @@ auto mono_domain::get_assembly(const std::string& path) const -> mono_assembly
 
 		return assembly;
 	}
-	auto res = assemblies_.emplace(path, mono_assembly{*this, path});
+	auto res = assemblies_.emplace(path, mono_assembly{*this, path, shared});
 
 	const auto& assembly = res.first->second;
 

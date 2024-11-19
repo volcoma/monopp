@@ -21,7 +21,7 @@ public:
 
 	~mono_domain();
 
-	auto get_assembly(const std::string& path) const -> mono_assembly;
+	auto get_assembly(const std::string& path, bool shared = true) const -> mono_assembly;
 
 	auto new_string(const std::string& str) const -> mono_string;
 
