@@ -13,8 +13,8 @@ namespace mono
 class mono_array_base : public mono_object
 {
 public:
-	//using mono_object::mono_object;
-	// Construct from an existing MonoArray
+	// using mono_object::mono_object;
+	//  Construct from an existing MonoArray
 	explicit mono_array_base(MonoArray* arr)
 		: mono_object(reinterpret_cast<MonoObject*>(arr))
 	{
@@ -136,9 +136,37 @@ private:
 	static MonoClass* mono_class_from_type()
 	{
 		MonoClass* mono_type = nullptr;
-		if(std::is_same<T, int>::value)
+		if(std::is_same<T, int8_t>::value)
+		{
+			mono_type = mono_get_sbyte_class();
+		}
+		if(std::is_same<T, int16_t>::value)
+		{
+			mono_type = mono_get_int16_class();
+		}
+		if(std::is_same<T, int32_t>::value)
 		{
 			mono_type = mono_get_int32_class();
+		}
+		if(std::is_same<T, int64_t>::value)
+		{
+			mono_type = mono_get_int64_class();
+		}
+		if(std::is_same<T, uint8_t>::value)
+		{
+			mono_type = mono_get_byte_class();
+		}
+		if(std::is_same<T, uint16_t>::value)
+		{
+			mono_type = mono_get_uint16_class();
+		}
+		if(std::is_same<T, uint32_t>::value)
+		{
+			mono_type = mono_get_uint32_class();
+		}
+		if(std::is_same<T, uint64_t>::value)
+		{
+			mono_type = mono_get_uint64_class();
 		}
 		else if(std::is_same<T, float>::value)
 		{

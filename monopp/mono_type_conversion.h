@@ -55,10 +55,19 @@ struct mono_converter
 		void* ptr = mono_object_unbox(obj);
 		return *reinterpret_cast<native_type*>(ptr);
 	}
+
 	template <typename U>
-	static auto from_mono(const U& obj) -> std::enable_if_t<!std::is_same<U, MonoObject*>::value, native_type>
+	static auto from_mono(const U& obj)
+		-> std::enable_if_t<!std::is_same<U, MonoObject*>::value && !std::is_pointer<U>::value, const native_type&>
 	{
 		return obj;
+	}
+
+	template <typename U>
+	static auto from_mono(const U& ptr)
+		-> std::enable_if_t<!std::is_same<U, MonoObject*>::value && std::is_pointer<U>::value, native_type*>
+	{
+		return reinterpret_cast<native_type*>(ptr);
 	}
 };
 

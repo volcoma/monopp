@@ -72,18 +72,19 @@ template <typename R, typename... Args, R (&func)(Args...)>
 struct mono_jit_internal_call_wrapper<R(Args...), func>
 {
 	template <typename T>
-	using args_t = mono_converter<std::decay_t<T>>;
+	using args_t = mono_converter<std::remove_pointer_t<std::decay_t<T>>>;
 
 	template <typename T>
 	using is_ref = std::is_reference<T>;
 
 	template <typename T>
 	static constexpr bool pass_by_value =
-		(is_ref<T>::value && std::is_const<std::remove_reference_t<T>>::value) || !is_ref<T>::value;
+		!std::is_pointer<T>::value &&
+		((is_ref<T>::value && std::is_const<std::remove_reference_t<T>>::value) || !is_ref<T>::value);
 
 	template <typename T>
 	using func_args_t = std::conditional_t<pass_by_value<T>, typename args_t<T>::managed_type,
-										   typename args_t<T>::managed_type&>;
+										   typename args_t<T>::managed_type*>;
 
 	using traits = return_type_traits<R>;
 	using managed_return_t = typename traits::managed_return_t;
@@ -95,18 +96,9 @@ struct mono_jit_internal_call_wrapper<R(Args...), func>
 
 private:
 	template <typename T>
-	static std::enable_if_t<pass_by_value<T>, typename args_t<T>::native_type>
-	handle_argument(func_args_t<T> arg)
+	static decltype(auto) handle_argument(func_args_t<T> arg)
 	{
 		return args_t<T>::from_mono(arg);
-	}
-
-	template <typename T>
-	static std::enable_if_t<!pass_by_value<T>, typename args_t<T>::native_type>
-	handle_argument(func_args_t<T> /*arg*/)
-	{
-		static_assert(pass_by_value<T>,
-					  "Arguments by reference are not supported. Pass by value or by const ref.");
 	}
 };
 
