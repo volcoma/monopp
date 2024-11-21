@@ -20,8 +20,8 @@ inline void add_internal_call(const std::string& name, F&& func)
 struct internal_call_registry
 {
 	internal_call_registry(const std::string& type)
+		: full_typename(type)
 	{
-		full_typename = type;
 	}
 
 	template <typename F>
@@ -45,7 +45,7 @@ struct return_type_traits<R, false>
 	using managed_return_t = typename return_t::managed_type;
 
 	template <typename Func, typename... Args>
-	static managed_return_t call(Func func, Args&&... args)
+	static auto call(Func func, Args&&... args) -> managed_return_t
 	{
 		auto result = func(std::forward<Args>(args)...);
 		return return_t::to_mono(result);
@@ -89,14 +89,14 @@ struct mono_jit_internal_call_wrapper<R(Args...), func>
 	using traits = return_type_traits<R>;
 	using managed_return_t = typename traits::managed_return_t;
 
-	static managed_return_t wrapper(func_args_t<Args>... args)
+	static auto wrapper(func_args_t<Args>... args) -> managed_return_t
 	{
 		return traits::call(func, handle_argument<Args>(args)...);
 	}
 
 private:
 	template <typename T>
-	static decltype(auto) handle_argument(func_args_t<T> arg)
+	static auto handle_argument(func_args_t<T> arg) -> decltype(auto)
 	{
 		return args_t<T>::from_mono(arg);
 	}
