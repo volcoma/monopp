@@ -91,14 +91,7 @@ struct mono_jit_internal_call_wrapper<R(Args...), func>
 
 	static auto wrapper(func_args_t<Args>... args) -> managed_return_t
 	{
-		return traits::call(func, handle_argument<Args>(args)...);
-	}
-
-private:
-	template <typename T>
-	static auto handle_argument(func_args_t<T> arg) -> decltype(auto)
-	{
-		return args_t<T>::from_mono(arg);
+		return traits::call(func, args_t<Args>::from_mono(args)...);
 	}
 };
 

@@ -58,7 +58,7 @@ struct mono_converter
 
 	template <typename U>
 	static auto from_mono(const U& obj)
-		-> std::enable_if_t<!std::is_same<U, MonoObject*>::value && !std::is_pointer<U>::value, native_type>
+		-> std::enable_if_t<!std::is_same<U, MonoObject*>::value && !std::is_pointer<U>::value, const native_type&>
 	{
 		return obj;
 	}
