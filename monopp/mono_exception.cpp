@@ -3,6 +3,10 @@
 #include "mono_property_invoker.h"
 #include "mono_type.h"
 
+BEGIN_MONO_INCLUDE
+#include <mono/metadata/exception.h>
+END_MONO_INCLUDE
+
 namespace mono
 {
 
@@ -51,6 +55,17 @@ mono_thunk_exception::mono_thunk_exception(const mono_exception_info& info)
 	: mono_exception(info.exception_typename + "(" + info.message + ")\n" + info.stacktrace)
 	, info_(info)
 {
+}
+
+void raise_exception(const std::string& name_space, const std::string& class_name, const std::string& message)
+{
+	// Create a managed exception: System.InvalidOperationException
+	MonoException* exception =
+		mono_exception_from_name_msg(mono_get_corlib(),
+									 name_space.c_str(), class_name.c_str(), message.c_str());
+
+	// Raise the exception in the managed runtime
+	mono_raise_exception(exception);
 }
 
 } // namespace mono

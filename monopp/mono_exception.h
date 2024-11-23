@@ -41,4 +41,6 @@ private:
 	mono_exception_info info_;
 };
 
+void raise_exception(const std::string& name_space, const std::string& class_name, const std::string& message);
+
 } // namespace mono
