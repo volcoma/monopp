@@ -2,8 +2,6 @@
 
 #include "mono_config.h"
 
-#include "mono_visibility.h"
-
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/class.h>
 #include <mono/metadata/image.h>

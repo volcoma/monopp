@@ -2,14 +2,11 @@
 
 #include "mono_config.h"
 
-#include "mono_object.h"
+#include "mono_type.h"
 #include "mono_visibility.h"
 
 namespace mono
 {
-
-class mono_object;
-class mono_type;
 
 class mono_method
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mono_config.h"
+#include "mono_type.h"
 
 BEGIN_MONO_INCLUDE
 #include <mono/metadata/image.h>
@@ -10,7 +11,6 @@ namespace mono
 {
 
 class mono_domain;
-class mono_type;
 
 class mono_assembly
 {
