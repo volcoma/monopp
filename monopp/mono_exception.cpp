@@ -28,7 +28,7 @@ auto get_exception_info(MonoObject* ex) -> mono_thunk_exception::mono_exception_
 	auto source = mutable_source_prop.get_value(obj);
 	auto message = mutable_message_prop.get_value(obj);
 	auto stacktrace = mutable_stack_prop.get_value(obj);
-	return {exception_typename, message, stacktrace};
+	return {exception_typename, message, source, stacktrace};
 }
 
 mono_thunk_exception::mono_thunk_exception(MonoObject* ex)
