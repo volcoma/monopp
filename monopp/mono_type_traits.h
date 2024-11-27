@@ -123,7 +123,7 @@ inline void ignore(Args&&...)
 template <typename F, typename Tuple, std::size_t... I>
 decltype(auto) apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
 {
-	ignore(t);
+	mono::ignore(t);
 	return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
 }
 template <typename F, typename Tuple>
@@ -136,7 +136,7 @@ decltype(auto) apply(F&& f, Tuple&& t)
 template <typename Tuple, typename F, std::size_t... Indices>
 void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>)
 {
-	ignore(tuple, f);
+	mono::ignore(tuple, f);
 	using swallow = int[];
 	(void)swallow{1, (f(std::get<Indices>(std::forward<Tuple>(tuple))), void(), int{})...};
 }
@@ -248,7 +248,7 @@ inline auto get_args_signature() -> std::pair<std::string, bool>
 
 	size_t i = 0;
 	std::string result;
-	for_each_tuple_type<Tuple>(
+	mono::for_each_tuple_type<Tuple>(
 		[&](auto tag)
 		{
 			using arg_t = typename std::decay_t<decltype(tag)>::type;

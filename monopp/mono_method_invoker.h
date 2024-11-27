@@ -47,10 +47,10 @@ auto has_compatible_signature(const mono_method& method) -> bool
 	}
 	arg_types tuple;
 	size_t idx = 0;
-	for_each(tuple,
+	mono::for_each(tuple,
 			 [&compatible, &idx, &expected_arg_types](const auto& arg)
 			 {
-				 ignore(arg);
+				 mono::ignore(arg);
 				 auto expected_arg_type = expected_arg_types[idx];
 				 using arg_type = decltype(arg);
 				 compatible &= is_compatible_type<arg_type>(expected_arg_type);
