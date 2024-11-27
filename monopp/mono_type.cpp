@@ -16,7 +16,50 @@ END_MONO_INCLUDE
 #include <iostream>
 namespace mono
 {
+namespace
+{
+auto strip_namespace(const std::string& full_name) -> std::string
+{
+	std::string result;
+	size_t start = 0;
 
+	while(start < full_name.size())
+	{
+		// Find the next '<' or ',' to handle generic arguments
+		size_t end = full_name.find_first_of("<,", start);
+
+		// If not found, process the remainder
+		if(end == std::string::npos)
+		{
+			end = full_name.size();
+		}
+
+		// Extract the segment (e.g., "Namespace.Type" or "Type")
+		std::string segment = full_name.substr(start, end - start);
+
+		// Remove everything before the last '.' (namespace separator)
+		size_t last_dot = segment.find_last_of('.');
+		if(last_dot != std::string::npos)
+		{
+			segment = segment.substr(last_dot + 1);
+		}
+
+		// Append the processed segment
+		result += segment;
+
+		// Add back the delimiter if it's not the end of the string
+		if(end < full_name.size() && (full_name[end] == '<' || full_name[end] == ','))
+		{
+			result += full_name[end];
+		}
+
+		// Move to the next segment
+		start = end + 1;
+	}
+
+	return result;
+}
+} // namespace
 mono_type::mono_type() = default;
 
 mono_type::mono_type(MonoImage* image, const std::string& name)
@@ -223,13 +266,28 @@ auto mono_type::get_namespace() const -> std::string
 }
 auto mono_type::get_name() const -> std::string
 {
-	return mono_class_get_name(class_);
+	return get_name(false);
 }
+
+auto mono_type::get_name(bool full) const -> std::string
+{
+	MonoType* type = mono_class_get_type(class_);
+	if(full)
+	{
+		return mono_type_get_name(type);
+	}
+
+	if(mono_type_get_type(type) != MONO_TYPE_GENERICINST)
+	{
+		return mono_class_get_name(class_);
+	}
+	// Get generic arguments as part of the type name
+	return strip_namespace(mono_type_get_name(type));
+}
+
 auto mono_type::get_fullname() const -> std::string
 {
-	auto name_space = get_namespace();
-	auto name = get_name();
-	return name_space.empty() ? name : name_space + "." + name;
+	return get_name(true);
 }
 auto mono_type::is_valuetype() const -> bool
 {

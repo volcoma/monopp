@@ -83,6 +83,8 @@ public:
 	auto get_internal_ptr() const -> MonoClass*;
 
 private:
+	auto get_name(bool full) const -> std::string;
+
 	void generate_meta();
 
 	non_owning_ptr<MonoClass> class_ = nullptr;
