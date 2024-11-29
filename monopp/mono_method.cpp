@@ -16,7 +16,7 @@ mono_method::mono_method(MonoMethod* method)
 	method_ = method;
 	if(!method_)
 	{
-		throw mono_exception("NATIVE::Could not get method");
+		return;
 	}
 	signature_ = mono_method_signature(method_);
 
@@ -245,5 +245,15 @@ auto mono_method::get_attributes() const -> std::vector<mono_type>
 	// Add more checks for other MethodImplOptions as needed
 
 	return result;
+}
+
+auto mono_method::valid() const -> bool
+{
+	return method_ != nullptr;
+}
+
+mono_method::operator bool() const
+{
+	return valid();
 }
 } // namespace mono

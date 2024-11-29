@@ -77,7 +77,10 @@ auto mono_property::get_visibility() const -> visibility
 	try
 	{
 		auto setter = get_set_method();
-		setter_vis = setter.get_visibility();
+		if(setter)
+		{
+			setter_vis = setter.get_visibility();
+		}
 	}
 	catch(const mono_exception&)
 	{
@@ -95,6 +98,13 @@ auto mono_property::is_static() const -> bool
 	auto getter = get_get_method();
 	return getter.is_static();
 }
+
+auto mono_property::is_readonly() const -> bool
+{
+	auto getter = get_set_method();
+	return !getter.valid();
+}
+
 
 void mono_property::generate_meta()
 {

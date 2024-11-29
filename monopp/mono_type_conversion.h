@@ -84,6 +84,10 @@ struct mono_converter<mono_object>
 
 	static auto from_mono(const managed_type& obj) -> native_type
 	{
+		if(!obj)
+		{
+			return {};
+		}
 		return native_type(obj);
 	}
 };
@@ -110,6 +114,10 @@ struct mono_converter<mono_type>
 
 	static auto from_mono(const managed_type& obj) -> native_type
 	{
+		if(!obj)
+		{
+			return {};
+		}
 		MonoType* monoType = mono_reflection_type_get_type(obj);
 		return native_type(monoType);
 	}

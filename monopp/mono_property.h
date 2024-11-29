@@ -35,6 +35,8 @@ public:
 
 	auto is_static() const -> bool;
 
+	auto is_readonly() const -> bool;
+
 	auto get_attributes() const -> std::vector<mono_object>;
 
 	auto is_special_name() const -> bool;

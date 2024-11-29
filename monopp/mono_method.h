@@ -41,6 +41,8 @@ public:
 
 	auto get_attributes() const -> std::vector<mono_type>;
 
+	auto valid() const -> bool;
+	operator bool() const;
 protected:
 	void generate_meta();
 

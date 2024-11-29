@@ -59,8 +59,6 @@ auto mono_property_invoker<T>::get_value(const mono_object& object) const -> T
 template <typename T>
 auto make_property_invoker(const mono_property& property) -> mono_property_invoker<T>
 {
-	// const auto& expected_name = type.get_fullname();
-	// bool compatible = types::is_compatible_type<T>(expected_name);
 	return mono_property_invoker<T>(property);
 }
 
@@ -68,6 +66,12 @@ template <typename T>
 auto make_property_invoker(const mono_type& type, const std::string& name) -> mono_property_invoker<T>
 {
 	auto property = type.get_property(name);
+	return make_property_invoker<T>(property);
+}
+
+template <typename T>
+auto make_invoker(const mono_property& property) -> mono_property_invoker<T>
+{
 	return make_property_invoker<T>(property);
 }
 } // namespace mono
