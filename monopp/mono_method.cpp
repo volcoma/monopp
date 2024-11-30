@@ -38,8 +38,7 @@ mono_method::mono_method(const mono_type& type, const std::string& name_with_arg
 
 	if(!method_)
 	{
-		const auto& type_name = type.get_name();
-		throw mono_exception("NATIVE::Could not get method : " + name_with_args + " for class " + type_name);
+		throw mono_exception("NATIVE::Could not get method : " + name_with_args + " for class " + type.get_name());
 	}
 	signature_ = mono_method_signature(method_);
 
@@ -57,8 +56,7 @@ mono_method::mono_method(const mono_type& type, const std::string& name, int arg
 
 	if(!method_)
 	{
-		const auto& type_name = type.get_name();
-		throw mono_exception("NATIVE::Could not get method : " + name + " for class " + type_name);
+		throw mono_exception("NATIVE::Could not get method : " + name + " for class " + type.get_name());
 	}
 	signature_ = mono_method_signature(method_);
 

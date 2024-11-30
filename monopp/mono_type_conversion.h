@@ -167,4 +167,25 @@ struct mono_converter<std::vector<T>>
 	}
 };
 
+template <typename T>
+struct mono_converter<mono_array<T>>
+{
+	using native_type = mono_array<T>;
+	using managed_type = MonoObject*;
+
+	static auto to_mono(const native_type& obj) -> managed_type
+	{
+		return obj.get_internal_ptr();
+	}
+
+	static auto from_mono(const managed_type& obj) -> native_type
+	{
+		if(!obj)
+		{
+			return {};
+		}
+		return mono_array<T>(mono_object(obj));
+	}
+};
+
 } // namespace mono

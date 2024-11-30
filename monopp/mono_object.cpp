@@ -10,9 +10,12 @@ mono_object::mono_object()
 }
 
 mono_object::mono_object(MonoObject* object)
-	: type_(mono_object_get_class(object))
-	, object_(object)
+	: object_(object)
 {
+	if(object_)
+	{
+		type_ = mono_type(mono_object_get_class(object));
+	}
 }
 
 mono_object::mono_object(const mono_domain& domain, const mono_type& type)
