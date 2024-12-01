@@ -6,7 +6,7 @@
 
 int main()
 {
-	if(!mono::init({}, true))
+	if(!mono::init())
 	{
 		return 1;
 	}

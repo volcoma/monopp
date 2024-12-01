@@ -14,7 +14,14 @@ struct compiler_paths
 	std::string msc_executable;
 };
 
-auto init(const compiler_paths& paths = {}, bool enable_debugging = false) -> bool;
+struct debugging_config
+{
+	bool enable_debugging = false;
+	std::string address = "127.0.0.1";
+	uint32_t port = 55555;
+};
+
+auto init(const compiler_paths& paths = {}, const debugging_config& debugging = {}) -> bool;
 
 void shutdown();
 

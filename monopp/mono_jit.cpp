@@ -14,6 +14,7 @@ BEGIN_MONO_INCLUDE
 END_MONO_INCLUDE
 
 #include <iostream>
+#include <sstream>
 
 namespace mono
 {
@@ -128,7 +129,7 @@ auto get_common_executable_paths() -> const std::vector<std::string>&
 }
 
 
-auto init(const compiler_paths& paths, bool enable_debugging) -> bool
+auto init(const compiler_paths& paths, const debugging_config& debugging) -> bool
 {
 	comp_paths = paths;
 
@@ -136,13 +137,21 @@ auto init(const compiler_paths& paths, bool enable_debugging) -> bool
 	auto config_dir = mono_config_dir();
 	mono_set_dirs(assembly_dir.c_str(), config_dir.c_str());
 
-	if(enable_debugging)
+	if(debugging.enable_debugging)
 	{
+
+		// Create the debugger agent string dynamically
+		std::ostringstream debugger_agent;
+		debugger_agent << "--debugger-agent=transport=dt_socket,suspend=n,server=y,address=" << debugging.address << ":" << debugging.port << ",embedding=1";
+
+		// keep string alive as we are passing pointers bellow
+		std::string result = debugger_agent.str();
+
 		// clang-format off
 		const char* options[] =
 		{
 			"--soft-breakpoints",
-			"--debugger-agent=transport=dt_socket,suspend=n,server=y,address=127.0.0.1:55555,embedding=1",
+			result.c_str(),
 			"--debug-domain-unload",
 
 			// GC options:
