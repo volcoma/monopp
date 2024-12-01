@@ -23,6 +23,8 @@ struct compiler_params
 	// Specifies output assembly name
 	std::string output_name;
 
+	std::string output_doc_name;
+
 	// Specifies the input files to compile
 	std::vector<std::string> files;
 

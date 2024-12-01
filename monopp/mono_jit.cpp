@@ -239,6 +239,12 @@ auto create_compile_command(const compiler_params& params) -> std::string
         command.pop_back();
     }
 
+	if(!params.output_doc_name.empty())
+	{
+		command += "-doc:";
+		command += quote(params.output_doc_name);
+	}
+
 	if(params.debug)
 	{
 		command += " -debug";
@@ -317,9 +323,17 @@ auto create_compile_command_detailed(const compiler_params& params) -> compile_c
 		cmd.args.emplace_back(arg);
 	}
 
+	if(!params.output_doc_name.empty())
+	{
+		cmd.args.emplace_back("-doc:" + params.output_doc_name);
+	}
+
 	if(params.debug)
 	{
 		cmd.args.emplace_back("-debug");
+
+
+
 	}
 	else
 	{
