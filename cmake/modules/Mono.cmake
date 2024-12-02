@@ -69,5 +69,12 @@ if (WIN32)
     find_file(MONO_DLL_PATH NAMES mono-2.0.dll mono-2.0-sgen.dll PATHS ${MONO_BINARY_PATH})
     copy_files_to_runtime_path(FILES ${MONO_DLL_PATH})
     #copy_mono_runtimes_to_runtime_path()
+
+    if(MONO_BINARY_PATCH_PATH)
+        unset(MONO_DLL_PATH)
+        file(GLOB_RECURSE MONO_DLL_PATH ${MONO_BINARY_PATCH_PATH}/*.dll)
+        copy_files_to_runtime_path(FILES ${MONO_DLL_PATH})
+
+    endif()
 endif ()
 
