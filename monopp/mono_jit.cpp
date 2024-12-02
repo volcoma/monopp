@@ -19,6 +19,9 @@ END_MONO_INCLUDE
 namespace mono
 {
 
+namespace
+{
+
 static void on_log_callback(const char* log_domain, const char* log_level, const char* message,
 							mono_bool /*fatal*/, void* /*user_data*/)
 
@@ -55,22 +58,34 @@ static void on_log_callback(const char* log_domain, const char* log_level, const
 	}
 }
 
-static MonoDomain* jit_domain = nullptr;
-static compiler_paths comp_paths{};
+MonoDomain* jit_domain = nullptr;
+compiler_paths* comp_paths = nullptr;
+
+#ifndef _WIN32
+void mono_set_env_var(const char* var_name, const char* value)
+{
+#if _WIN32
+	_putenv_s(var_name, value);
+#else
+	setenv(var_name, value, 1); // 1 means overwrite if it already exists
+#endif
+}
+#endif
+}
 
 auto mono_assembly_dir() -> std::string
 {
-	return comp_paths.assembly_dir.empty() ? INTERNAL_MONO_ASSEMBLY_DIR : comp_paths.assembly_dir;
+	return comp_paths->assembly_dir.empty() ? INTERNAL_MONO_ASSEMBLY_DIR : comp_paths->assembly_dir;
 }
 
 auto mono_config_dir() -> std::string
 {
-	return comp_paths.config_dir.empty() ? INTERNAL_MONO_CONFIG_DIR : comp_paths.config_dir;
+	return comp_paths->config_dir.empty() ? INTERNAL_MONO_CONFIG_DIR : comp_paths->config_dir;
 }
 
 auto mono_msc_executable() -> std::string
 {
-	return comp_paths.msc_executable.empty() ? INTERNAL_MONO_MCS_EXECUTABLE : comp_paths.msc_executable;
+	return comp_paths->msc_executable.empty() ? INTERNAL_MONO_MCS_EXECUTABLE : comp_paths->msc_executable;
 }
 
 auto get_common_library_names() -> const std::vector<std::string>&
@@ -131,11 +146,19 @@ auto get_common_executable_paths() -> const std::vector<std::string>&
 
 auto init(const compiler_paths& paths, const debugging_config& debugging) -> bool
 {
-	comp_paths = paths;
+	comp_paths = new compiler_paths(paths);
 
 	auto assembly_dir = mono_assembly_dir();
 	auto config_dir = mono_config_dir();
+
 	mono_set_dirs(assembly_dir.c_str(), config_dir.c_str());
+
+#ifndef _WIN32
+	// Adjust GC threads suspending mode on Linux
+	mono_set_env_var("MONO_THREADS_SUSPEND", "preemptive");
+#else
+
+#endif
 
 	if(debugging.enable_debugging)
 	{
@@ -193,6 +216,13 @@ void shutdown()
 		mono_jit_cleanup(jit_domain);
 	}
 	jit_domain = nullptr;
+
+	if(comp_paths)
+	{
+		delete comp_paths;
+	}
+	comp_paths = nullptr;
+
 }
 
 auto quote(const std::string& word) -> std::string
