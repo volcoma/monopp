@@ -74,6 +74,37 @@ find_library(
 		"The mono-2.0 library"
 )
 
+# Determine the library prefix and suffix based on the operating system
+if(WIN32)
+    set(LIB_PREFIX "")
+    set(LIB_SUFFIX ".dll")
+elseif(APPLE)
+    set(LIB_PREFIX "lib")
+    set(LIB_SUFFIX ".dylib")
+else()
+    set(LIB_PREFIX "lib")
+    set(LIB_SUFFIX ".so")
+endif()
+
+# Possible library names in prioritized order
+set(LIB_NAMES
+    "mono-2.0"
+    "monosgen-2.0"
+    "mono-2.0-sgen"
+)
+
+# Variable to store the found library
+set(MONO_PATCH_MAIN_LIBRARY "")
+
+# Iterate through the library names to find the first match
+foreach(LIB_NAME IN LISTS LIB_NAMES)
+    set(LIB_PATH "${MONO_BINARY_PATCH_PATH}/${LIB_PREFIX}${LIB_NAME}${LIB_SUFFIX}")
+    if(EXISTS "${LIB_PATH}")
+        set(MONO_PATCH_MAIN_LIBRARY "${LIB_PATH}")
+        break()
+    endif()
+endforeach()
+
 #find_path( mono-2.0_INCLUDE_PATH mono/jit/jit.h
 #		${MONO_DEFAULT_INSTALL_PATH}/Mono/include/*
 #		/usr/include/mono-2.0
@@ -99,16 +130,22 @@ if(MONO_EXECUTABLE AND MONO_MCS_EXECUTABLE AND MONO_PKG_CONFIG_EXECUTABLE AND MO
 	get_filename_component(MONO_BINARY_PATH "${MONO_LIBRARY_PATH}/../bin" ABSOLUTE)
 	set(MONO_BINARY_PATH "${MONO_BINARY_PATH}" CACHE PATH "")
 
-	set(MONO_LIBRARIES "${MONO_MAIN_LIBRARY}" CACHE STRING "")
+
+    execute_process(COMMAND "${MONO_MCS_EXECUTABLE}" "--version" OUTPUT_VARIABLE MONO_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    string(REGEX REPLACE ".*version ([^ ]+)" "\\1" MONO_VERSION "${MONO_VERSION}")
+    message(STATUS "Found Mono version: ${MONO_MAIN_LIBRARY} (found version \"${MONO_VERSION}\")")
+
+
+	if(MONO_PATCH_MAIN_LIBRARY)
+		message(STATUS "Found Mono patch version: ${MONO_PATCH_MAIN_LIBRARY} (found version \"${MONO_VERSION}\")")
+		#set(MONO_MAIN_LIBRARY ${MONO_PATCH_MAIN_LIBRARY})
+	endif()
+	set(MONO_LIBRARIES "${MONO_MAIN_LIBRARY}")
 
     if (APPLE)
         find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
         set(MONO_LIBRARIES "${MONO_LIBRARIES};${CORE_FOUNDATION_LIBRARY}")
     endif ()
-
-    execute_process(COMMAND "${MONO_MCS_EXECUTABLE}" "--version" OUTPUT_VARIABLE MONO_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REGEX REPLACE ".*version ([^ ]+)" "\\1" MONO_VERSION "${MONO_VERSION}")
-    message(STATUS "Found Mono version: ${MONO_MAIN_LIBRARY} (found version \"${MONO_VERSION}\")")
 
 	message(STATUS "MONO_INCLUDE_PATH ${MONO_INCLUDE_PATH}")
 	message(STATUS "MONO_LIBRARY_PATH ${MONO_LIBRARY_PATH}")
@@ -118,5 +155,6 @@ if(MONO_EXECUTABLE AND MONO_MCS_EXECUTABLE AND MONO_PKG_CONFIG_EXECUTABLE AND MO
     message(STATUS "MONO_MCS_EXECUTABLE ${MONO_MCS_EXECUTABLE}")
     message(STATUS "MONO_PKG_CONFIG_EXECUTABLE ${MONO_PKG_CONFIG_EXECUTABLE}")
     message(STATUS "MONO_MAIN_LIBRARY ${MONO_MAIN_LIBRARY}")
+
 endif()
 
