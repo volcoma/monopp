@@ -77,7 +77,7 @@ find_library(
 # Determine the library prefix and suffix based on the operating system
 if(WIN32)
     set(LIB_PREFIX "")
-    set(LIB_SUFFIX ".dll")
+    set(LIB_SUFFIX ".lib")
 elseif(APPLE)
     set(LIB_PREFIX "lib")
     set(LIB_SUFFIX ".dylib")
