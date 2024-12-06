@@ -96,14 +96,33 @@ set(LIB_NAMES
 # Variable to store the found library
 set(MONO_PATCH_MAIN_LIBRARY "")
 
-# Iterate through the library names to find the first match
-foreach(LIB_NAME IN LISTS LIB_NAMES)
-    set(LIB_PATH "${MONO_BINARY_PATCH_PATH}/${LIB_PREFIX}${LIB_NAME}${LIB_SUFFIX}")
-    if(EXISTS "${LIB_PATH}")
-        set(MONO_PATCH_MAIN_LIBRARY "${LIB_PATH}")
-        break()
-    endif()
-endforeach()
+# Function to search recursively for a library
+function(find_library_recursively result lib_names base_path prefix suffix)
+    # Find all potential files recursively
+    file(GLOB_RECURSE all_files "${base_path}/*")
+    foreach(file_path IN LISTS all_files)
+        # Check if this file matches any library name with the given prefix and suffix
+        foreach(lib_name IN LISTS ${lib_names})
+            string(FIND "${file_path}" "${prefix}${lib_name}${suffix}" match_pos)
+            if(match_pos GREATER -1)
+                set(${result} "${file_path}" PARENT_SCOPE)
+                return() # Exit as soon as the first match is found
+            endif()
+        endforeach()
+    endforeach()
+endfunction()
+
+# Call the function to find the library
+find_library_recursively(
+    MONO_PATCH_MAIN_LIBRARY
+    LIB_NAMES
+    ${MONO_BINARY_PATCH_PATH}
+    ${LIB_PREFIX}
+    ${LIB_SUFFIX}
+)
+
+# Output the found library for debugging
+message(STATUS "Found library: ${MONO_PATCH_MAIN_LIBRARY}")
 
 #find_path( mono-2.0_INCLUDE_PATH mono/jit/jit.h
 #		${MONO_DEFAULT_INSTALL_PATH}/Mono/include/*
@@ -138,7 +157,7 @@ if(MONO_EXECUTABLE AND MONO_MCS_EXECUTABLE AND MONO_PKG_CONFIG_EXECUTABLE AND MO
 
 	if(MONO_PATCH_MAIN_LIBRARY)
 		message(STATUS "Found Mono patch version: ${MONO_PATCH_MAIN_LIBRARY} (found version \"${MONO_VERSION}\")")
-		#set(MONO_MAIN_LIBRARY ${MONO_PATCH_MAIN_LIBRARY})
+		set(MONO_MAIN_LIBRARY ${MONO_PATCH_MAIN_LIBRARY})
 	endif()
 	set(MONO_LIBRARIES "${MONO_MAIN_LIBRARY}")
 
