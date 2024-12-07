@@ -117,8 +117,8 @@ find_library_recursively(
     MONO_PATCH_MAIN_LIBRARY
     LIB_NAMES
     ${MONO_BINARY_PATCH_PATH}
-    ${LIB_PREFIX}
-    ${LIB_SUFFIX}
+    "${LIB_PREFIX}"
+    "${LIB_SUFFIX}"
 )
 
 # Output the found library for debugging
