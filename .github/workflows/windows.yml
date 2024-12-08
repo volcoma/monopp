@@ -18,7 +18,7 @@ jobs:
     #name: "${{matrix.config.cc}} ${{matrix.config.arch}}"
     steps:
     - name: Setup
-      run: choco install cmake ninja
+      run: choco install ninja
     - name: Checkout
       uses: actions/checkout@v3
       with:
