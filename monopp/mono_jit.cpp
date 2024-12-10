@@ -165,7 +165,7 @@ auto init(const compiler_paths& paths, const debugging_config& debugging) -> boo
 
 		// Create the debugger agent string dynamically
 		std::ostringstream debugger_agent;
-		debugger_agent << "--debugger-agent=transport=dt_socket,suspend=n,server=y,address=" << debugging.address << ":" << debugging.port << ",embedding=1";
+		debugger_agent << "--debugger-agent=transport=dt_socket,suspend=n,server=y,address=" << debugging.address << ":" << debugging.port << ",embedding=1,loglevel=" << debugging.loglevel;
 
 		// keep string alive as we are passing pointers bellow
 		std::string result = debugger_agent.str();
@@ -403,6 +403,11 @@ auto compile(const compiler_params& params) -> bool
 	auto command = create_compile_command(params);
     std::cout << command << std::endl;
 	return std::system(command.c_str()) == 0;
+}
+
+auto is_debugger_attached() -> bool
+{
+	return mono_is_debugger_attached();
 }
 
 } // namespace mono

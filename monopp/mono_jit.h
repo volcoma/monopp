@@ -19,6 +19,7 @@ struct debugging_config
 	bool enable_debugging = false;
 	std::string address = "127.0.0.1";
 	uint32_t port = 55555;
+	uint32_t loglevel = 0;
 };
 
 auto init(const compiler_paths& paths = {}, const debugging_config& debugging = {}) -> bool;
@@ -74,6 +75,8 @@ auto get_common_config_paths() -> const std::vector<std::string>&;
 
 auto get_common_executable_names() -> const std::vector<std::string>&;
 auto get_common_executable_paths() -> const std::vector<std::string>&;
+
+auto is_debugger_attached() -> bool;
 
 
 } // namespace mono
